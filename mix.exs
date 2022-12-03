@@ -56,6 +56,7 @@ defmodule Dojo.Mixfile do
       {:jason, "~> 1.4.0"},
       {:plug_cowboy, "~> 2.5.2"},
       {:plug_crypto, "~> 1.2.2"},
+      {:binbo, "~> 4.0.2"},
 
       # Wake Heroku App. See: https://github.com/dwyl/ping
       {:ping, "~> 1.1.0"},
