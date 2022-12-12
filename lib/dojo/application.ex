@@ -14,9 +14,12 @@ defmodule Dojo.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Dojo.PubSub},
       # Start the Endpoint (http/https)
-      DojoWeb.Endpoint
+      DojoWeb.Endpoint,
       # Start a worker by calling: Dojo.Worker.start_link(arg)
       # {Dojo.Worker, arg}
+      # Start the Game dynamic supervisor
+      GameSupervisor,
+      {Registry, keys: :unique, name: GameRegistry}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

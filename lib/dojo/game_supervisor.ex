@@ -1,4 +1,4 @@
-defmodule GameDynamicSupervisor do
+defmodule GameSupervisor do
   alias Dojo.Game
   use DynamicSupervisor
 
@@ -11,9 +11,13 @@ defmodule GameDynamicSupervisor do
   end
 
   def create_game() do
-    DynamicSupervisor.start_child(__MODULE__, Game)
+    DynamicSupervisor.start_child(__MODULE__, Game) |> case do
+      {:error, {:already_started, pid}} -> pid
+      {:error, _} -> nil
+    end
   end
 
+  @spec close_game(pid) :: :ok | {:error, :not_found}
   def close_game(game_pid) do
     DynamicSupervisor.terminate_child(__MODULE__, game_pid)
   end
