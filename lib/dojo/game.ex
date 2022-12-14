@@ -11,26 +11,17 @@ use GenServer
   # API #
   #######
 
-  @doc """
-  """
-  def start_link([], uuid) do
-    start_link(uuid)
+  def start_link([], id) do
+    start_link(id)
   end
 
-  def start_link(uuid) do
-    GenServer.start_link(__MODULE__, name: {:via, Registry, {GameRegistry, uuid}})
+  def start_link(id) do
+    GenServer.start_link(__MODULE__, name: id)
   end
 
-  @doc """
-  Create the board server.
-      iex> BoardServer.start
-      :ok
-  """
-
-  def start() do
-    GenServer.start(__MODULE__, name: self())
+  def get_fen(pid) do
+    GenServer.call(pid, :get_fen)
   end
-
 
   def stop do
     GenServer.stop(self())
@@ -40,15 +31,15 @@ use GenServer
   # Server Implemention #
   #######################
 
-  def init(_args) do
-    { :ok, :binbo.new_server() }
+  @impl true
+  def init(args) do
+    Registry.register(GameRegistry, args[:name], args[:name])
+    {_, pid} = :binbo.new_server()
+    { :ok, :binbo.new_game(pid) }
   end
 
-  def handle_call({ :new_game }, _from, state) do
-    {:reply, :binbo.new_game(state), state}
-  end
-
-  def handle_call({ :get_fen }, _from, state) do
-    {:reply, :binbo.get_fen(state), state}
+  @impl true
+  def handle_call(:get_fen, _from, state) do
+    {:reply, state, state}
   end
 end

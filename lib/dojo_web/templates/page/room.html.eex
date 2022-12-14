@@ -1,5 +1,9 @@
 <div id="chessground"></div>
 
+<br>
+<%= @fen %>
+<br>
+
 <!-- The list of messages will appear here: -->
 <ul id='msg-list'> </ul>
 
@@ -56,3 +60,7 @@
             background-color: #bfcfdd;
         }
 </style>
+
+<script>
+
+</script>
