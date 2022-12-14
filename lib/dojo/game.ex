@@ -13,8 +13,12 @@ use GenServer
 
   @doc """
   """
-  def start_link([], id) do
-    GenServer.start_link(__MODULE__, name: {:via, Registry, {GameRegistry, id}})
+  def start_link([], uuid) do
+    start_link(uuid)
+  end
+
+  def start_link(uuid) do
+    GenServer.start_link(__MODULE__, name: {:via, Registry, {GameRegistry, uuid}})
   end
 
   @doc """

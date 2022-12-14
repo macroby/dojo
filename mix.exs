@@ -7,7 +7,7 @@ defmodule Dojo.Mixfile do
       version: "1.6.2",
       elixir: "~> 1.14.0",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),

@@ -10,10 +10,11 @@ defmodule GameSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def create_game() do
-    DynamicSupervisor.start_child(__MODULE__, Game) |> case do
+  def create_game(uuid) do
+    DynamicSupervisor.start_child(__MODULE__, {Game, uuid}) |> case do
       {:error, {:already_started, pid}} -> pid
-      {:error, _} -> nil
+      {:error, error} -> {nil, error}
+      {:ok, pid} -> pid
     end
   end
 
