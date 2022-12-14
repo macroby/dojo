@@ -16,11 +16,14 @@ use GenServer
   end
 
   def start_link(id) do
-    GenServer.start_link(__MODULE__, name: id)
+    GenServer.start_link(__MODULE__, id, name: via_tuple(id))
   end
 
-  def get_fen(pid) do
-    GenServer.call(pid, :get_fen)
+  defp via_tuple(name) ,
+    do: {:via, Registry, {GameRegistry, name} }
+
+  def get_fen(p_name) do
+    GenServer.call(p_name, :get_fen)
   end
 
   def stop do
@@ -32,14 +35,16 @@ use GenServer
   #######################
 
   @impl true
-  def init(args) do
-    Registry.register(GameRegistry, args[:name], args[:name])
+  def init(_) do
+    # Registry.register(GameRegistry, args[:name], args[:name])
     {_, pid} = :binbo.new_server()
-    { :ok, :binbo.new_game(pid) }
+    :binbo.new_game(pid)
+    {:ok, pid}
   end
 
   @impl true
   def handle_call(:get_fen, _from, state) do
-    {:reply, state, state}
+    {_, fen} = :binbo.get_fen(state)
+    {:reply, fen, state}
   end
 end

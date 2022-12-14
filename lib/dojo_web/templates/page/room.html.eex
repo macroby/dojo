@@ -1,5 +1,6 @@
 <div id="chessground"></div>
 
+
 <br>
 <%= @fen %>
 <br>
