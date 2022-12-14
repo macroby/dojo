@@ -9,10 +9,6 @@ defmodule DojoWeb.PageController do
     render(conn, "room.html", layout: {DojoWeb.LayoutView, "app.html"})
   end
 
-  def setup_ai(conn, _params) do
-    render(conn, "room.html", layout: {DojoWeb.LayoutView, "app.html"})
-  end
-
   # see: github.com/dwyl/ping
   @spec ping(Plug.Conn.t(), any) :: Plug.Conn.t()
   def ping(conn, params) do
