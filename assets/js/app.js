@@ -73,7 +73,7 @@ function sanitise(str) {
 }
 
 import { Chessground } from '../node_modules/chessground/chessground.js';
-const fen = 'r1bqkbnr/1ppppBpp/p1n5/8/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 0 1';
+const fen = init_fen;
 const config = {
   fen: fen,
   turnColor: 'black',

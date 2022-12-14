@@ -20,7 +20,6 @@ defmodule DojoWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    # get "/room", PageController, :index
     get "/:gameid", PageController, :room
     get "/ping", PageController, :ping
   end

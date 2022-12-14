@@ -1,10 +1,5 @@
 <div id="chessground"></div>
 
-
-<br>
-<%= @fen %>
-<br>
-
 <!-- The list of messages will appear here: -->
 <ul id='msg-list'> </ul>
 
@@ -63,5 +58,5 @@
 </style>
 
 <script>
-
+  var init_fen = "<%= @fen %>"
 </script>
