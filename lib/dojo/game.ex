@@ -2,18 +2,25 @@ defmodule Dojo.Game do
 use GenServer
 
   @moduledoc """
-  Represents the state of a game board as a genserver. Might need
+  Represents the state of a game. Might need
   to split this up into a supervisor with children at some point
-  in the future. This module would become game_supervisor and the
-  module one up will become games_supervisor.
+  in the future.
   """
   #######
   # API #
   #######
 
+
+  @doc """
+  A wrapper around start_link(id), so that it plays
+  nice with dynamic supervisor start_child.
+
+  Returns same results as GenServer.start_link().
+  """
   def start_link([], id) do
     start_link(id)
   end
+
 
   def start_link(id) do
     GenServer.start_link(__MODULE__, id, name: via_tuple(id))
