@@ -72,7 +72,7 @@ function sanitise(str) {
   return str.replace(reg, (match)=>(map[match]));
 }
 
-import { Chessground } from '../node_modules/chessground/chessground.js';
+import { Chessground } from 'chessground';
 const config = {
   fen: fen,
   orientation: color};

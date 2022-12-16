@@ -3,7 +3,7 @@ defmodule DojoWeb.PageController do
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
-    render(conn, "index.html", layout: {DojoWeb.LayoutView, "home.html"})
+    render(conn, "home.html", layout: {DojoWeb.LayoutView, "home_layout.html"})
   end
 
   def room(conn, %{"gameid" => gameid}) do
@@ -14,7 +14,7 @@ defmodule DojoWeb.PageController do
       [{pid, _}] ->
         fen = Dojo.Game.get_fen(pid)
         color = Dojo.Game.get_info(pid).color
-        render(conn, "room.html", layout: {DojoWeb.LayoutView, "app.html"}, fen: fen, color: color)
+        render(conn, "room.html", layout: {DojoWeb.LayoutView, "room_layout.html"}, fen: fen, color: color)
     end
   end
 
