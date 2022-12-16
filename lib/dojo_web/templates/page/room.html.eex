@@ -58,5 +58,6 @@
 </style>
 
 <script>
-  var fen = "<%= @fen %>"
+  var fen = '<%= @fen %>'
+  var color = '<%= @color %>'
 </script>

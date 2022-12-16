@@ -17,17 +17,20 @@ use GenServer
 
   Returns same results as GenServer.start_link().
   """
-  def start_link([], id) do
-    start_link(id)
+  def start_link([], config) do
+    start_link(config)
   end
 
-
-  def start_link(id) do
-    GenServer.start_link(__MODULE__, id, name: via_tuple(id))
+  def start_link(config) do
+    GenServer.start_link(__MODULE__, config, name: via_tuple(config.id))
   end
 
   defp via_tuple(name) ,
     do: {:via, Registry, {GameRegistry, name} }
+
+  def get_info(p_name) do
+    GenServer.call(p_name, :get_info)
+  end
 
   def get_fen(p_name) do
     GenServer.call(p_name, :get_fen)
@@ -42,16 +45,21 @@ use GenServer
   #######################
 
   @impl true
-  def init(_) do
+  def init(config) do
     # Registry.register(GameRegistry, args[:name], args[:name])
     {_, pid} = :binbo.new_server()
     :binbo.new_game(pid)
-    {:ok, pid}
+    {:ok, %{board_pid: pid, color: config.color}}
   end
 
   @impl true
   def handle_call(:get_fen, _from, state) do
-    {_, fen} = :binbo.get_fen(state)
+    {_, fen} = :binbo.get_fen(state.board_pid)
     {:reply, fen, state}
+  end
+
+  @impl true
+  def handle_call(:get_info, _from, state) do
+    {:reply, state, state}
   end
 end

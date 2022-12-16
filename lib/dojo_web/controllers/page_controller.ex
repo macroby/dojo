@@ -13,7 +13,8 @@ defmodule DojoWeb.PageController do
         render(conn, "room_error.html", info: info)
       [{pid, _}] ->
         fen = Dojo.Game.get_fen(pid)
-        render(conn, "room.html", layout: {DojoWeb.LayoutView, "app.html"}, fen: fen)
+        color = Dojo.Game.get_info(pid).color
+        render(conn, "room.html", layout: {DojoWeb.LayoutView, "app.html"}, fen: fen, color: color)
     end
   end
 

@@ -3,8 +3,8 @@ defmodule DojoWeb.SetupController do
 
   def setup_ai(conn, %{"color" => color}) do
     color = case color do
-      "white" -> {}
-      "black" -> {}
+      "white" -> "white"
+      "black" -> "black"
       _ ->
         case :rand.uniform(10) do
           x when x > 5 -> "white"
@@ -13,7 +13,7 @@ defmodule DojoWeb.SetupController do
     end
     id = UUID.string_to_binary!(UUID.uuid1())
     id = Base.url_encode64(id, padding: false)
-    GameSupervisor.create_game(id) |> case do
+    GameSupervisor.create_game(id, color) |> case do
       {nil, error} -> raise error
       _ -> nil
     end
