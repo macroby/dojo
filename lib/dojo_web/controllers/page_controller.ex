@@ -1,6 +1,7 @@
 defmodule DojoWeb.PageController do
   use DojoWeb, :controller
 
+  @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
     render(conn, "index.html", layout: {DojoWeb.LayoutView, "home.html"})
   end
@@ -15,8 +16,6 @@ defmodule DojoWeb.PageController do
         render(conn, "room.html", layout: {DojoWeb.LayoutView, "app.html"}, fen: fen)
     end
   end
-
-
 
   # see: github.com/dwyl/ping
   @spec ping(Plug.Conn.t(), any) :: Plug.Conn.t()

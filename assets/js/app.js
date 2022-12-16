@@ -73,13 +73,11 @@ function sanitise(str) {
 }
 
 import { Chessground } from '../node_modules/chessground/chessground.js';
-const fen = init_fen;
+const fen = fen;
+const color = color;
 const config = {
   fen: fen,
-  turnColor: 'black',
-  highlight: {
-    check: true
-  }};
+  orientation: color};
 const ground = Chessground(document.getElementById('chessground'), config);
 ground.set({
   check: true

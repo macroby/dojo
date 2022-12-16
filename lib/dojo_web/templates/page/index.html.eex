@@ -150,9 +150,9 @@
       </select>
 
       <br>
-      <button id="play-ai-as-white-submit-button" type='submit'>White</button>
-      <button id="play-ai-as-black-submit-button" type='submit'>Black</button>
-      <button id="play-ai-as-random-submit-button" type='submit'>Random</button>
+      <button id="play-ai-as-white-submit-button" type='submit' value='white' name='color'>White</button>
+      <button id="play-ai-as-black-submit-button" type='submit' value='black' name='color'>Black</button>
+      <button id="play-ai-as-random-submit-button" type='submit' value='rand' name='color'>Random</button>
 
     </form>
   </div>

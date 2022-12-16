@@ -58,5 +58,5 @@
 </style>
 
 <script>
-  var init_fen = "<%= @fen %>"
+  var fen = "<%= @fen %>"
 </script>
