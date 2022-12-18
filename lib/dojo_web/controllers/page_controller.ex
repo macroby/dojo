@@ -40,7 +40,9 @@ defmodule DojoWeb.PageController do
       [head, dests]
     end)
     |> Map.new(fn [head | tail] ->
-      {head, List.first(tail)}
+      tail = List.first(tail)
+      tail = Enum.map(tail, fn x -> List.to_string(x) end)
+      {head, tail}
     end)
     |> Jason.encode!([])
   end
