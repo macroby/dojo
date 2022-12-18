@@ -46,10 +46,17 @@ use GenServer
 
   @impl true
   def init(config) do
-    # Registry.register(GameRegistry, args[:name], args[:name])
     {_, pid} = :binbo.new_server()
     :binbo.new_game(pid)
-    {:ok, %{board_pid: pid, color: config.color}}
+
+    {_, fen} = :binbo.get_fen(pid)
+
+    dests = case :binbo.all_legal_moves(pid, :str) do
+      {:error, reason} -> raise reason
+      {:ok, movelist} -> movelist
+    end
+
+    {:ok, %{board_pid: pid, color: config.color, fen: fen, dests: dests}}
   end
 
   @impl true

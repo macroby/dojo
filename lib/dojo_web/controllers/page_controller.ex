@@ -7,15 +7,42 @@ defmodule DojoWeb.PageController do
   end
 
   def room(conn, %{"gameid" => gameid}) do
-    Registry.lookup(GameRegistry, gameid)|> case do
+    Registry.lookup(GameRegistry, gameid)
+    |> case do
       [] ->
         info = gameid
         render(conn, "room_error.html", info: info)
+
       [{pid, _}] ->
-        fen = Dojo.Game.get_fen(pid)
-        color = Dojo.Game.get_info(pid).color
-        render(conn, "room.html", layout: {DojoWeb.LayoutView, "room_layout.html"}, fen: fen, color: color)
+        game_info = Dojo.Game.get_info(pid)
+
+        render(conn, "room.html",
+          layout: {DojoWeb.LayoutView, "room_layout.html"},
+          fen: game_info.fen,
+          color: game_info.color,
+          # dests: game_info.dests)
+          dests: repack_dests(game_info.dests)
+        )
     end
+  end
+
+  def repack_dests(dests) do
+    Enum.chunk_by(dests, fn {x, _} -> x end)
+    |> Enum.map(fn x ->
+      [head | _] = x
+      head = elem(head, 0)
+
+      dests =
+        Enum.map(x, fn {_, dest} ->
+          dest
+        end)
+
+      [head, dests]
+    end)
+    |> Map.new(fn [head | tail] ->
+      {head, List.first(tail)}
+    end)
+    |> Jason.encode!([])
   end
 
   # see: github.com/dwyl/ping
