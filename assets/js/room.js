@@ -87,3 +87,36 @@ const config = {
   }
 };
 const ground = Chessground(document.getElementById('chessground'), config);
+
+ground.set({
+  movable: {events: {after: playOtherSide()}}
+});
+
+export function playOtherSide() {
+  
+  return (orig, dest) => {
+    channel.push('move', { 
+      move: sanitise(orig).concat(sanitise(dest))
+    });
+    // cg.set({
+    //   turnColor: toColor(chess),
+    //   movable: {
+    //     color: toColor(chess),
+    //     dests: toDests(chess)
+    //   }
+    // });
+  };
+}
+
+// export function toColor(chess) {
+//   return (chess.turn() === 'w') ? 'white' : 'black';
+// }
+
+// export function toDests(chess) {
+//   const dests = new Map();
+//   SQUARES.forEach(s => {
+//     const ms = chess.moves({square: s, verbose: true});
+//     if (ms.length) dests.set(s, ms.map(m => m.to));
+//   });
+//   return dests;
+// }

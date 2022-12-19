@@ -36,6 +36,10 @@ use GenServer
     GenServer.call(p_name, :get_fen)
   end
 
+  def make_move(p_name, move) do
+    GenServer.call(p_name, {:make_move, move})
+  end
+
   def stop do
     GenServer.stop(self())
   end
@@ -68,5 +72,12 @@ use GenServer
   @impl true
   def handle_call(:get_info, _from, state) do
     {:reply, state, state}
+  end
+
+  @impl true
+  def handle_call({:make_move, move}, _from, state) do
+    :binbo.move(state.board_pid, move)
+    {_, fen} = :binbo.get_fen(state.board_pid)
+    {:reply, fen, state}
   end
 end

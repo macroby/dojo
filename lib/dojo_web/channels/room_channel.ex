@@ -1,4 +1,5 @@
 defmodule DojoWeb.RoomChannel do
+  alias Dojo.Game
   use DojoWeb, :channel
 
   @impl true
@@ -22,6 +23,26 @@ defmodule DojoWeb.RoomChannel do
     Dojo.Message.changeset(%Dojo.Message{}, payload) |> Dojo.Repo.insert()
     broadcast(socket, "shout", payload)
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_in("move", payload, socket) do
+    [_ | subtopic] = String.split(socket.topic, ":", parts: 2)
+    gameid = List.first(subtopic)
+    Registry.lookup(GameRegistry, gameid)
+    |> case do
+      [] ->
+        raise "this room doesnt exist"
+      [{pid, _}] ->
+        payload["move"] |> case do
+          nil -> raise "couldnt get move from payload"
+          move ->
+            fen = Game.make_move(pid, move)
+            payload = Map.put(payload, :fen, fen)
+            broadcast(socket, "move", payload)
+            {:noreply, socket}
+        end
+    end
   end
 
   # Add authorization logic here as required.
