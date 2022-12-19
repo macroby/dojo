@@ -74,9 +74,8 @@ function sanitise(str) {
 
 import { Chessground } from 'chessground';
 
-// Code for getting legitimate moves for the client.
-// Hard coded for now as place holder.
-const dest = new Map([['a2', ['a3', 'a4']]]);
+
+const dests_map = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(dests)))));
 
 const config = {
   fen: fen,
@@ -84,7 +83,7 @@ const config = {
   movable: {
     color: 'white',
     free: false,
-    dests: dest
+    dests: dests_map
   }
 };
 const ground = Chessground(document.getElementById('chessground'), config);

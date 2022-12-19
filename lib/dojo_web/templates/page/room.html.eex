@@ -60,8 +60,10 @@
 </style>
 
 <script>
-  var fen = '<%= @fen %>'
-  var color = '<%= @color %>'
-  var dests = '<%= @dests %>'
-  document.getElementById('test').innerHTML = dests;
+  const fen = '<%= @fen %>';
+  const color = '<%= @color %>';
+  const dests = '<%=  raw @dests %>';
+  const test = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(dests)))));
+  //document.getElementById('test').innerHTML = dests;
+  //console.log(test);
 </script>

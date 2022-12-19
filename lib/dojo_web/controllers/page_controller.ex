@@ -44,7 +44,7 @@ defmodule DojoWeb.PageController do
       tail = Enum.map(tail, fn x -> List.to_string(x) end)
       {head, tail}
     end)
-    |> Jason.encode!([])
+    |> Jason.encode!([escape: :javascript_safe])
   end
 
   # see: github.com/dwyl/ping
