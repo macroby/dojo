@@ -1,0 +1,160 @@
+<style>
+#createGameBtn {
+  height:100%;
+  width: 100%;
+}
+
+#playWithFriendBtn {
+  height:100%;
+  width: 100%;
+}
+
+#playWithComputerBtn {
+  height:100%;
+  width: 100%;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 40%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style>
+<!-- Trigger/Open The Modal -->
+<button id="createGameBtn">CREATE A GAME</button>
+
+<!-- The Modal -->
+<div id="createGameModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span id = "createGameClose" class="close">&times;</span>
+
+    <form>
+    <label for="variant-select">Variant</label>
+    <select name="variant" id="variant-select-create-game">
+      <option value="standard">Standard</option>
+    </select>
+
+    <label for="time-control-select">Time Control</label>
+    <select name="variant" id="time-control-select-create-game">
+      <option value="unlimited">Unlimited</option>
+    </select>
+
+    <br>
+    <button type="button">White</button>
+    <button type="button">Black</button>
+    <button type="button">Random</button>
+    </form>
+  </div>
+
+</div>
+
+<!-- Trigger/Open The Modal -->
+<button id="playWithFriendBtn">PLAY WITH A FRIEND</button>
+
+<!-- The Modal -->
+<div id="playWithFriendModal" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span id="playWithFriendClose" class="close">&times;</span>
+
+    <form>
+    <label for="variant-select">Variant</label>
+
+    <select name="variant" id="variant-select-with-friend">
+      <option value="standard">Standard</option>
+    </select>
+
+    <label for="time-control-select">Time Control</label>
+    <select name="variant" id="time-control-select-with-friend">
+      <option
+      value="unlimited">Unlimited</option>
+    </select>
+
+    <br>
+    <button type="button">White</button>
+    <button type="button">Black</button>
+    <button type="button">Random</button>
+    </form>
+  </div>
+
+</div>
+
+<!-- Trigger/Open The Modal -->
+<button id="playWithComputerBtn">PLAY WITH THE COMPUTER</button>
+
+<!-- The Modal -->
+<div id="playWithComputerModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span id="playWithComputerClose" class="close">&times;</span>
+
+    <form id="play-with-computer-form" action="/setup/ai" method="post">
+      <label for="variant-select">Variant</label>
+
+      <select name="variant" id="variant-select">
+        <option value="standard">Standard</option>
+      </select>
+
+      <label for="time-control-select">Time Control</label>
+      <select name="time-control" id="time-control-select">
+        <option
+          value="unlimited">Unlimited</option>
+      </select>
+
+      <label for="difficulty-select">Difficulty</label>
+      <select name="difficulty" id="difficulty-select">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+      </select>
+
+      <br>
+      <button id="play-ai-as-white-submit-button" type='submit' value='white' name='color'>White</button>
+      <button id="play-ai-as-black-submit-button" type='submit' value='black' name='color'>Black</button>
+      <button id="play-ai-as-random-submit-button" type='submit' value='rand' name='color'>Random</button>
+
+    </form>
+  </div>
+
+</div>
