@@ -16,7 +16,17 @@ defmodule DojoWeb.Util do
 
   """
   def repack_dests(dests) do
-    Enum.chunk_by(dests, fn {x, _} -> x end)
+
+    # Remove piece promotion from each move
+    Enum.map(dests, fn x ->
+      case tuple_size(x) do
+        2 -> x
+        3 -> Tuple.delete_at(x, 2)
+        _ -> raise "unexpected tuple size"
+      end
+    end)
+    |>
+    Enum.chunk_by(fn {x, _} -> x end)
     |> Enum.map(fn x ->
       [head | _] = x
       head = elem(head, 0)
