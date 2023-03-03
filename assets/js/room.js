@@ -15,12 +15,15 @@ import "../css/app.css"
 //
 //     import {Socket} from "phoenix"
 import socket from "./socket"
-//
 import "phoenix_html"
 
 var roomID = window.location.pathname;
 let channel = socket.channel('room:' + roomID.replace('/', ''), {}); // connect to chess "room"
+channel.join(); // join the channel.
 
+//
+// Incoming events from server
+//
 channel.on('shout', function (payload) { // listen to the 'shout' event
   let li = document.createElement("li"); // create new list item DOM element
   let name = payload.name || 'guest';    // get name from payload or set default
@@ -44,16 +47,8 @@ channel.on('move', function (payload) {
     }); 
   }
 
-  let li = document.createElement("li"); // create new list item DOM element
-  let name = payload.name || 'guest';    // get name from payload or set default
-  li.innerHTML = '<b>' + name + '</b>: ' + payload.dests; // set li contents
-  ul.appendChild(li);                    // append to list
-
-  // ground.playPremove();
+  ground.playPremove();
 });
-
-channel.join(); // join the channel.
-
 
 let ul = document.getElementById('msg-list');        // list of messages.
 let name = document.getElementById('name');          // name of message sender
@@ -94,6 +89,8 @@ function sanitise(str) {
   const reg = /[&<>"'/]/ig;
   return str.replace(reg, (match)=>(map[match]));
 }
+
+// Chessground config and event handlers
 
 import { Chessground } from 'chessground';
 
