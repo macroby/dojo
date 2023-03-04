@@ -60,7 +60,7 @@
 </style>
 
 <script>
-  const fen = '<%= @fen %>';
+  var fen = '<%= @fen %>';
   const color = '<%= @color %>';
   // Using raw command to prevent phoenix from sanitizing the json.
   // If json is sanatized, than we wont be able to parse into a map later.

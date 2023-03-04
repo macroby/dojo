@@ -1,5 +1,6 @@
 defmodule DojoWeb.PageController do
   use DojoWeb, :controller
+  require Logger
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
@@ -15,7 +16,6 @@ defmodule DojoWeb.PageController do
 
       [{pid, _}] ->
         game_info = Dojo.Game.get_info(pid)
-
         render(conn, "room.html",
           layout: {DojoWeb.LayoutView, "room_layout.html"},
           fen: game_info.fen,
