@@ -33,9 +33,14 @@ channel.on('shout', function (payload) { // listen to the 'shout' event
 });
 
 channel.on('move', function (payload) {
+  // Store the new fen in local storage.
+  // This is used to restore the board state when the tab is duplicated.
+  localStorage.setItem(window.location.pathname, payload.fen);
+
   let orig = payload.move.substring(0, 2);
   let dest = payload.move.substring(2, 4);
   ground.move(orig, dest);
+  
   let new_dests = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(payload.dests)))))
   
   if (payload.side_to_move === color) {

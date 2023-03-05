@@ -60,7 +60,12 @@
 </style>
 
 <script>
-  var fen = '<%= @fen %>';
+  // Check local storage for fen. If it is not there, use the fen from the server.
+  // We store the fen so that we can duplicate the tab and still have the same board.
+  var fen = localStorage.getItem(window.location.pathname);
+  if (fen == null) {
+    fen = '<%= @fen %>';
+  }
   const color = '<%= @color %>';
   // Using raw command to prevent phoenix from sanitizing the json.
   // If json is sanatized, than we wont be able to parse into a map later.
