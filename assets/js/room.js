@@ -40,15 +40,16 @@ channel.on('move', function (payload) {
   let orig = payload.move.substring(0, 2);
   let dest = payload.move.substring(2, 4);
   ground.move(orig, dest);
-  
+
   let new_dests = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(payload.dests)))))
   
   if (payload.side_to_move === color) {
     ground.set({
       turnColor: payload.side_to_move,
-      movable: {color: payload.side_to_move,
-                dests: new_dests
-              }
+      movable: {
+        color: payload.side_to_move,
+        dests: new_dests
+      }
     }); 
   }
 

@@ -90,7 +90,13 @@ use GenServer
   def handle_call({:make_move, move}, _from, state) do
     :binbo.move(state.board_pid, move)
     {_, fen} = :binbo.get_fen(state.board_pid)
-    {:reply, fen, Map.replace(state, :fen, fen)}
+    dests = case :binbo.all_legal_moves(state.board_pid, :str) do
+      {:error, reason} -> raise reason
+      {:ok, movelist} -> movelist
+    end
+    state = Map.replace(state, :fen, fen)
+    state = Map.replace(state, :dests, dests)
+    {:reply, fen, state}
   end
 
   @impl true
