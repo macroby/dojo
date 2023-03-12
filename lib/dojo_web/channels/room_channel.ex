@@ -38,7 +38,13 @@ defmodule DojoWeb.RoomChannel do
         payload["move"] |> case do
           nil -> raise "couldnt get move from payload"
           move ->
-            fen = Game.make_move(pid, move)
+            case Game.make_move(pid, move) do
+              #TODO: actually handle faulty move instead of just raising
+              {:error, reason} -> raise reason
+              {:ok, _} -> push(socket, "ack", %{})
+            end
+
+            fen = Game.get_fen(pid)
             side_to_move = Game.get_side_to_move(pid)
             payload = Map.put(payload, :fen, fen)
             payload = Map.put(payload, :side_to_move, side_to_move)
@@ -51,7 +57,8 @@ defmodule DojoWeb.RoomChannel do
             if movelist_length > 0 do
               ai_move = Enum.random(movelist)
               ai_move = elem(ai_move, 0)<>elem(ai_move, 1)
-              fen = Game.make_move(pid, ai_move)
+              Game.make_move(pid, ai_move)
+              fen = Game.get_fen(pid)
               side_to_move = Game.get_side_to_move(pid)
               movelist = Game.get_all_legal_moves_str(pid)
               dests = DojoWeb.Util.repack_dests(movelist)
