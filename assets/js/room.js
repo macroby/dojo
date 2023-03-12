@@ -24,6 +24,24 @@ channel.join(); // join the channel.
 //
 // Incoming events from server
 //
+channel.on('start_ping', function (payload) { // listen to the 'shout' event
+  channel.push('ping', {});
+});
+
+channel.on('pong', function (payload) { // listen to the 'shout' event
+  ping_with_delay();
+});
+
+async function ping_with_delay() {
+  let promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve("done waiting"), 2500)
+  });
+
+  let result = await promise;
+
+  channel.push('ping', {});
+}
+
 channel.on('shout', function (payload) { // listen to the 'shout' event
   let li = document.createElement("li"); // create new list item DOM element
   let name = payload.name || 'guest';    // get name from payload or set default

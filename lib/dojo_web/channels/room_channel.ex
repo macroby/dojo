@@ -13,7 +13,8 @@ defmodule DojoWeb.RoomChannel do
   end
 
   def handle_in("ping", payload, socket) do
-    {:reply, {:ok, payload}, socket}
+    push(socket, "pong", payload)
+    {:noreply, socket}
   end
 
   # Channels can be used in a request/response fashion
@@ -77,6 +78,7 @@ defmodule DojoWeb.RoomChannel do
 
   @impl true
   def handle_info(:after_join, socket) do
+    push(socket, "start_ping", %{})
     Dojo.Message.get_messages()
     |> Enum.reverse()
     |> Enum.each(fn msg ->
