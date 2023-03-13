@@ -30,18 +30,8 @@ channel.on('start_ping', function (payload) { // listen to the 'shout' event
 });
 
 channel.on('pong', function (payload) { // listen to the 'shout' event
-  ping_with_delay();
+  setTimeout(() => channel.push('ping', {}), 2500);
 });
-
-async function ping_with_delay() {
-  let promise = new Promise((resolve, reject) => {
-    setTimeout(() => resolve("done waiting"), 2500)
-  });
-
-  let result = await promise;
-
-  channel.push('ping', {});
-}
 
 channel.on('move', function (payload) {
   clock_switch_buffer += 1;
