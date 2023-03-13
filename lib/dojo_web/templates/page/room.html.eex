@@ -1,6 +1,7 @@
-<div id="chessground"></div>
+<div id="clock"></div>
+<div id="opponent_clock"></div>
 
- <p id ='test'></p>
+<div id="chessground"></div>
 
 <!-- The list of messages will appear here: -->
 <ul id='msg-list'> </ul>

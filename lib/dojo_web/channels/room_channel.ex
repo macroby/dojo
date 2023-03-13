@@ -70,6 +70,7 @@ defmodule DojoWeb.RoomChannel do
               payload = Map.put(payload, :move, ai_move)
               payload = Map.put(payload, :side_to_move, side_to_move)
               payload = Map.put(payload, :dests, dests)
+              # Process.sleep(5000)
               broadcast(socket, "move", payload)
             end
             {:noreply, socket}

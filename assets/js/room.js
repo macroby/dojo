@@ -24,6 +24,7 @@ channel.join(); // join the channel.
 //
 // Incoming events from server
 //
+
 channel.on('start_ping', function (payload) { // listen to the 'shout' event
   channel.push('ping', {});
 });
@@ -42,15 +43,8 @@ async function ping_with_delay() {
   channel.push('ping', {});
 }
 
-channel.on('shout', function (payload) { // listen to the 'shout' event
-  let li = document.createElement("li"); // create new list item DOM element
-  let name = payload.name || 'guest';    // get name from payload or set default
-  li.innerHTML = '<b>' + name + '</b>: ' + payload.message; // set li contents
-  ul.appendChild(li);                    // append to list
-  scrollToBottom();
-});
-
 channel.on('move', function (payload) {
+  clock_switch_buffer += 1;
   // Store the new fen in local storage.
   // This is used to restore the board state when the tab is duplicated.
   localStorage.setItem(window.location.pathname, payload.fen);
@@ -72,6 +66,75 @@ channel.on('move', function (payload) {
   }
 
   ground.playPremove();
+});
+
+//
+// Clock Functionality
+//
+
+let clock_switch_buffer = 0;
+
+clock_div = document.getElementById('opponent_clock');
+clock_div.innerHTML = "3:15.9";
+
+let clock_div = document.getElementById('clock');
+clock_div.innerHTML = "2:15.9";
+
+updateClock();
+
+function updateClock() {
+  let clock_as_string = clock_div.innerHTML;
+  let clock_as_array = clock_as_string.split(":");
+  let minutes = parseInt(clock_as_array[0]);
+  let seconds_with_tenths = clock_as_array[1].split(".");
+  let seconds = parseInt(seconds_with_tenths[0]);
+  let tenths = parseInt(seconds_with_tenths[1]);
+
+  if (tenths === 0 && seconds > 0) {
+    tenths = 9;
+    seconds = seconds - 1;
+  } else if (tenths > 0) {
+    tenths = tenths - 1;
+  } else if (seconds === 0 && tenths ==0 && minutes > 0) {
+    seconds = 59;
+    tenths = 9;
+    minutes = minutes - 1;
+  } else if (seconds === 0 && minutes === 0 && tenths === 0) {
+    return
+  }
+
+  if (minutes < 10) {
+    minutes = "0" + minutes;
+  }
+  if (seconds < 10) {
+    seconds = "0" + seconds;
+  }
+
+  let new_clock = minutes + ":" + seconds + "." + tenths;
+  clock_div.innerHTML = new_clock;
+
+  if (clock_switch_buffer === 0) {  
+  } else {
+    clock_switch_buffer -= 1;
+    if (clock_div.id === "clock") {
+      clock_div = document.getElementById('opponent_clock');
+    } else {
+      clock_div = document.getElementById('clock');
+    }
+  }
+  setTimeout(updateClock, 100);
+}
+
+//
+// Chat Update and Event Handlers
+//
+
+channel.on('shout', function (payload) { // listen to the 'shout' event
+  let li = document.createElement("li"); // create new list item DOM element
+  let name = payload.name || 'guest';    // get name from payload or set default
+  li.innerHTML = '<b>' + name + '</b>: ' + payload.message; // set li contents
+  ul.appendChild(li);                    // append to list
+  scrollToBottom();
 });
 
 let ul = document.getElementById('msg-list');        // list of messages.
