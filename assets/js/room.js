@@ -111,9 +111,9 @@ function updateClock() {
   }
 
   let new_clock = minutes + ":" + seconds + "." + tenths;
-  clock_div.innerHTML = new_clock;
-
-  if (clock_switch_buffer === 0) {  
+  
+  if (clock_switch_buffer === 0) { 
+    clock_div.innerHTML = new_clock; 
   } else {
     clock_switch_buffer -= 1;
     if (clock_div.id === "clock") {
