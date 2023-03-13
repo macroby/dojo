@@ -131,10 +131,22 @@
         <option value="standard">Standard</option>
       </select>
 
-      <label for="time-control-select">Time Control</label>
+      <label for="time-control-select">Minutes per side</label>
       <select name="time-control" id="time-control-select">
-        <option
-          value="unlimited">Unlimited</option>
+        <option value="unlimited">Unlimited</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="30">30</option>
+      </select>
+
+      <label for="increment-select">Increment in seconds</label>
+      <select name="increment" id="increment-select">
+        <option value="0">0</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
       </select>
 
       <label for="difficulty-select">Difficulty</label>
