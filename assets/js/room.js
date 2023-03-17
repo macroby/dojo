@@ -17,6 +17,11 @@ import "../css/app.css"
 import socket from "./socket"
 import "phoenix_html"
 
+// Initialize variables for tracking ui state
+let first_move = false;
+let turn_color = 'white';
+
+// Connect to the game websocket
 var roomID = window.location.pathname;
 let channel = socket.channel('room:' + roomID.replace('/', ''), {}); // connect to chess "room"
 channel.join(); // join the channel.
@@ -37,7 +42,6 @@ channel.on('ack', function (payload) {
 })
 
 channel.on('move', function (payload) {
-  clock_switch_buffer += 1;
   // Store the new fen in local storage.
   // This is used to restore the board state when the tab is duplicated.
   localStorage.setItem(window.location.pathname, payload.fen);
@@ -46,13 +50,15 @@ channel.on('move', function (payload) {
   let dest = payload.move.substring(2, 4);
   ground.move(orig, dest);
 
+  turn_color = payload.side_to_move;
+  
+  if (payload.side_to_move !== color && first_move === true) {
+    clock.increment_by_setting();
+  }
+
   let new_dests = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(payload.dests)))))
   
   if (payload.side_to_move === color) {
-    if (first_move === false) {
-      first_move = true;
-      updateClock();
-    }
     ground.set({
       turnColor: payload.side_to_move,
       movable: {
@@ -60,6 +66,13 @@ channel.on('move', function (payload) {
         dests: new_dests
       }
     }); 
+
+    if (first_move === false) {
+      first_move = true;
+      updateClock();
+    } else {
+      opponent_clock.increment_by_setting();
+    }
   }
 
   ground.playPremove();
@@ -69,53 +82,66 @@ channel.on('move', function (payload) {
 // Clock Functionality
 //
 
-let clock_switch_buffer = 0;
+class Clock {
+  constructor(element, time_control, inc) {
+    this.element = element;
+    this.time_control = time_control;
+    this.inc = inc;
+    this.minutes = time_control;
+    this.seconds = 0;
+    this.tenths = 0;
 
-clock_div = document.getElementById('opponent_clock');
-clock_div.innerHTML = time_control + ":00" + ".0";
+    this.element.innerHTML = this.time_as_string();
+  }
 
-let clock_div = document.getElementById('clock');
-clock_div.innerHTML = time_control + ":00" + ".0";
+  time_as_string() {
+    let minutes = this.minutes;
+    let seconds = this.seconds;
+    let tenths = this.tenths;
+
+    if (minutes < 10) {
+      minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+      seconds = "0" + seconds;
+    }
+
+    return minutes + ":" + seconds + "." + tenths;
+  }
+
+  decrement_by_tenth() {
+    if (this.tenths === 0 && this.seconds > 0) {
+      this.tenths = 9;
+      this.seconds = this.seconds - 1;
+    } else if (this.tenths > 0) {
+      this.tenths = this.tenths - 1;
+    } else if (this.seconds === 0 && this.tenths ==0 && this.minutes > 0) {
+      this.seconds = 59;
+      this.tenths = 9;
+      this.minutes = this.minutes - 1;
+    } else if (this.seconds === 0 && this.minutes === 0 && this.tenths === 0) {
+    }
+    this.element.innerHTML = this.time_as_string();
+  }
+
+  increment_by_setting() {
+    this.seconds = this.seconds + this.inc;
+    if (this.seconds >= 60) {
+      this.minutes = this.minutes + 1;
+      this.seconds = this.seconds - 60;
+    }
+    this.element.innerHTML = this.time_as_string();
+  }
+}
+
+let clock = new Clock(document.getElementById('clock'), parseInt(time_control), parseInt(increment));
+let opponent_clock = new Clock(document.getElementById('opponent_clock'), parseInt(time_control), parseInt(increment));
 
 function updateClock() {
-  let clock_as_string = clock_div.innerHTML;
-  let clock_as_array = clock_as_string.split(":");
-  let minutes = parseInt(clock_as_array[0]);
-  let seconds_with_tenths = clock_as_array[1].split(".");
-  let seconds = parseInt(seconds_with_tenths[0]);
-  let tenths = parseInt(seconds_with_tenths[1]);
-
-  if (tenths === 0 && seconds > 0) {
-    tenths = 9;
-    seconds = seconds - 1;
-  } else if (tenths > 0) {
-    tenths = tenths - 1;
-  } else if (seconds === 0 && tenths ==0 && minutes > 0) {
-    seconds = 59;
-    tenths = 9;
-    minutes = minutes - 1;
-  } else if (seconds === 0 && minutes === 0 && tenths === 0) {
-    return
-  }
-
-  if (minutes < 10) {
-    minutes = "0" + minutes;
-  }
-  if (seconds < 10) {
-    seconds = "0" + seconds;
-  }
-
-  let new_clock = minutes + ":" + seconds + "." + tenths;
-  
-  if (clock_switch_buffer === 0) { 
-    clock_div.innerHTML = new_clock; 
+  if (turn_color === color) {
+    clock.decrement_by_tenth();
   } else {
-    clock_switch_buffer -= 1;
-    if (clock_div.id === "clock") {
-      clock_div = document.getElementById('opponent_clock');
-    } else {
-      clock_div = document.getElementById('clock');
-    }
+    opponent_clock.decrement_by_tenth();
   }
   setTimeout(updateClock, 100);
 }
@@ -193,8 +219,6 @@ const ground = Chessground(document.getElementById('chessground'), config);
 ground.set({
   movable: {events: {after: playOtherSide()}}
 });
-
-let first_move = false;
 
 export function playOtherSide() {
   
