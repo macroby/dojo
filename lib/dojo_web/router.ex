@@ -2,32 +2,32 @@ defmodule DojoWeb.Router do
   use DojoWeb, :router
 
   pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:fetch_flash)
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :put_secure_browser_headers
+    plug(:accepts, ["json"])
+    plug(:fetch_session)
+    plug(:fetch_flash)
+    plug(:put_secure_browser_headers)
   end
 
   scope "/", DojoWeb do
-    pipe_through :browser
+    pipe_through(:browser)
 
-    get "/", PageController, :index
-    get "/:gameid", PageController, :room
-    get "/ping", PageController, :ping
+    get("/", PageController, :index)
+    get("/:gameid", PageController, :room)
+    get("/ping", PageController, :ping)
   end
 
   scope "/setup", DojoWeb do
-    pipe_through :api
+    pipe_through(:api)
 
-    post "/ai", SetupController, :setup_ai
+    post("/ai", SetupController, :setup_ai)
   end
 
   # Other scopes may use custom stacks.
@@ -46,8 +46,8 @@ defmodule DojoWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do
-      pipe_through :browser
-      live_dashboard "/dashboard", metrics: DojoWeb.Telemetry
+      pipe_through(:browser)
+      live_dashboard("/dashboard", metrics: DojoWeb.Telemetry)
     end
   end
 end

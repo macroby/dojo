@@ -5,8 +5,8 @@ defmodule DojoWeb.RoomChannel do
   @impl true
   def join("room:" <> room_id, _payload, socket) do
     # if authorized?(payload) do
-      send(self(), :after_join)
-      {:ok, socket}
+    send(self(), :after_join)
+    {:ok, socket}
     # else
     #   {:error, %{reason: "unauthorized"}}
     # end
@@ -30,16 +30,21 @@ defmodule DojoWeb.RoomChannel do
   def handle_in("move", payload, socket) do
     [_ | subtopic] = String.split(socket.topic, ":", parts: 2)
     gameid = List.first(subtopic)
+
     Registry.lookup(GameRegistry, gameid)
     |> case do
       [] ->
         raise "this room doesnt exist"
+
       [{pid, _}] ->
-        payload["move"] |> case do
-          nil -> raise "couldnt get move from payload"
+        payload["move"]
+        |> case do
+          nil ->
+            raise "couldnt get move from payload"
+
           move ->
             case Game.make_move(pid, move) do
-              #TODO: actually handle faulty move instead of just raising
+              # TODO: actually handle faulty move instead of just raising
               {:error, reason} -> raise reason
               {:ok, _} -> push(socket, "ack", %{})
             end
@@ -52,11 +57,13 @@ defmodule DojoWeb.RoomChannel do
 
             # Im gonna stick the ai logic right here for now,
             # but i forsee some refactoring in the future
-            movelist = Game.get_all_legal_moves_bin(pid) # Using bin version to play nicely with concat
+            # Using bin version to play nicely with concat
+            movelist = Game.get_all_legal_moves_bin(pid)
             movelist_length = length(movelist)
+
             if movelist_length > 0 do
               ai_move = Enum.random(movelist)
-              ai_move = elem(ai_move, 0)<>elem(ai_move, 1)
+              ai_move = elem(ai_move, 0) <> elem(ai_move, 1)
               Game.make_move(pid, ai_move)
               fen = Game.get_fen(pid)
               side_to_move = Game.get_side_to_move(pid)
@@ -73,6 +80,7 @@ defmodule DojoWeb.RoomChannel do
               # Process.sleep(5000)
               broadcast(socket, "move", payload)
             end
+
             {:noreply, socket}
         end
     end
@@ -87,6 +95,7 @@ defmodule DojoWeb.RoomChannel do
   @impl true
   def handle_info(:after_join, socket) do
     push(socket, "start_ping", %{})
+
     Dojo.Message.get_messages()
     |> Enum.reverse()
     |> Enum.each(fn msg ->
@@ -99,5 +108,4 @@ defmodule DojoWeb.RoomChannel do
     # :noreply
     {:noreply, socket}
   end
-
 end

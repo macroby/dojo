@@ -2,7 +2,8 @@ use Mix.Config
 
 config :dojo, DojoWeb.Endpoint,
   load_from_system_env: true,
-  http: [port: {:system, "PORT"}], #
+  #
+  http: [port: {:system, "PORT"}],
   url: [scheme: "https", host: "phxchat.herokuapp.com", port: 443],
   # port: System.get_env("PORT")], # Heroku Supplies the TCP Port
   force_ssl: [rewrite_on: [:x_forwarded_proto]],

@@ -1,8 +1,8 @@
 defimpl String.Chars, for: PID do
   def to_string(pid) do
-    info = Process.info pid
+    info = Process.info(pid)
     name = info[:registered_name]
 
-    "#{name}-#{inspect pid}"
+    "#{name}-#{inspect(pid)}"
   end
 end

@@ -2,8 +2,8 @@ defmodule DojoWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "room:*", DojoWeb.RoomChannel
-  channel "home:lobby", DojoWeb.HomeChannel
+  channel("room:*", DojoWeb.RoomChannel)
+  channel("home:lobby", DojoWeb.HomeChannel)
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

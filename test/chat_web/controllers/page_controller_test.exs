@@ -6,7 +6,7 @@ defmodule DojoWeb.PageControllerTest do
     assert html_response(conn, 200) =~ "Dojo Example"
   end
 
-  # see: https://github.com/dwyl/ping
+  #  see: https://github.com/dwyl/ping
   test "GET /ping (GIF) renders 1x1 pixel", %{conn: conn} do
     conn = get(conn, "/ping")
     assert conn.status == 200

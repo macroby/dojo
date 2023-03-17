@@ -33,6 +33,9 @@ channel.on('pong', function (payload) { // listen to the 'shout' event
   setTimeout(() => channel.push('ping', {}), 2500);
 });
 
+channel.on('ack', function (payload) {
+})
+
 channel.on('move', function (payload) {
   clock_switch_buffer += 1;
   // Store the new fen in local storage.
@@ -46,6 +49,10 @@ channel.on('move', function (payload) {
   let new_dests = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(payload.dests)))))
   
   if (payload.side_to_move === color) {
+    if (first_move === false) {
+      first_move = true;
+      updateClock();
+    }
     ground.set({
       turnColor: payload.side_to_move,
       movable: {
@@ -65,12 +72,10 @@ channel.on('move', function (payload) {
 let clock_switch_buffer = 0;
 
 clock_div = document.getElementById('opponent_clock');
-clock_div.innerHTML = "3:15.9";
+clock_div.innerHTML = time_control + ":00" + ".0";
 
 let clock_div = document.getElementById('clock');
-clock_div.innerHTML = "2:15.9";
-
-updateClock();
+clock_div.innerHTML = time_control + ":00" + ".0";
 
 function updateClock() {
   let clock_as_string = clock_div.innerHTML;
@@ -188,6 +193,8 @@ const ground = Chessground(document.getElementById('chessground'), config);
 ground.set({
   movable: {events: {after: playOtherSide()}}
 });
+
+let first_move = false;
 
 export function playOtherSide() {
   

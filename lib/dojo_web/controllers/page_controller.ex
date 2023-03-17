@@ -16,10 +16,13 @@ defmodule DojoWeb.PageController do
 
       [{pid, _}] ->
         game_info = Dojo.Game.get_info(pid)
+
         render(conn, "room.html",
           layout: {DojoWeb.LayoutView, "room_layout.html"},
           fen: game_info.fen,
           color: game_info.color,
+          time_control: game_info.time_control,
+          increment: game_info.increment,
           dests: DojoWeb.Util.repack_dests(game_info.dests)
         )
     end
