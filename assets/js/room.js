@@ -15,13 +15,21 @@ import "../css/app.css"
 //
 //     import {Socket} from "phoenix"
 import socket from "./socket"
+import Clock from "./clock"
+import { Chessground } from 'chessground';
 import "phoenix_html"
 
-// Initialize variables for tracking ui state
+//
+// Initialize UI State
+//
+
 let first_move = false;
 let turn_color = 'white';
 
+//
 // Connect to the game websocket
+//
+
 var roomID = window.location.pathname;
 let channel = socket.channel('room:' + roomID.replace('/', ''), {}); // connect to chess "room"
 channel.join(); // join the channel.
@@ -52,6 +60,8 @@ channel.on('move', function (payload) {
 
   turn_color = payload.side_to_move;
   
+  // Check if this our own move and that it isnt our first move.
+  // If it is, increment our own clock.
   if (payload.side_to_move !== color && first_move === true) {
     clock.increment_by_setting();
   }
@@ -67,9 +77,10 @@ channel.on('move', function (payload) {
       }
     }); 
 
+    // If the opponent has made their first move, start the clock.
     if (first_move === false) {
       first_move = true;
-      updateClock();
+      startClock();
     } else {
       opponent_clock.increment_by_setting();
     }
@@ -78,65 +89,29 @@ channel.on('move', function (payload) {
   ground.playPremove();
 });
 
+channel.on('shout', function (payload) { // listen to the 'shout' event
+  let li = document.createElement("li"); // create new list item DOM element
+  let name = payload.name || 'guest';    // get name from payload or set default
+  li.innerHTML = '<b>' + name + '</b>: ' + payload.message; // set li contents
+  ul.appendChild(li);                    // append to list
+  scrollToBottom();
+});
+
 //
-// Clock Functionality
+// Clock UI Config and Timekeeping Functionality
 //
-
-class Clock {
-  constructor(element, time_control, inc) {
-    this.element = element;
-    this.time_control = time_control;
-    this.inc = inc;
-    this.minutes = time_control;
-    this.seconds = 0;
-    this.tenths = 0;
-
-    this.element.innerHTML = this.time_as_string();
-  }
-
-  time_as_string() {
-    let minutes = this.minutes;
-    let seconds = this.seconds;
-    let tenths = this.tenths;
-
-    if (minutes < 10) {
-      minutes = "0" + minutes;
-    }
-    if (seconds < 10) {
-      seconds = "0" + seconds;
-    }
-
-    return minutes + ":" + seconds + "." + tenths;
-  }
-
-  decrement_by_tenth() {
-    if (this.tenths === 0 && this.seconds > 0) {
-      this.tenths = 9;
-      this.seconds = this.seconds - 1;
-    } else if (this.tenths > 0) {
-      this.tenths = this.tenths - 1;
-    } else if (this.seconds === 0 && this.tenths ==0 && this.minutes > 0) {
-      this.seconds = 59;
-      this.tenths = 9;
-      this.minutes = this.minutes - 1;
-    } else if (this.seconds === 0 && this.minutes === 0 && this.tenths === 0) {
-    }
-    this.element.innerHTML = this.time_as_string();
-  }
-
-  increment_by_setting() {
-    this.seconds = this.seconds + this.inc;
-    if (this.seconds >= 60) {
-      this.minutes = this.minutes + 1;
-      this.seconds = this.seconds - 60;
-    }
-    this.element.innerHTML = this.time_as_string();
-  }
-}
 
 let clock = new Clock(document.getElementById('clock'), parseInt(time_control), parseInt(increment));
 let opponent_clock = new Clock(document.getElementById('opponent_clock'), parseInt(time_control), parseInt(increment));
 
+// Start the clock. This is called after the first move is made.
+// Only purpose is to denote in a clear way that the clock has started,
+// otherwise updateClock() would be called directly.
+function startClock() {
+  updateClock();
+}
+
+// Every 100ms, update the clock.
 function updateClock() {
   if (turn_color === color) {
     clock.decrement_by_tenth();
@@ -147,16 +122,8 @@ function updateClock() {
 }
 
 //
-// Chat Update and Event Handlers
+// Chat Update and Client-Side Event Handlers
 //
-
-channel.on('shout', function (payload) { // listen to the 'shout' event
-  let li = document.createElement("li"); // create new list item DOM element
-  let name = payload.name || 'guest';    // get name from payload or set default
-  li.innerHTML = '<b>' + name + '</b>: ' + payload.message; // set li contents
-  ul.appendChild(li);                    // append to list
-  scrollToBottom();
-});
 
 let ul = document.getElementById('msg-list');        // list of messages.
 let name = document.getElementById('name');          // name of message sender
@@ -198,9 +165,9 @@ function sanitise(str) {
   return str.replace(reg, (match)=>(map[match]));
 }
 
-// Chessground config and event handlers
-
-import { Chessground } from 'chessground';
+//
+// Chessground config and Client-Side event handlers
+//
 
 const dests_map = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(dests)))));
 
