@@ -22,9 +22,28 @@ import "phoenix_html"
 //
 // Initialize UI State
 //
+let clock = new Clock(document.getElementById('clock'), parseInt(time_control), parseInt(increment));
+let opponent_clock = new Clock(document.getElementById('opponent_clock'), parseInt(time_control), parseInt(increment));
 
-let first_move = false;
-let turn_color = 'white';
+let fen_array = fen.split(' ');
+let fen_side_to_play = fen_array[1];
+let fen_turn = parseInt(fen_array[fen_array.length - 1]);
+
+let side_to_play;
+if (fen_side_to_play === 'w') {
+  side_to_play = 'white';
+} else {
+  side_to_play = 'black';
+}
+
+let first_move;
+if (fen_turn === 1) {
+  first_move = false;
+} else {
+  first_move = true;
+  startClock();
+}
+
 
 //
 // Connect to the game websocket
@@ -58,7 +77,7 @@ channel.on('move', function (payload) {
   let dest = payload.move.substring(2, 4);
   ground.move(orig, dest);
 
-  turn_color = payload.side_to_move;
+  side_to_play = payload.side_to_move;
   
   // Check if this our own move and that it isnt our first move.
   // If it is, increment our own clock.
@@ -101,9 +120,6 @@ channel.on('shout', function (payload) { // listen to the 'shout' event
 // Clock UI Config and Timekeeping Functionality
 //
 
-let clock = new Clock(document.getElementById('clock'), parseInt(time_control), parseInt(increment));
-let opponent_clock = new Clock(document.getElementById('opponent_clock'), parseInt(time_control), parseInt(increment));
-
 // Start the clock. This is called after the first move is made.
 // Only purpose is to denote in a clear way that the clock has started,
 // otherwise updateClock() would be called directly.
@@ -113,7 +129,7 @@ function startClock() {
 
 // Every 100ms, update the clock.
 function updateClock() {
-  if (turn_color === color) {
+  if (side_to_play === color) {
     clock.decrement_by_tenth();
   } else {
     opponent_clock.decrement_by_tenth();
