@@ -17,6 +17,8 @@ defmodule DojoWeb.PageController do
       [{pid, _}] ->
         game_info = Dojo.Game.get_info(pid)
 
+        conn = Plug.Conn.put_resp_header(conn, "cache-control", "no-cache, no-store, must-revalidate")
+
         render(conn, "room.html",
           layout: {DojoWeb.LayoutView, "room_layout.html"},
           fen: game_info.fen,
