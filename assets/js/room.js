@@ -71,7 +71,10 @@ channel.on('ack', function (payload) {
 channel.on('move', function (payload) {
   // Store the new fen in local storage.
   // This is used to restore the board state when the tab is duplicated.
-  localStorage.setItem(window.location.pathname, payload.fen);
+  clientStateJson = localStorage.getItem(window.location.pathname);
+  clientStateObject = JSON.parse(clientStateJson);
+  clientStateObject.fen = payload.fen;
+  localStorage.setItem(window.location.pathname, JSON.stringify(clientStateObject));
 
   let orig = payload.move.substring(0, 2);
   let dest = payload.move.substring(2, 4);
