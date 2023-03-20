@@ -77,10 +77,10 @@ defmodule Dojo.Game do
      %{
        board_pid: pid,
        color: config.color,
-       time_control: config.time_control,
-       increment: config.increment,
        fen: fen,
-       dests: dests
+       dests: dests,
+       time_control: config.time_control,
+       increment: config.increment
      }}
   end
 
