@@ -21,8 +21,8 @@ defmodule Dojo.Clock do
   end
 
   def handle_call(:start_clock, _from, state) do
-    Task.start_link(fn -> tick() end)
-    {:reply, :ok, state}
+    {_, tick_pid} = Task.start_link(fn -> tick() end)
+    {:reply, :ok, %{state | tick_pid: tick_pid}}
   end
 
   def handle_call(:get_clock_state, _from, state) do
