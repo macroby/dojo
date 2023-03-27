@@ -1,5 +1,6 @@
 defmodule Dojo.Game do
   use GenServer
+  require Logger
 
   @moduledoc """
   Represents the state of a game. Might need
@@ -73,14 +74,21 @@ defmodule Dojo.Game do
         {:ok, movelist} -> movelist
       end
 
+      clock_pid = case Dojo.Clock.start_link(%{time_control: config.time_control, increment: config.increment}) do
+        {:error, reason} -> raise reason
+        {:ok, pid} -> pid
+      end
+
     {:ok,
      %{
        board_pid: pid,
        color: config.color,
        fen: fen,
        dests: dests,
+       halfmove_clock: 0,
        time_control: config.time_control,
-       increment: config.increment
+       increment: config.increment,
+        clock_pid: clock_pid
      }}
   end
 
@@ -104,6 +112,14 @@ defmodule Dojo.Game do
       {:ok, _} ->
         {_, fen} = :binbo.get_fen(state.board_pid)
 
+        halfmove_clock = state.halfmove_clock + 1
+
+        Dojo.Clock.switch_turn_color(state.clock_pid)
+
+        if halfmove_clock == 2 do
+          Dojo.Clock.start_clock(state.clock_pid)
+        end
+
         dests =
           case :binbo.all_legal_moves(state.board_pid, :str) do
             {:error, reason} -> raise reason
@@ -112,6 +128,16 @@ defmodule Dojo.Game do
 
         state = Map.replace(state, :fen, fen)
         state = Map.replace(state, :dests, dests)
+        state = Map.replace(state, :halfmove_clock, halfmove_clock)
+        clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
+        Logger.debug("testing the clock")
+        Logger.debug("WHITE")
+        Logger.debug(["seconds left", " ", Integer.to_string(clock_state.white_time_seconds)])
+        Logger.debug(["hundredths left", " ", Integer.to_string(clock_state.white_time_hundredths)])
+
+        Logger.debug("BLACK")
+        Logger.debug(["seconds left", " ", Integer.to_string(clock_state.black_time_seconds)])
+        Logger.debug(["hundredths left", " ", Integer.to_string(clock_state.black_time_hundredths)])
         {:reply, {:ok, fen}, state}
     end
   end

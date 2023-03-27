@@ -1,11 +1,37 @@
 defmodule Dojo.Clock do
   use GenServer
-  # Process.send_after(self(), :tick, 1000)
+  require Logger
+
+  def start_link(config) do
+    GenServer.start_link(__MODULE__, config)
+  end
+
+  def start_clock(clock_pid) do
+    GenServer.call(clock_pid, :start_clock)
+  end
+
+  def get_clock_state(clock_pid) do
+    GenServer.call(clock_pid, :get_clock_state)
+  end
+
+  def get_turn_color(clock_pid) do
+    GenServer.call(clock_pid, :get_turn_color)
+  end
+
+  def switch_turn_color(clock_pid) do
+    GenServer.call(clock_pid, :switch_turn_color)
+  end
+
+  #######################
+  # Server Implemention #
+  #######################
+
+  @impl true
   def init(%{time_control: time_control, increment: increment}) do
-    white_time_seconds = String.to_integer(time_control) * 60
+    white_time_seconds = time_control * 60
     white_time_hundredths = 0
 
-    black_time_seconds = String.to_integer(time_control) * 60
+    black_time_seconds = time_control * 60
     black_time_hundredths = 0
 
     {:ok,
@@ -20,27 +46,23 @@ defmodule Dojo.Clock do
      }}
   end
 
+  @impl true
   def handle_call(:start_clock, _from, state) do
-    {_, tick_pid} = Task.start_link(fn -> tick() end)
-    {:reply, :ok, %{state | tick_pid: tick_pid}}
+    tick()
+    {:reply, :ok, state}
   end
 
+  @impl true
   def handle_call(:get_clock_state, _from, state) do
     {:reply, state, state}
   end
 
-  def handle_call(:get_white_time, _from, state) do
-    {:reply, state.white_time, state}
-  end
-
-  def handle_call(:get_black_time, _from, state) do
-    {:reply, state.black_time, state}
-  end
-
+  @impl true
   def handle_call(:get_turn_color, _from, state) do
     {:reply, state.turn_color, state}
   end
 
+  @impl true
   def handle_call(:switch_turn_color, _from, state) do
     state =
       case state.turn_color do
@@ -54,6 +76,7 @@ defmodule Dojo.Clock do
     {:reply, :ok, state}
   end
 
+  @impl true
   def handle_info(:tick, state) do
     state =
       case state.turn_color do
@@ -84,14 +107,36 @@ defmodule Dojo.Clock do
           end
 
         :black ->
-          nil
-      end
+          cond do
+            state.black_time_hundredths == 0 && state.black_time_seconds > 0 ->
+              black_time_seconds = state.black_time_seconds - 1
+              black_time_hundredths = 99
 
+              %{
+                state
+                | black_time_seconds: black_time_seconds,
+                  black_time_hundredths: black_time_hundredths
+              }
+
+            state.black_time_hundredths > 0 ->
+              black_time_seconds = state.black_time_seconds
+              black_time_hundredths = state.black_time_hundredths - 1
+
+              %{
+                state
+                | black_time_seconds: black_time_seconds,
+                  black_time_hundredths: black_time_hundredths
+              }
+
+            true ->
+              state
+          end
+      end
+    tick()
     {:noreply, state}
   end
 
   defp tick() do
     Process.send_after(self(), :tick, 10)
-    tick()
   end
 end

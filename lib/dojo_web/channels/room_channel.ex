@@ -70,14 +70,11 @@ defmodule DojoWeb.RoomChannel do
               movelist = Game.get_all_legal_moves_str(pid)
               dests = DojoWeb.Util.repack_dests(movelist)
 
-              # Clear the payload so that move key can be changed.
-              # I dont know why I couldnt change the key without clearing payload.
               payload = %{}
               payload = Map.put(payload, :fen, fen)
               payload = Map.put(payload, :move, ai_move)
               payload = Map.put(payload, :side_to_move, side_to_move)
               payload = Map.put(payload, :dests, dests)
-              Process.sleep(2000)
               broadcast(socket, "move", payload)
             end
 
