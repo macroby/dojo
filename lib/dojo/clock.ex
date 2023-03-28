@@ -48,7 +48,7 @@ defmodule Dojo.Clock do
 
   @impl true
   def handle_call(:start_clock, _from, state) do
-    tick()
+    :timer.send_interval(10, self(), :tick)
     {:reply, :ok, state}
   end
 
@@ -132,11 +132,6 @@ defmodule Dojo.Clock do
               state
           end
       end
-    tick()
     {:noreply, state}
-  end
-
-  defp tick() do
-    Process.send_after(self(), :tick, 10)
   end
 end
