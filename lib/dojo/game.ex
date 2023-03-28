@@ -74,7 +74,8 @@ defmodule Dojo.Game do
         {:ok, movelist} -> movelist
       end
 
-      clock_pid = case Dojo.Clock.start_link(%{time_control: config.time_control, increment: config.increment}) do
+    clock_pid =
+      case Dojo.Clock.start_link(%{time_control: config.time_control, increment: config.increment}) do
         {:error, reason} -> raise reason
         {:ok, pid} -> pid
       end
@@ -88,7 +89,7 @@ defmodule Dojo.Game do
        halfmove_clock: 0,
        time_control: config.time_control,
        increment: config.increment,
-        clock_pid: clock_pid
+       clock_pid: clock_pid
      }}
   end
 
@@ -133,11 +134,22 @@ defmodule Dojo.Game do
         Logger.debug("testing the clock")
         Logger.debug("WHITE")
         Logger.debug(["seconds left", " ", Integer.to_string(clock_state.white_time_seconds)])
-        Logger.debug(["hundredths left", " ", Integer.to_string(clock_state.white_time_hundredths)])
+
+        Logger.debug([
+          "hundredths left",
+          " ",
+          Integer.to_string(clock_state.white_time_hundredths)
+        ])
 
         Logger.debug("BLACK")
         Logger.debug(["seconds left", " ", Integer.to_string(clock_state.black_time_seconds)])
-        Logger.debug(["hundredths left", " ", Integer.to_string(clock_state.black_time_hundredths)])
+
+        Logger.debug([
+          "hundredths left",
+          " ",
+          Integer.to_string(clock_state.black_time_hundredths)
+        ])
+
         {:reply, {:ok, fen}, state}
     end
   end

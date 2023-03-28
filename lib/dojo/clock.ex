@@ -132,6 +132,7 @@ defmodule Dojo.Clock do
               state
           end
       end
+
     {:noreply, state}
   end
 end
