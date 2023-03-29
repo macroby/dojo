@@ -15,7 +15,7 @@ defmodule DojoWeb.PageController do
         render(conn, "room_error.html", info: info)
 
       [{pid, _}] ->
-        game_info = Dojo.Game.get_info(pid)
+        game_info = Dojo.Game.get_state(pid)
 
         conn =
           Plug.Conn.put_resp_header(conn, "cache-control", "no-cache, no-store, must-revalidate")

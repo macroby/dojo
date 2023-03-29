@@ -29,8 +29,8 @@ defmodule Dojo.Game do
   defp via_tuple(name),
     do: {:via, Registry, {GameRegistry, name}}
 
-  def get_info(p_name) do
-    GenServer.call(p_name, :get_info)
+  def get_state(p_name) do
+    GenServer.call(p_name, :get_state)
   end
 
   def get_fen(p_name) do
@@ -104,7 +104,7 @@ defmodule Dojo.Game do
   end
 
   @impl true
-  def handle_call(:get_info, _from, state) do
+  def handle_call(:get_state, _from, state) do
     {:reply, state, state}
   end
 
@@ -134,6 +134,7 @@ defmodule Dojo.Game do
         state = Map.replace(state, :fen, fen)
         state = Map.replace(state, :dests, dests)
         state = Map.replace(state, :halfmove_clock, halfmove_clock)
+
         clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
         Logger.debug("testing the clock")
         Logger.debug("WHITE")

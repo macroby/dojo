@@ -49,11 +49,21 @@ defmodule DojoWeb.RoomChannel do
               {:ok, _} -> push(socket, "ack", %{})
             end
 
-            fen = Game.get_fen(pid)
+            state = Game.get_state(pid)
+            fen = state.fen
             side_to_move = Game.get_side_to_move(pid)
+            clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
+
             payload = Map.put(payload, :fen, fen)
             payload = Map.put(payload, :side_to_move, side_to_move)
+            payload = Map.put(payload, :halfmove_clock, state.halfmove_clock)
+            payload = Map.put(payload, :white_clock, clock_state.white_time_milli)
+            payload = Map.put(payload, :black_clock, clock_state.black_time_milli)
+
             broadcast(socket, "move", payload)
+            # clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
+            # payload = Map.put(payload, :white_clock, clock_state.white_time_milli)
+            # payload = Map.put(payload, :black_clock, clock_state.black_time_milli)
 
             # Im gonna stick the ai logic right here for now,
             # but i forsee some refactoring in the future
@@ -66,11 +76,13 @@ defmodule DojoWeb.RoomChannel do
               ai_move = elem(ai_move, 0) <> elem(ai_move, 1)
 
               Game.make_move(pid, ai_move)
-              fen = Game.get_fen(pid)
+              state = Game.get_state(pid)
+              halfmove_clock = state.halfmove_clock
+              fen = state.fen
               side_to_move = Game.get_side_to_move(pid)
               movelist = Game.get_all_legal_moves_str(pid)
               dests = DojoWeb.Util.repack_dests(movelist)
-              halfmove_clock = Game.get_halfmove_clock(pid)
+              clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
 
               payload = %{}
               payload = Map.put(payload, :fen, fen)
@@ -78,6 +90,8 @@ defmodule DojoWeb.RoomChannel do
               payload = Map.put(payload, :side_to_move, side_to_move)
               payload = Map.put(payload, :dests, dests)
               payload = Map.put(payload, :halfmove_clock, halfmove_clock)
+              payload = Map.put(payload, :white_clock, clock_state.white_time_milli)
+              payload = Map.put(payload, :black_clock, clock_state.black_time_milli)
               broadcast(socket, "move", payload)
             end
 
