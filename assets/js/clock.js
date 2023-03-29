@@ -8,17 +8,15 @@ class Clock {
       this.element = element;
       this.time_control = time_control;
       this.inc = inc;
-      this.minutes = time_control;
-      this.seconds = 0;
-      this.tenths = 0;
+      this.milli = time_control*60*1000;
   
       this.element.innerHTML = this.time_as_string();
     }
   
     time_as_string() {
-      let minutes = this.minutes;
-      let seconds = this.seconds;
-      let tenths = this.tenths;
+      let minutes = Math.floor(this.milli / 1000 / 60);
+      let seconds = Math.floor(this.milli / 1000) % 60;
+      let tenths = Math.floor((this.milli % 1000) / 100);
   
       if (minutes < 10) {
         minutes = "0" + minutes;
@@ -30,27 +28,23 @@ class Clock {
       return minutes + ":" + seconds + "." + tenths;
     }
   
-    decrement_by_tenth() {
-      if (this.tenths === 0 && this.seconds > 0) {
-        this.tenths = 9;
-        this.seconds = this.seconds - 1;
-      } else if (this.tenths > 0) {
-        this.tenths = this.tenths - 1;
-      } else if (this.seconds === 0 && this.tenths ==0 && this.minutes > 0) {
-        this.seconds = 59;
-        this.tenths = 9;
-        this.minutes = this.minutes - 1;
-      } else if (this.seconds === 0 && this.minutes === 0 && this.tenths === 0) {
+    decrement_time(t) {
+      this.milli -= t;
+
+      if (this.milli < 0) {
+        this.milli = 0;
       }
+
+      this.element.innerHTML = this.time_as_string();
+    }
+
+    reset_time() {
+      this.milli = this.time_control*60*1000;
       this.element.innerHTML = this.time_as_string();
     }
   
     increment_by_setting() {
-      this.seconds = this.seconds + this.inc;
-      if (this.seconds >= 60) {
-        this.minutes = this.minutes + 1;
-        this.seconds = this.seconds - 60;
-      }
+      this.milli += this.inc*1000;
       this.element.innerHTML = this.time_as_string();
     }
   }

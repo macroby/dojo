@@ -124,20 +124,46 @@ channel.on('shout', function (payload) { // listen to the 'shout' event
 //
 
 // Start the clock. This is called after the first move is made.
-// Only purpose is to denote in a clear way that the clock has started,
-// otherwise updateClock() would be called directly.
+// Initiates the clock with 50 ms update interval.
 function startClock() {
-  updateClock();
+  var interval = 50;
+  var expected = Date.now() + interval;
+  var initial = Date.now();
+  setTimeout(updateClock, interval, expected, initial);
 }
 
-// Every 100ms, update the clock.
-function updateClock() {
-  if (side_to_play === color) {
-    clock.decrement_by_tenth();
+// Update clock UI. Accounts for drift and ensures that the clock is
+// updated at the correct interval. Accounts for idle tab messing with
+// the setInterval() function.
+function updateClock(expected, initial) {
+  var interval = 50;
+  var new_expected = expected + interval;
+  var dt = Date.now() - expected; // the drift (positive for overshooting)
+  if (dt > interval) {
+    // something really bad happened. Maybe the browser (tab) was inactive?
+    // possibly special handling to avoid futile "catch up" run
+    let correction = Date.now() - initial;
+
+    if (side_to_play === color) {
+      clock.reset_time();
+      clock.decrement_time(correction);
+    } else {
+      opponent_clock.reset_time();
+      opponent_clock.decrement_time(correction);
+    }
+
+    new_expected = Date.now() + interval;
+    dt = dt % interval;
+
+    setTimeout(updateClock, Math.max(0, interval), new_expected, initial);
   } else {
-    opponent_clock.decrement_by_tenth();
+    if (side_to_play === color) {
+      clock.decrement_time(50);
+    } else {
+      opponent_clock.decrement_time(50);
+    }
+    setTimeout(updateClock, Math.max(0, interval - dt), new_expected, initial);
   }
-  setTimeout(updateClock, 100);
 }
 
 //
