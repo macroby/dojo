@@ -53,6 +53,10 @@ defmodule Dojo.Game do
     GenServer.call(p_name, :get_side_to_move)
   end
 
+  def get_halfmove_clock(p_name) do
+    GenServer.call(p_name, :get_halfmove_clock)
+  end
+
   def stop do
     GenServer.stop(self())
   end
@@ -133,22 +137,10 @@ defmodule Dojo.Game do
         clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
         Logger.debug("testing the clock")
         Logger.debug("WHITE")
-        Logger.debug(["seconds left", " ", Integer.to_string(clock_state.white_time_seconds)])
-
-        Logger.debug([
-          "hundredths left",
-          " ",
-          Integer.to_string(clock_state.white_time_hundredths)
-        ])
+        Logger.debug(["time left", " ", Integer.to_string(clock_state.white_time_milli)])
 
         Logger.debug("BLACK")
-        Logger.debug(["seconds left", " ", Integer.to_string(clock_state.black_time_seconds)])
-
-        Logger.debug([
-          "hundredths left",
-          " ",
-          Integer.to_string(clock_state.black_time_hundredths)
-        ])
+        Logger.debug(["time left", " ", Integer.to_string(clock_state.black_time_milli)])
 
         {:reply, {:ok, fen}, state}
     end
@@ -185,5 +177,10 @@ defmodule Dojo.Game do
       end
 
     {:reply, side_to_move, state}
+  end
+
+  @impl true
+  def handle_call(:get_halfmove_clock, _from, state) do
+    {:reply, state.halfmove_clock, state}
   end
 end

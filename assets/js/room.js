@@ -44,7 +44,6 @@ if (fen_turn === 1) {
   startClock();
 }
 
-
 //
 // Connect to the game websocket
 //
@@ -128,41 +127,37 @@ channel.on('shout', function (payload) { // listen to the 'shout' event
 function startClock() {
   var interval = 50;
   var expected = Date.now() + interval;
-  var initial = Date.now();
-  setTimeout(updateClock, interval, expected, initial);
+  
+  setTimeout(updateClock, interval, expected);
 }
 
 // Update clock UI. Accounts for drift and ensures that the clock is
 // updated at the correct interval. Accounts for idle tab messing with
 // the setInterval() function.
-function updateClock(expected, initial) {
+function updateClock(expected) {
   var interval = 50;
   var new_expected = expected + interval;
   var dt = Date.now() - expected; // the drift (positive for overshooting)
   if (dt > interval) {
     // something really bad happened. Maybe the browser (tab) was inactive?
     // possibly special handling to avoid futile "catch up" run
-    let correction = Date.now() - initial;
 
     if (side_to_play === color) {
-      clock.reset_time();
-      clock.decrement_time(correction);
+      clock.decrement_time(dt);
     } else {
-      opponent_clock.reset_time();
-      opponent_clock.decrement_time(correction);
+      opponent_clock.decrement_time(dt);
     }
-
     new_expected = Date.now() + interval;
     dt = dt % interval;
 
-    setTimeout(updateClock, Math.max(0, interval), new_expected, initial);
+    setTimeout(updateClock, Math.max(0, interval), new_expected);
   } else {
     if (side_to_play === color) {
       clock.decrement_time(50);
     } else {
       opponent_clock.decrement_time(50);
     }
-    setTimeout(updateClock, Math.max(0, interval - dt), new_expected, initial);
+    setTimeout(updateClock, Math.max(0, interval - dt), new_expected);
   }
 }
 

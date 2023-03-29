@@ -60,21 +60,24 @@ defmodule DojoWeb.RoomChannel do
             # Using bin version to play nicely with concat
             movelist = Game.get_all_legal_moves_bin(pid)
             movelist_length = length(movelist)
-
+            Process.sleep(5000)
             if movelist_length > 0 do
               ai_move = Enum.random(movelist)
               ai_move = elem(ai_move, 0) <> elem(ai_move, 1)
+
               Game.make_move(pid, ai_move)
               fen = Game.get_fen(pid)
               side_to_move = Game.get_side_to_move(pid)
               movelist = Game.get_all_legal_moves_str(pid)
               dests = DojoWeb.Util.repack_dests(movelist)
+              halfmove_clock = Game.get_halfmove_clock(pid)
 
               payload = %{}
               payload = Map.put(payload, :fen, fen)
               payload = Map.put(payload, :move, ai_move)
               payload = Map.put(payload, :side_to_move, side_to_move)
               payload = Map.put(payload, :dests, dests)
+              payload = Map.put(payload, :halfmove_clock, halfmove_clock)
               broadcast(socket, "move", payload)
             end
 

@@ -28,21 +28,19 @@ defmodule Dojo.Clock do
 
   @impl true
   def init(%{time_control: time_control, increment: increment}) do
-    white_time_seconds = time_control * 60
-    white_time_hundredths = 0
+    white_time_milli =
+      time_control * 60 * 1000
 
-    black_time_seconds = time_control * 60
-    black_time_hundredths = 0
+    black_time_milli =
+      time_control * 60 * 1000
 
     {:ok,
      %{
        turn_color: :white,
        time_control: time_control,
        increment: increment,
-       white_time_seconds: white_time_seconds,
-       white_time_hundredths: white_time_hundredths,
-       black_time_seconds: black_time_seconds,
-       black_time_hundredths: black_time_hundredths
+        white_time_milli: white_time_milli,
+        black_time_milli: black_time_milli
      }}
   end
 
@@ -82,54 +80,20 @@ defmodule Dojo.Clock do
       case state.turn_color do
         :white ->
           cond do
-            state.white_time_hundredths == 0 && state.white_time_seconds > 0 ->
-              white_time_seconds = state.white_time_seconds - 1
-              white_time_hundredths = 99
-
-              %{
-                state
-                | white_time_seconds: white_time_seconds,
-                  white_time_hundredths: white_time_hundredths
-              }
-
-            state.white_time_hundredths > 0 ->
-              white_time_seconds = state.white_time_seconds
-              white_time_hundredths = state.white_time_hundredths - 1
-
-              %{
-                state
-                | white_time_seconds: white_time_seconds,
-                  white_time_hundredths: white_time_hundredths
-              }
-
-            true ->
+            state.white_time_milli == 0 ->
               state
+            state.white_time_milli > 0 ->
+              white_time_milli = state.white_time_milli - 10
+              %{state | white_time_milli: white_time_milli}
           end
 
         :black ->
           cond do
-            state.black_time_hundredths == 0 && state.black_time_seconds > 0 ->
-              black_time_seconds = state.black_time_seconds - 1
-              black_time_hundredths = 99
-
-              %{
-                state
-                | black_time_seconds: black_time_seconds,
-                  black_time_hundredths: black_time_hundredths
-              }
-
-            state.black_time_hundredths > 0 ->
-              black_time_seconds = state.black_time_seconds
-              black_time_hundredths = state.black_time_hundredths - 1
-
-              %{
-                state
-                | black_time_seconds: black_time_seconds,
-                  black_time_hundredths: black_time_hundredths
-              }
-
-            true ->
+            state.black_time_milli == 0 ->
               state
+            state.black_time_milli > 0 ->
+              black_time_milli = state.black_time_milli - 10
+              %{state | black_time_milli: black_time_milli}
           end
       end
 
