@@ -17,15 +17,23 @@ class Clock {
       let minutes = Math.floor(this.milli / 1000 / 60);
       let seconds = Math.floor(this.milli / 1000) % 60;
       let tenths = Math.floor((this.milli % 1000) / 100);
-  
-      if (minutes < 10) {
-        minutes = "0" + minutes;
+
+      if (minutes === 0) {
+        if (seconds < 10) {
+          seconds = "0" + seconds;
+        }
+    
+        return seconds + "." + tenths;
+      } else {
+        if (minutes < 10) {
+          minutes = "0" + minutes;
+        }
+        if (seconds < 10) {
+          seconds = "0" + seconds;
+        }
+    
+        return minutes + ":" + seconds;
       }
-      if (seconds < 10) {
-        seconds = "0" + seconds;
-      }
-  
-      return minutes + ":" + seconds + "." + tenths;
     }
   
     decrement_time(t) {
