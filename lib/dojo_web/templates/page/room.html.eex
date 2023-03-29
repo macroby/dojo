@@ -74,6 +74,9 @@
     fen = clientStateObject.fen;
   }
 
+  const white_clock = '<%= @white_clock %>';
+  const black_clock = '<%= @black_clock %>';
+
   // Using raw command to prevent phoenix from sanitizing the json.
   // If json is sanatized, than we wont be able to parse into a map later.
   const dests = '<%=  raw @dests %>';

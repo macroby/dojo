@@ -4,11 +4,10 @@
 // or the increment_by_setting() method.
 // Timekeeping happens outside the class in room.js file.
 class Clock {
-    constructor(element, time_control, inc) {
+    constructor(element, init_time, inc) {
       this.element = element;
-      this.time_control = time_control;
       this.inc = inc;
-      this.milli = time_control*60*1000;
+      this.milli = init_time;
   
       this.element.innerHTML = this.time_as_string();
     }
@@ -46,8 +45,8 @@ class Clock {
       this.element.innerHTML = this.time_as_string();
     }
 
-    reset_time() {
-      this.milli = this.time_control*60*1000;
+    set_time(t) {
+      this.milli = t;
       this.element.innerHTML = this.time_as_string();
     }
   

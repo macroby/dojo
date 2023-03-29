@@ -22,9 +22,15 @@ import "phoenix_html"
 //
 // Initialize UI State
 //
-let clock = new Clock(document.getElementById('clock'), parseInt(time_control), parseInt(increment));
-let opponent_clock = new Clock(document.getElementById('opponent_clock'), parseInt(time_control), parseInt(increment));
-
+let clock;
+let opponent_clock;
+if (color === 'white') {
+  clock = new Clock(document.getElementById('clock'), white_clock, parseInt(increment));
+  opponent_clock = new Clock(document.getElementById('opponent_clock'), black_clock, parseInt(increment));
+} else {
+  clock = new Clock(document.getElementById('clock'), black_clock, parseInt(increment));
+  opponent_clock = new Clock(document.getElementById('opponent_clock'), white_clock, parseInt(increment));
+}
 let fen_array = fen.split(' ');
 let fen_side_to_play = fen_array[1];
 let fen_turn = parseInt(fen_array[fen_array.length - 1]);
