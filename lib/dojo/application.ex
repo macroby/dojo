@@ -19,13 +19,20 @@ defmodule Dojo.Application do
       # {Dojo.Worker, arg}
       # Start the Game dynamic supervisor
       GameSupervisor,
-      {Registry, keys: :unique, name: GameRegistry}
+      {Registry, keys: :unique, name: GameRegistry},
+      StockfishSupervisor,
+      {Registry, keys: :unique, name: StockfishRegistry}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Dojo.Supervisor]
-    Supervisor.start_link(children, opts)
+    app_pid = Supervisor.start_link(children, opts)
+
+    # Start Stockfish process (in the future, we will start multiple Stockfish processes)
+    StockfishSupervisor.create_stockfish(<<"1">>)
+
+    app_pid
   end
 
   # Tell Phoenix to update the endpoint configuration

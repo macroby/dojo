@@ -1,7 +1,9 @@
 defmodule DojoWeb.SetupController do
+  alias Dojo.Stockfish
   use DojoWeb, :controller
+  require Logger
 
-  def setup_ai(conn, %{"color" => color, "time-control" => time_control, "increment" => increment}) do
+  def setup_ai(conn, %{"color" => color, "time-control" => time_control, "increment" => increment, "difficulty" => difficulty}) do
     color =
       case color do
         "white" ->
@@ -36,17 +38,39 @@ defmodule DojoWeb.SetupController do
         _ -> 0
       end
 
+    difficulty =
+      case difficulty do
+        "1" -> 1
+        "2" -> 2
+        "3" -> 3
+        "4" -> 4
+        "5" -> 5
+        "6" -> 6
+        "7" -> 7
+        "8" -> 8
+        _ -> 1
+      end
+
     id = UUID.string_to_binary!(UUID.uuid1())
     id = Base.url_encode64(id, padding: false)
 
-    pid = GameSupervisor.create_game(id, color, time_control, increment)
+    pid = GameSupervisor.create_game(id, color, time_control, increment, difficulty)
     |> case do
       {nil, error} -> raise error
       pid -> pid
     end
 
+    Logger.error("Stockfish count: #{Registry.count(StockfishRegistry)}")
+
     if Dojo.Game.get_halfmove_clock(pid) == 0 && color == "black" do
-      Dojo.Game.make_move(pid, <<"e2e4">>)
+      # Dojo.Game.make_move(pid, <<"e2e4">>)
+      Registry.lookup(StockfishRegistry, <<"1">>)
+      |> case do
+        [] -> raise "Stockfish process not found"
+        [{stockfish_pid, _}] ->
+          ai_move = Stockfish.find_best_move(stockfish_pid, Dojo.Game.get_fen(pid), difficulty)
+          Dojo.Game.make_move(pid, ai_move)
+      end
     end
 
     redirect(conn, to: Routes.page_path(conn, :room, id))

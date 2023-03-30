@@ -3,9 +3,7 @@ defmodule Dojo.Game do
   require Logger
 
   @moduledoc """
-  Represents the state of a game. Might need
-  to split this up into a supervisor with children at some point
-  in the future.
+  Represents the state of a game.
   """
 
   #######
@@ -93,7 +91,8 @@ defmodule Dojo.Game do
        halfmove_clock: 0,
        time_control: config.time_control,
        increment: config.increment,
-       clock_pid: clock_pid
+       clock_pid: clock_pid,
+        difficulty: config.difficulty
      }}
   end
 

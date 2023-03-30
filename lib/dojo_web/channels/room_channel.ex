@@ -1,6 +1,7 @@
 defmodule DojoWeb.RoomChannel do
   alias Dojo.Game
   use DojoWeb, :channel
+  require Logger
 
   @impl true
   def join("room:" <> room_id, _payload, socket) do
@@ -70,12 +71,18 @@ defmodule DojoWeb.RoomChannel do
             # Using bin version to play nicely with concat
             movelist = Game.get_all_legal_moves_bin(pid)
             movelist_length = length(movelist)
-            Process.sleep(5000)
+            # Process.sleep(5000)
             if movelist_length > 0 do
-              ai_move = Enum.random(movelist)
-              ai_move = elem(ai_move, 0) <> elem(ai_move, 1)
+              ai_move = Registry.lookup(StockfishRegistry, <<"1">>)
+              |> case do
+                [] -> raise "Stockfish process not found"
+                [{stockfish_pid, _}] ->
+                  Logger.error("Stockfish difficulty: #{state.difficulty}")
+                  ai_move = Dojo.Stockfish.find_best_move(stockfish_pid, Dojo.Game.get_fen(pid), state.difficulty)
+                  Game.make_move(pid, ai_move)
+                  ai_move
+              end
 
-              Game.make_move(pid, ai_move)
               state = Game.get_state(pid)
               halfmove_clock = state.halfmove_clock
               fen = state.fen

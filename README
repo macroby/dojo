@@ -8,6 +8,8 @@ return to root directory and run:
 
 mix deps.get
 
+make sure to place stockfish executable at the root of the server directory with name "stockfish"
+
 start server with:
 
 mix phx.server
