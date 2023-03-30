@@ -86,12 +86,19 @@ channel.on('move', function (payload) {
   ground.move(orig, dest);
 
   side_to_play = payload.side_to_move;
-  
-  // Check if this our own move and that it isnt our first move.
-  // If it is, increment our own clock.
-  if (payload.side_to_move !== color && first_move === true) {
-    clock.increment_by_setting();
+  if (color === 'white') {
+    clock.set_time(payload.white_clock);
+    opponent_clock.set_time(payload.black_clock);
+  } else {
+    clock.set_time(payload.black_clock);
+    opponent_clock.set_time(payload.white_clock);
   }
+  
+  // // Check if this our own move and that it isnt our first move.
+  // // If it is, increment our own clock.
+  // if (payload.side_to_move !== color && first_move === true) {
+  //   // clock.increment_by_setting();
+  // }
 
   let new_dests = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(payload.dests)))))
   
@@ -108,9 +115,17 @@ channel.on('move', function (payload) {
     if (first_move === false) {
       first_move = true;
       startClock();
-    } else {
-      opponent_clock.increment_by_setting();
-    }
+    } 
+    // else {
+    //   // opponent_clock.increment_by_setting();
+    //   if (color === 'white') {
+    //     clock.set_time(payload.white_clock);
+    //     opponent_clock.set_time(payload.black_clock);
+    //   } else {
+    //     clock.set_time(payload.black_clock);
+    //     opponent_clock.set_time(payload.white_clock);
+    //   }
+    // }
   }
 
   ground.playPremove();
@@ -220,6 +235,7 @@ const dests_map = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(de
 const config = {
   fen: fen,
   orientation: color,
+  turnColor: side_to_play,
   movable: {
     color: color,
     free: false,

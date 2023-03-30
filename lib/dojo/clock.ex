@@ -22,6 +22,10 @@ defmodule Dojo.Clock do
     GenServer.call(clock_pid, :switch_turn_color)
   end
 
+  def add_increment(clock_pid) do
+    GenServer.call(clock_pid, :add_increment)
+  end
+
   #######################
   # Server Implemention #
   #######################
@@ -58,6 +62,22 @@ defmodule Dojo.Clock do
   @impl true
   def handle_call(:get_turn_color, _from, state) do
     {:reply, state.turn_color, state}
+  end
+
+  @impl true
+  def handle_call(:add_increment, _from, state) do
+    state =
+      case state.turn_color do
+        :white ->
+          white_time_milli = state.white_time_milli + (state.increment * 1000)
+          %{state | white_time_milli: white_time_milli}
+
+        :black ->
+          black_time_milli = state.black_time_milli + (state.increment * 1000)
+          %{state | black_time_milli: black_time_milli}
+      end
+
+    {:reply, :ok, state}
   end
 
   @impl true

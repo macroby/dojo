@@ -119,10 +119,13 @@ defmodule Dojo.Game do
 
         halfmove_clock = state.halfmove_clock + 1
 
-        Dojo.Clock.switch_turn_color(state.clock_pid)
-
-        if halfmove_clock == 2 do
-          Dojo.Clock.start_clock(state.clock_pid)
+        cond do
+          halfmove_clock > 2 ->
+            Dojo.Clock.add_increment(state.clock_pid)
+            Dojo.Clock.switch_turn_color(state.clock_pid)
+          halfmove_clock == 2 ->
+            Dojo.Clock.start_clock(state.clock_pid)
+          true -> nil
         end
 
         dests =
@@ -134,14 +137,6 @@ defmodule Dojo.Game do
         state = Map.replace(state, :fen, fen)
         state = Map.replace(state, :dests, dests)
         state = Map.replace(state, :halfmove_clock, halfmove_clock)
-
-        clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
-        Logger.debug("testing the clock")
-        Logger.debug("WHITE")
-        Logger.debug(["time left", " ", Integer.to_string(clock_state.white_time_milli)])
-
-        Logger.debug("BLACK")
-        Logger.debug(["time left", " ", Integer.to_string(clock_state.black_time_milli)])
 
         {:reply, {:ok, fen}, state}
     end

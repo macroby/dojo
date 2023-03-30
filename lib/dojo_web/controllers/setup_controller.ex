@@ -39,10 +39,14 @@ defmodule DojoWeb.SetupController do
     id = UUID.string_to_binary!(UUID.uuid1())
     id = Base.url_encode64(id, padding: false)
 
-    GameSupervisor.create_game(id, color, time_control, increment)
+    pid = GameSupervisor.create_game(id, color, time_control, increment)
     |> case do
       {nil, error} -> raise error
-      _ -> nil
+      pid -> pid
+    end
+
+    if Dojo.Game.get_halfmove_clock(pid) == 0 && color == "black" do
+      Dojo.Game.make_move(pid, <<"e2e4">>)
     end
 
     redirect(conn, to: Routes.page_path(conn, :room, id))
