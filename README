@@ -1,0 +1,13 @@
+Instructions for setting up the repo:
+
+go into the /assets directory and install npm packages:
+
+npm install
+
+return to root directory and run:
+
+mix deps.get
+
+start server with:
+
+mix phx.server
