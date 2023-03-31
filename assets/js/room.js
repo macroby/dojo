@@ -84,6 +84,9 @@ channel.on('move', function (payload) {
   let orig = payload.move.substring(0, 2);
   let dest = payload.move.substring(2, 4);
   ground.move(orig, dest);
+  ground.set({
+    fen: payload.fen
+  });
 
   side_to_play = payload.side_to_move;
   if (color === 'white') {
