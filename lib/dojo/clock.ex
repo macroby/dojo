@@ -32,19 +32,17 @@ defmodule Dojo.Clock do
 
   @impl true
   def init(%{time_control: time_control, increment: increment}) do
-    white_time_milli =
-      time_control * 60 * 1000
+    white_time_milli = time_control * 60 * 1000
 
-    black_time_milli =
-      time_control * 60 * 1000
+    black_time_milli = time_control * 60 * 1000
 
     {:ok,
      %{
        turn_color: :white,
        time_control: time_control,
        increment: increment,
-        white_time_milli: white_time_milli,
-        black_time_milli: black_time_milli
+       white_time_milli: white_time_milli,
+       black_time_milli: black_time_milli
      }}
   end
 
@@ -69,11 +67,11 @@ defmodule Dojo.Clock do
     state =
       case state.turn_color do
         :white ->
-          white_time_milli = state.white_time_milli + (state.increment * 1000)
+          white_time_milli = state.white_time_milli + state.increment * 1000
           %{state | white_time_milli: white_time_milli}
 
         :black ->
-          black_time_milli = state.black_time_milli + (state.increment * 1000)
+          black_time_milli = state.black_time_milli + state.increment * 1000
           %{state | black_time_milli: black_time_milli}
       end
 
@@ -102,6 +100,7 @@ defmodule Dojo.Clock do
           cond do
             state.white_time_milli == 0 ->
               state
+
             state.white_time_milli > 0 ->
               white_time_milli = state.white_time_milli - 10
               %{state | white_time_milli: white_time_milli}
@@ -111,6 +110,7 @@ defmodule Dojo.Clock do
           cond do
             state.black_time_milli == 0 ->
               state
+
             state.black_time_milli > 0 ->
               black_time_milli = state.black_time_milli - 10
               %{state | black_time_milli: black_time_milli}

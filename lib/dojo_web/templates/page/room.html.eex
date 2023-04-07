@@ -76,8 +76,7 @@
 
   // Using raw command to prevent phoenix from sanitizing the json.
   // If json is sanatized, than we wont be able to parse into a map later.
-  const dests = '<%=  raw @dests %>';
-
+  const dests = <%=  raw @dests %>;
   const color = '<%= @color %>';
   const time_control = '<%= @time_control %>';
   const increment = '<%= @increment %>';

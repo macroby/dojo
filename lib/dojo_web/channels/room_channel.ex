@@ -73,15 +73,25 @@ defmodule DojoWeb.RoomChannel do
             movelist_length = length(movelist)
             # Process.sleep(5000)
             if movelist_length > 0 do
-              ai_move = Registry.lookup(StockfishRegistry, <<"1">>)
-              |> case do
-                [] -> raise "Stockfish process not found"
-                [{stockfish_pid, _}] ->
-                  Logger.error("Stockfish difficulty: #{state.difficulty}")
-                  ai_move = Dojo.Stockfish.find_best_move(stockfish_pid, Dojo.Game.get_fen(pid), state.difficulty)
-                  Game.make_move(pid, ai_move)
-                  ai_move
-              end
+              ai_move =
+                Registry.lookup(StockfishRegistry, <<"1">>)
+                |> case do
+                  [] ->
+                    raise "Stockfish process not found"
+
+                  [{stockfish_pid, _}] ->
+                    Logger.error("Stockfish difficulty: #{state.difficulty}")
+
+                    ai_move =
+                      Dojo.Stockfish.find_best_move(
+                        stockfish_pid,
+                        Dojo.Game.get_fen(pid),
+                        state.difficulty
+                      )
+
+                    Game.make_move(pid, ai_move)
+                    ai_move
+                end
 
               state = Game.get_state(pid)
               halfmove_clock = state.halfmove_clock

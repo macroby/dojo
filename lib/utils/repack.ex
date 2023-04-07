@@ -24,6 +24,7 @@ defmodule DojoWeb.Util do
         _ -> raise "unexpected tuple size"
       end
     end)
+    # Group moves by starting square
     |> Enum.chunk_by(fn {x, _} -> x end)
     |> Enum.map(fn x ->
       [head | _] = x
@@ -41,6 +42,5 @@ defmodule DojoWeb.Util do
       tail = Enum.map(tail, fn x -> List.to_string(x) end)
       {head, tail}
     end)
-    |> Jason.encode!([])
   end
 end

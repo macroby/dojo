@@ -50,6 +50,22 @@ if (fen_turn === 1) {
   startClock();
 }
 
+let promotion_dests = get_promotions_from_dests(dests);
+
+function get_promotions_from_dests(dests) {
+  let promotion_dests = [];
+  for (const [key, value] of Object.entries(dests)) {
+    let unique_square = value.filter((v, i) => value.indexOf(v) !== i);
+    if (unique_square.length !== 0) {
+      unique_square = value.filter((v, i) => value.indexOf(v) === i);
+      for (let i = 0; i < unique_square.length; i++) {
+        promotion_dests.push([key, unique_square[i]]);
+      }
+    }
+  }
+  return promotion_dests;
+}
+
 //
 // Connect to the game websocket
 //
@@ -103,9 +119,12 @@ channel.on('move', function (payload) {
   //   // clock.increment_by_setting();
   // }
 
-  let new_dests = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(payload.dests)))))
+
   
   if (payload.side_to_move === color) {
+    let new_dests = new Map(Object.entries(payload.dests));
+    promotion_dests = get_promotions_from_dests(payload.dests);
+
     ground.set({
       turnColor: payload.side_to_move,
       movable: {
@@ -233,8 +252,7 @@ function sanitise(str) {
 // Chessground config and Client-Side event handlers
 //
 
-const dests_map = new Map(Object.entries(JSON.parse(JSON.parse(JSON.stringify(dests)))));
-
+dests_map = new Map(Object.entries(dests));
 const config = {
   fen: fen,
   orientation: color,

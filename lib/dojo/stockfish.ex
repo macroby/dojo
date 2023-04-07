@@ -7,6 +7,7 @@ defmodule Dojo.Stockfish do
   process is a genserver that can be called to make moves. Multiple stockfish
   processes can be started and each one can be used by more than one game.
   """
+
   #######
   # API #
   #######
@@ -18,7 +19,7 @@ defmodule Dojo.Stockfish do
   Returns same results as GenServer.start_link().
   """
   def start_link([], config) do
-   start_link(config)
+    start_link(config)
   end
 
   def start_link(config) do
@@ -48,16 +49,18 @@ defmodule Dojo.Stockfish do
   end
 
   def handle_call({:find_best_move, fen, difficulty}, _from, state) do
-    skill_level = case difficulty do
-      1 -> 0
-      2 -> 1
-      3 -> 2
-      4 -> 5
-      5 -> 8
-      6 -> 10
-      7 -> 15
-      8 -> 20
-    end
+    skill_level =
+      case difficulty do
+        1 -> 0
+        2 -> 1
+        3 -> 2
+        4 -> 5
+        5 -> 8
+        6 -> 10
+        7 -> 15
+        8 -> 20
+      end
+
     :binbo.uci_set_position(state.inner_pid, fen)
     :binbo.uci_command_call(state.inner_pid, "setoption name Skill Level value #{skill_level}")
     {:ok, best_move} = :binbo.uci_bestmove(state.inner_pid)
