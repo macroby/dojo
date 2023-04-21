@@ -271,10 +271,20 @@ ground.set({
 });
 
 export function playOtherSide() {
-  
   return (orig, dest) => {
+    let move = sanitise(orig).concat(sanitise(dest));
+    let promotion;
+
+    for (let i = 0; i < promotion_dests.length; i++) {
+      if (promotion_dests[i][0] === orig && promotion_dests[i][1] === dest) {
+        promotion = prompt("Please enter a promotion piece (q, r, b, n):", "q");
+        move = move.concat(sanitise(promotion));
+        break;
+      }
+    }
+
     channel.push('move', { 
-      move: sanitise(orig).concat(sanitise(dest))
+      move: move,
     });
   };
 }
