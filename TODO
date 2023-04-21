@@ -1,0 +1,19 @@
+-create and handle sessions
+-integrate session with move making functionality
+-make ai worse
+-start beautifying the front end
+-implement resign button
+-implement propose takeback button
+-implement draw button
+-implement chat
+-general code refactoring when necessary
+
+...after everything above is done...
+
+-implement anonymous queuing for and creating games
+-implement accounts
+-implement elo
+-implement game history
+-implement correspondence chess
+-implement account queuing for and creating games
+
