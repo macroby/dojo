@@ -113,14 +113,6 @@ channel.on('move', function (payload) {
     opponent_clock.set_time(payload.white_clock);
   }
   
-  // // Check if this our own move and that it isnt our first move.
-  // // If it is, increment our own clock.
-  // if (payload.side_to_move !== color && first_move === true) {
-  //   // clock.increment_by_setting();
-  // }
-
-
-  
   if (payload.side_to_move === color) {
     let new_dests = new Map(Object.entries(payload.dests));
     promotion_dests = get_promotions_from_dests(payload.dests);
@@ -137,17 +129,7 @@ channel.on('move', function (payload) {
     if (first_move === false) {
       first_move = true;
       startClock();
-    } 
-    // else {
-    //   // opponent_clock.increment_by_setting();
-    //   if (color === 'white') {
-    //     clock.set_time(payload.white_clock);
-    //     opponent_clock.set_time(payload.black_clock);
-    //   } else {
-    //     clock.set_time(payload.black_clock);
-    //     opponent_clock.set_time(payload.white_clock);
-    //   }
-    // }
+    }
   }
 
   ground.playPremove();

@@ -50,6 +50,9 @@ class Clock {
       this.element.innerHTML = this.time_as_string();
     }
   
+    // Increment the clock by the increment setting.
+    // Not used rightnow because the increment is handled in the server.
+    // And the server sends the new time to the client to update the clock.
     increment_by_setting() {
       this.milli += this.inc*1000;
       this.element.innerHTML = this.time_as_string();
