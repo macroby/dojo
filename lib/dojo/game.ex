@@ -111,7 +111,7 @@ defmodule Dojo.Game do
       {:error, reason} ->
         {:reply, {:error, reason}, state}
 
-      {:ok, _} ->
+      {:ok, game_status} ->
         {_, fen} = :binbo.get_fen(state.board_pid)
 
         halfmove_clock = state.halfmove_clock + 1
@@ -138,7 +138,7 @@ defmodule Dojo.Game do
         state = Map.replace(state, :dests, dests)
         state = Map.replace(state, :halfmove_clock, halfmove_clock)
 
-        {:reply, {:ok, fen}, state}
+        {:reply, {:ok, game_status}, state}
     end
   end
 
