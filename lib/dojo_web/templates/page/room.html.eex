@@ -1,6 +1,6 @@
 <div id="clock"></div>
 <div id="opponent_clock"></div>
-
+<div id="promotion_prompt"></div>
 <div id="chessground"></div>
 
 <!-- The list of messages will appear here: -->
@@ -47,6 +47,12 @@
       font-size: 1.3em;
     }
   }
+</style>
+
+<style>
+        #promotion_prompt {
+            display: none;
+        }
 </style>
 
 <style>

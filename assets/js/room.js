@@ -16,6 +16,7 @@ import "../css/app.css"
 //     import {Socket} from "phoenix"
 import socket from "./socket"
 import Clock from "./clock"
+import PromotionPrompt from "./promotion_prompt"
 import { Chessground } from 'chessground';
 import "phoenix_html"
 
@@ -31,6 +32,7 @@ if (color === 'white') {
   clock = new Clock(document.getElementById('clock'), black_clock, parseInt(increment));
   opponent_clock = new Clock(document.getElementById('opponent_clock'), white_clock, parseInt(increment));
 }
+let promotion_prompt = new PromotionPrompt(document.getElementById('promotion_prompt'));
 let fen_array = fen.split(' ');
 let fen_side_to_play = fen_array[1];
 let fen_turn = parseInt(fen_array[fen_array.length - 1]);
@@ -255,19 +257,46 @@ ground.set({
 export function playOtherSide() {
   return (orig, dest) => {
     let move = sanitise(orig).concat(sanitise(dest));
-    let promotion;
+    let is_promotion_move = false;
 
     for (let i = 0; i < promotion_dests.length; i++) {
       if (promotion_dests[i][0] === orig && promotion_dests[i][1] === dest) {
-        promotion = prompt("Please enter a promotion piece (q, r, b, n):", "q");
-        move = move.concat(sanitise(promotion));
+        is_promotion_move = true;
+        promotion_prompt.set_orig_dest(orig, dest);
+        promotion_prompt.reveal();
         break;
       }
     }
 
-    channel.push('move', { 
-      move: move,
-    });
+    if (is_promotion_move === false) {
+      channel.push('move', { 
+        move: move,
+      });
+    }
   };
 }
+
+//
+// Promotion Piece Selection UI
+//
+
+promotion_prompt.set_onclick(function (orig, dest, piece) {
+  // alert(ground.state.pieces.size);
+  // alert(fen);
+
+  if (piece === 'c') {
+    ground.set({
+      fen: fen,
+      turnColor: color,
+      movable: {
+        color: color,
+        dests: dests_map
+      }
+    });
+  } else {
+    channel.push('move', { 
+      move: sanitise(orig).concat(sanitise(dest)).concat(sanitise(piece)),
+    });
+  }
+});
 
