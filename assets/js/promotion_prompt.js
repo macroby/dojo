@@ -10,6 +10,10 @@ class PromotionPrompt {
          <button id=\"promoteCancel\">X</button>';
     }
 
+    hide() {
+        this.element.style.display = 'none';
+    }
+
     reveal() {
         this.element.style.display = 'block';
     }
@@ -19,7 +23,7 @@ class PromotionPrompt {
         this.dest = dest;
     }
 
-    set_onclick(onclick) {
+    onclick(onclick_function) {
         for (const child of this.element.children) {
             let piece;
             switch (child.id) {
@@ -40,9 +44,7 @@ class PromotionPrompt {
                     break;
             }
 
-            child.addEventListener('click', function () { this.parentElement.style.display = 'none'; });
-
-            child.addEventListener('click', function () { onclick(this.orig, this.dest, piece) }.bind(this));
+            child.addEventListener('click', function () { onclick_function(this.orig, this.dest, piece) }.bind(this));
         }
     }
 }

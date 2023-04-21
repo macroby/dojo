@@ -280,10 +280,8 @@ export function playOtherSide() {
 // Promotion Piece Selection UI
 //
 
-promotion_prompt.set_onclick(function (orig, dest, piece) {
-  // alert(ground.state.pieces.size);
-  // alert(fen);
-
+promotion_prompt.onclick(function (orig, dest, piece) {
+  promotion_prompt.hide();
   if (piece === 'c') {
     ground.set({
       fen: fen,
