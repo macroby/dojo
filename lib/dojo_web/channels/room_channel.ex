@@ -69,7 +69,9 @@ defmodule DojoWeb.RoomChannel do
             # Im gonna stick the ai logic right here for now,
             # but i forsee some refactoring in the future
             # Using bin version to play nicely with concat
-            movelist = Game.get_all_legal_moves_bin(pid)
+
+
+            movelist = Game.get_all_legal_moves(pid)
             movelist_length = length(movelist)
             # Process.sleep(5000)
             if movelist_length > 0 do
@@ -97,7 +99,7 @@ defmodule DojoWeb.RoomChannel do
               halfmove_clock = state.halfmove_clock
               fen = state.fen
               side_to_move = Game.get_side_to_move(pid)
-              movelist = Game.get_all_legal_moves_str(pid)
+              movelist = Game.get_all_legal_moves(pid)
               dests = DojoWeb.Util.repack_dests(movelist)
               clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
 

@@ -39,14 +39,11 @@ defmodule Dojo.Game do
     GenServer.call(p_name, {:make_move, move})
   end
 
-  def get_all_legal_moves_bin(p_name) do
-    GenServer.call(p_name, :get_all_legal_moves_bin)
+  def get_all_legal_moves(p_name) do
+    GenServer.call(p_name, :get_all_legal_moves)
   end
 
-  def get_all_legal_moves_str(p_name) do
-    GenServer.call(p_name, :get_all_legal_moves_str)
-  end
-
+  @spec get_side_to_move(atom | pid | {atom, any} | {:via, atom, any}) :: any
   def get_side_to_move(p_name) do
     GenServer.call(p_name, :get_side_to_move)
   end
@@ -146,18 +143,7 @@ defmodule Dojo.Game do
   end
 
   @impl true
-  def handle_call(:get_all_legal_moves_bin, _from, state) do
-    movelist =
-      case :binbo.all_legal_moves(state.board_pid, :bin) do
-        {:error, reason} -> raise reason
-        {:ok, movelist} -> movelist
-      end
-
-    {:reply, movelist, state}
-  end
-
-  @impl true
-  def handle_call(:get_all_legal_moves_str, _from, state) do
+  def handle_call(:get_all_legal_moves, _from, state) do
     movelist =
       case :binbo.all_legal_moves(state.board_pid, :str) do
         {:error, reason} -> raise reason

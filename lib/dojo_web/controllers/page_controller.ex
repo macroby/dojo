@@ -22,7 +22,6 @@ defmodule DojoWeb.PageController do
 
         clock_state = Dojo.Clock.get_clock_state(game_info.clock_pid)
 
-
         render(conn, "room.html",
           layout: {DojoWeb.LayoutView, "room_layout.html"},
           fen: game_info.fen,
