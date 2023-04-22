@@ -3,7 +3,12 @@ defmodule DojoWeb.SetupController do
   use DojoWeb, :controller
   require Logger
 
-  def setup_ai(conn, %{"color" => color, "time-control" => time_control, "increment" => increment, "difficulty" => difficulty}) do
+  def setup_ai(conn, %{
+        "color" => color,
+        "time-control" => time_control,
+        "increment" => increment,
+        "difficulty" => difficulty
+      }) do
     color =
       case color do
         "white" ->
@@ -54,11 +59,12 @@ defmodule DojoWeb.SetupController do
     id = UUID.string_to_binary!(UUID.uuid1())
     id = Base.url_encode64(id, padding: false)
 
-    pid = GameSupervisor.create_game(id, color, time_control, increment, difficulty)
-    |> case do
-      {nil, error} -> raise error
-      pid -> pid
-    end
+    pid =
+      GameSupervisor.create_game(id, color, time_control, increment, difficulty)
+      |> case do
+        {nil, error} -> raise error
+        pid -> pid
+      end
 
     Logger.error("Stockfish count: #{Registry.count(StockfishRegistry)}")
 
@@ -66,7 +72,9 @@ defmodule DojoWeb.SetupController do
       # Dojo.Game.make_move(pid, <<"e2e4">>)
       Registry.lookup(StockfishRegistry, <<"1">>)
       |> case do
-        [] -> raise "Stockfish process not found"
+        [] ->
+          raise "Stockfish process not found"
+
         [{stockfish_pid, _}] ->
           ai_move = Stockfish.find_best_move(stockfish_pid, Dojo.Game.get_fen(pid), difficulty)
           Dojo.Game.make_move(pid, ai_move)
