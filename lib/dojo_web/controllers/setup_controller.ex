@@ -82,7 +82,7 @@ defmodule DojoWeb.SetupController do
       end
     end
 
-    token = Token.sign(conn, "game", game_id)
+    token = Token.sign(conn, "game auth", game_id)
     conn = put_session(conn, game_id, token)
 
     redirect(conn, to: Routes.page_path(conn, :room, game_id))
