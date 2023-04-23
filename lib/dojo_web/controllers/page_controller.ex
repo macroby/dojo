@@ -1,4 +1,5 @@
 defmodule DojoWeb.PageController do
+  alias Phoenix.Token
   use DojoWeb, :controller
   require Logger
 
@@ -8,6 +9,11 @@ defmodule DojoWeb.PageController do
   end
 
   def room(conn, %{"gameid" => gameid}) do
+    cookie = get_session(conn, gameid)
+    case Token.verify(conn, "game", cookie, max_age: 60 * 60 * 24 * 365) do
+      {:ok, _} -> {}
+      {:error, _} -> render(conn, "room_error.html", layout: {DojoWeb.LayoutView, "room_layout.html"}, info: "Can't view other people's games for now...")
+    end
     Registry.lookup(GameRegistry, gameid)
     |> case do
       [] ->

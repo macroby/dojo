@@ -1,4 +1,5 @@
 defmodule DojoWeb.SetupController do
+  alias Phoenix.Token
   alias Dojo.Stockfish
   use DojoWeb, :controller
   require Logger
@@ -56,11 +57,11 @@ defmodule DojoWeb.SetupController do
         _ -> 1
       end
 
-    id = UUID.string_to_binary!(UUID.uuid1())
-    id = Base.url_encode64(id, padding: false)
+    game_id = UUID.string_to_binary!(UUID.uuid1())
+    game_id = Base.url_encode64(game_id, padding: false)
 
     pid =
-      GameSupervisor.create_game(id, color, time_control, increment, difficulty)
+      GameSupervisor.create_game(game_id, color, time_control, increment, difficulty)
       |> case do
         {nil, error} -> raise error
         pid -> pid
@@ -81,6 +82,9 @@ defmodule DojoWeb.SetupController do
       end
     end
 
-    redirect(conn, to: Routes.page_path(conn, :room, id))
+    token = Token.sign(conn, "game", game_id)
+    conn = put_session(conn, game_id, token)
+
+    redirect(conn, to: Routes.page_path(conn, :room, game_id))
   end
 end
