@@ -5,16 +5,25 @@ defmodule DojoWeb.PageController do
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
-    user_id = UUID.string_to_binary!(UUID.uuid1())
-    user_id = Base.url_encode64(user_id, padding: false)
+    case get_session(conn, :user_token) do
+      nil ->
+        user_id = UUID.string_to_binary!(UUID.uuid1())
+        user_id = Base.url_encode64(user_id, padding: false)
 
-    token = Token.sign(conn, "user auth", user_id)
-    conn = put_session(conn, :user_token, token)
+        token = Token.sign(conn, "user auth", user_id)
+        conn = put_session(conn, :user_token, token)
 
-    render(conn, "home.html",
-      layout: {DojoWeb.LayoutView, "home_layout.html"},
-      user_token: token
-      )
+        render(conn, "home.html",
+          layout: {DojoWeb.LayoutView, "home_layout.html"},
+          user_token: token
+        )
+
+      user_token ->
+        render(conn, "home.html",
+          layout: {DojoWeb.LayoutView, "home_layout.html"},
+          user_token: user_token
+        )
+    end
   end
 
   def room(conn, %{"gameid" => gameid}) do
