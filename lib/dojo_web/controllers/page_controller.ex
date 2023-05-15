@@ -5,13 +5,20 @@ defmodule DojoWeb.PageController do
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
+    user_id = UUID.string_to_binary!(UUID.uuid1())
+    user_id = Base.url_encode64(user_id, padding: false)
+
+    token = Token.sign(conn, "user auth", user_id)
+    conn = put_session(conn, :user_token, token)
+
     render(conn, "home.html", layout: {DojoWeb.LayoutView, "home_layout.html"})
   end
 
   def room(conn, %{"gameid" => gameid}) do
-    cookie = get_session(conn, gameid)
-    case Token.verify(conn, "game auth", cookie, max_age: 60 * 60 * 24 * 365) do
-      {:ok, gameid} ->
+    cookie = get_session(conn, :user_token)
+
+    case Token.verify(conn, "user auth", cookie, max_age: 60 * 60 * 24 * 365) do
+      {:ok, _} ->
         Registry.lookup(GameRegistry, gameid)
         |> case do
           [] ->

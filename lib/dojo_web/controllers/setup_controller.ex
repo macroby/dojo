@@ -1,5 +1,4 @@
 defmodule DojoWeb.SetupController do
-  alias Phoenix.Token
   alias Dojo.Stockfish
   use DojoWeb, :controller
   require Logger
@@ -81,9 +80,6 @@ defmodule DojoWeb.SetupController do
           Dojo.Game.make_move(pid, ai_move)
       end
     end
-
-    token = Token.sign(conn, "game auth", game_id)
-    conn = put_session(conn, game_id, token)
 
     redirect(conn, to: Routes.page_path(conn, :room, game_id))
   end

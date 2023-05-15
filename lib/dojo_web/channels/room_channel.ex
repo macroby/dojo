@@ -4,7 +4,7 @@ defmodule DojoWeb.RoomChannel do
   require Logger
 
   @impl true
-  def join("room:" <> room_id, _payload, socket) do
+  def join("room:" <> _room_id, _payload, socket) do
     # if authorized?(payload) do
     send(self(), :after_join)
     {:ok, socket}

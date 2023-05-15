@@ -2,12 +2,13 @@ defmodule DojoWeb.HomeChannel do
   use DojoWeb, :channel
 
   @impl true
-  def join("home:lobby", payload, socket) do
-    if authorized?(payload) do
-      {:ok, socket}
-    else
-      {:error, %{reason: "unauthorized"}}
-    end
+  def join("home:lobby", _payload, socket) do
+    {:ok, socket}
+    # if authorized?(payload) do
+    #   {:ok, socket}
+    # else
+    #   {:error, %{reason: "unauthorized"}}
+    # end
   end
 
   # Channels can be used in a request/response fashion
@@ -26,7 +27,7 @@ defmodule DojoWeb.HomeChannel do
   end
 
   # Add authorization logic here as required.
-  defp authorized?(_payload) do
-    true
-  end
+  # defp authorized?(_payload) do
+  #   true
+  # end
 end
