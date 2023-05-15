@@ -82,7 +82,7 @@ defmodule DojoWeb.RoomChannel do
                     raise "Stockfish process not found"
 
                   [{stockfish_pid, _}] ->
-                    Logger.error("Stockfish difficulty: #{state.difficulty}")
+                    Logger.debug("Stockfish difficulty: #{state.difficulty}")
 
                     ai_move =
                       Dojo.Stockfish.find_best_move(

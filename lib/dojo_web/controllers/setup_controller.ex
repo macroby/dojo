@@ -67,7 +67,7 @@ defmodule DojoWeb.SetupController do
         pid -> pid
       end
 
-    Logger.error("Stockfish count: #{Registry.count(StockfishRegistry)}")
+    Logger.debug("Stockfish count: #{Registry.count(StockfishRegistry)}")
 
     if Dojo.Game.get_halfmove_clock(pid) == 0 && color == "black" do
       # Dojo.Game.make_move(pid, <<"e2e4">>)
