@@ -88,4 +88,6 @@
   const increment = '<%= @increment %>';
   const white_clock = '<%= @white_clock %>';
   const black_clock = '<%= @black_clock %>';
+
+  const user_token = '<%= @user_token %>'
 </script>

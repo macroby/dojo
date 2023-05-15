@@ -11,7 +11,10 @@ defmodule DojoWeb.PageController do
     token = Token.sign(conn, "user auth", user_id)
     conn = put_session(conn, :user_token, token)
 
-    render(conn, "home.html", layout: {DojoWeb.LayoutView, "home_layout.html"})
+    render(conn, "home.html",
+      layout: {DojoWeb.LayoutView, "home_layout.html"},
+      user_token: token
+      )
   end
 
   def room(conn, %{"gameid" => gameid}) do
@@ -45,7 +48,8 @@ defmodule DojoWeb.PageController do
               increment: game_info.increment,
               dests: DojoWeb.Util.repack_dests(game_info.dests) |> Jason.encode!([]),
               white_clock: clock_state.white_time_milli,
-              black_clock: clock_state.black_time_milli
+              black_clock: clock_state.black_time_milli,
+              user_token: cookie
             )
         end
 

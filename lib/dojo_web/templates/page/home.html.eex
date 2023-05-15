@@ -169,3 +169,7 @@
   </div>
 
 </div>
+
+<script>
+  const user_token = '<%= @user_token %>'
+</script>
