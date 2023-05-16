@@ -17,6 +17,7 @@ import "../css/app.css"
 import socket from "./socket"
 import Clock from "./clock"
 import PromotionPrompt from "./promotion_prompt"
+import ResignButton from "./resign_button"
 import { Chessground } from 'chessground';
 import "phoenix_html"
 
@@ -33,6 +34,7 @@ if (color === 'white') {
   opponent_clock = new Clock(document.getElementById('opponent_clock'), white_clock, parseInt(increment));
 }
 let promotion_prompt = new PromotionPrompt(document.getElementById('promotion_prompt'));
+let resign_button = new ResignButton(document.getElementById('resign'));
 let fen_array = fen.split(' ');
 let fen_side_to_play = fen_array[1];
 let fen_turn = parseInt(fen_array[fen_array.length - 1]);
@@ -298,3 +300,10 @@ promotion_prompt.onclick(function (orig, dest, piece) {
   }
 });
 
+//
+// Resign Button
+//
+
+resign_button.onClick(function () {
+  channel.push('resign', {});
+});

@@ -27,6 +27,28 @@ defmodule DojoWeb.RoomChannel do
     {:noreply, socket}
   end
 
+  # Handle a resignation message
+  @impl true
+  def handle_in("resign", _payload, socket) do
+    [_ | subtopic] = String.split(socket.topic, ":", parts: 2)
+    gameid = List.first(subtopic)
+    Registry.lookup(GameRegistry, gameid)
+    |> case do
+      [] ->
+        raise "this room doesnt exist"
+
+      [{pid, _}] ->
+        # Game.resign(pid)
+        end_data_payload = %{
+          "winner" => Game.get_side_to_move(pid),
+          "reason" => "resignation"
+        }
+        broadcast(socket, "endData", end_data_payload)
+        {:noreply, socket}
+    end
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_in("move", payload, socket) do
     [_ | subtopic] = String.split(socket.topic, ":", parts: 2)
