@@ -63,7 +63,7 @@ defmodule Dojo.Game do
   @impl true
   def init(config) do
     {_, pid} = :binbo.new_server()
-    :binbo.new_game(pid, "rnbqk1nr/ppp1ppPp/3p4/8/8/8/PPPPPP1P/RNBQKBNR w KQkq - 0 1")
+    :binbo.new_game(pid, "r3k1nr/ppp1ppPp/3p4/8/8/8/PPPPPP1P/RNBQKBNR w KQkq - 0 1")
 
     # :binbo.new_game(pid)
     {_, fen} = :binbo.get_fen(pid)
@@ -90,7 +90,8 @@ defmodule Dojo.Game do
        time_control: config.time_control,
        increment: config.increment,
        clock_pid: clock_pid,
-       difficulty: config.difficulty
+       difficulty: config.difficulty,
+       status: :continue
      }}
   end
 
@@ -138,7 +139,18 @@ defmodule Dojo.Game do
         state = Map.replace(state, :dests, dests)
         state = Map.replace(state, :halfmove_clock, halfmove_clock)
 
+        # set game status to :done if game is over
+        state =
+          if game_status == :continue do
+            state
+          else
+            # TODO: Dojo.Clock.stop_clock(state.clock_pid)
+            Map.replace(state, :status, :done)
+          end
+
         {:reply, {:ok, game_status}, state}
+
+        # state = Map.replace(state, :status, :done)
     end
   end
 

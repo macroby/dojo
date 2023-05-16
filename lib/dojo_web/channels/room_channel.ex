@@ -88,38 +88,11 @@ defmodule DojoWeb.RoomChannel do
               |> Map.put(:black_clock, clock_state.black_time_milli)
 
             broadcast(socket, "move", payload)
-            # clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
-            # payload = Map.put(payload, :white_clock, clock_state.white_time_milli)
-            # payload = Map.put(payload, :black_clock, clock_state.black_time_milli)
 
-            # Im gonna stick the ai logic right here for now,
-            # but i forsee some refactoring in the future
-            # Using bin version to play nicely with concat
-
-            movelist = Game.get_all_legal_moves(pid)
-            movelist_length = length(movelist)
-            # Process.sleep(5000)
-            if movelist_length > 0 do
-              ai_move =
-                Registry.lookup(StockfishRegistry, <<"1">>)
-                |> case do
-                  [] ->
-                    raise "Stockfish process not found"
-
-                  [{stockfish_pid, _}] ->
-                    Logger.debug("Stockfish difficulty: #{state.difficulty}")
-
-                    ai_move =
-                      Dojo.Stockfish.find_best_move(
-                        stockfish_pid,
-                        Dojo.Game.get_fen(pid),
-                        state.difficulty
-                      )
-
-                    Game.make_move(pid, ai_move)
-                    ai_move
-                end
-
+            ### Make the AI move ###
+            if state.status == :continue do
+              ai_move = get_ai_move(Dojo.Game.get_fen(pid), state.difficulty)
+              Game.make_move(pid, ai_move)
               state = Game.get_state(pid)
               halfmove_clock = state.halfmove_clock
               fen = state.fen
@@ -168,5 +141,25 @@ defmodule DojoWeb.RoomChannel do
 
     # :noreply
     {:noreply, socket}
+  end
+
+  def get_ai_move(fen, difficulty) do
+    Registry.lookup(StockfishRegistry, <<"1">>)
+    |> case do
+      [] ->
+        raise "Stockfish process not found"
+
+      [{stockfish_pid, _}] ->
+        Logger.debug("Stockfish difficulty: #{difficulty}")
+
+        ai_move =
+          Dojo.Stockfish.find_best_move(
+            stockfish_pid,
+            fen,
+            difficulty
+          )
+
+        ai_move
+    end
   end
 end
