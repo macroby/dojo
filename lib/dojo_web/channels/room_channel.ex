@@ -32,6 +32,7 @@ defmodule DojoWeb.RoomChannel do
   def handle_in("resign", _payload, socket) do
     [_ | subtopic] = String.split(socket.topic, ":", parts: 2)
     gameid = List.first(subtopic)
+
     Registry.lookup(GameRegistry, gameid)
     |> case do
       [] ->
@@ -43,9 +44,11 @@ defmodule DojoWeb.RoomChannel do
           "winner" => Game.get_side_to_move(pid),
           "reason" => "resignation"
         }
+
         broadcast(socket, "endData", end_data_payload)
         {:noreply, socket}
     end
+
     {:noreply, socket}
   end
 

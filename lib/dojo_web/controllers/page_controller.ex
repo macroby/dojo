@@ -5,6 +5,13 @@ defmodule DojoWeb.PageController do
 
   @spec index(Plug.Conn.t(), any) :: Plug.Conn.t()
   def index(conn, _params) do
+    conn =
+      Plug.Conn.put_resp_header(
+        conn,
+        "cache-control",
+        "no-cache, no-store, must-revalidate"
+      )
+
     case get_session(conn, :user_token) do
       nil ->
         user_id = UUID.string_to_binary!(UUID.uuid1())

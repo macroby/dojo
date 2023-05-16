@@ -4,7 +4,6 @@
 import "../node_modules/chessground/assets/chessground.base.css"
 import "../node_modules/chessground/assets/chessground.brown.css"
 import "../node_modules/chessground/assets/chessground.cburnett.css"
-import "../css/phoenix.css"
 import "../css/app.css"
 
 // webpack automatically bundles all modules in your
