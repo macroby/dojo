@@ -52,6 +52,10 @@ defmodule Dojo.Game do
     GenServer.call(p_name, :get_halfmove_clock)
   end
 
+  def resign(p_name, side_to_resign) do
+    GenServer.call(p_name, {:resign, side_to_resign})
+  end
+
   def stop do
     GenServer.stop(self())
   end
@@ -145,7 +149,7 @@ defmodule Dojo.Game do
             state
           else
             # TODO: Dojo.Clock.stop_clock(state.clock_pid)
-            Map.replace(state, :status, :done)
+            Map.replace(state, :status, game_status)
           end
 
         {:reply, {:ok, game_status}, state}
@@ -179,5 +183,12 @@ defmodule Dojo.Game do
   @impl true
   def handle_call(:get_halfmove_clock, _from, state) do
     {:reply, state.halfmove_clock, state}
+  end
+
+  @impl true
+  def handle_call({:resign, winning_color}, _from, state) do
+    :binbo.set_game_winner(state.board_pid, winning_color, :resignation)
+    state = Map.replace(state, :status, :binbo.game_status(state.board_pid))
+    {:reply, :ok, state}
   end
 end

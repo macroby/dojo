@@ -92,6 +92,10 @@ channel.on('pong', function (payload) { // listen to the 'shout' event
 channel.on('ack', function (payload) {
 })
 
+channel.on('endData', function (payload) {
+  ground.stop();
+})
+
 channel.on('move', function (payload) {
   // Store the new fen in local storage.
   // This is used to restore the board state when the tab is duplicated.

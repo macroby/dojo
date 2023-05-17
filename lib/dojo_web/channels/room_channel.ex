@@ -39,9 +39,16 @@ defmodule DojoWeb.RoomChannel do
         raise "this room doesnt exist"
 
       [{pid, _}] ->
-        # Game.resign(pid)
+        winner =
+          case Game.get_side_to_move(pid) do
+            :white -> :black
+            :black -> :white
+          end
+
+        Game.resign(pid, winner)
+
         end_data_payload = %{
-          "winner" => Game.get_side_to_move(pid),
+          "winner" => winner,
           "reason" => "resignation"
         }
 
@@ -70,7 +77,6 @@ defmodule DojoWeb.RoomChannel do
 
           move ->
             case Game.make_move(pid, move) do
-              # TODO: actually handle faulty move instead of just raising
               {:error, reason} -> raise reason
               {:ok, _} -> push(socket, "ack", %{})
             end
