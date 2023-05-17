@@ -77,51 +77,76 @@ defmodule DojoWeb.RoomChannel do
 
           move ->
             case Game.make_move(pid, move) do
-              {:error, reason} -> raise reason
-              {:ok, _} -> push(socket, "ack", %{})
+              {:error, _reason} ->
+                {:noreply, socket}
+
+              {:ok, _} ->
+                push(socket, "ack", %{})
+                state = Game.get_state(pid)
+                fen = state.fen
+                side_to_move = Game.get_side_to_move(pid)
+                clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
+
+                payload =
+                  Map.put(payload, :fen, fen)
+                  |> Map.put(:halfmove_clock, state.halfmove_clock)
+                  |> Map.put(:side_to_move, side_to_move)
+                  |> Map.put(:white_clock, clock_state.white_time_milli)
+                  |> Map.put(:black_clock, clock_state.black_time_milli)
+
+                broadcast(socket, "move", payload)
+
+                if state.status == :continue do
+                  ai_move = get_ai_move(Dojo.Game.get_fen(pid), state.difficulty)
+                  Game.make_move(pid, ai_move)
+                  state = Game.get_state(pid)
+                  halfmove_clock = state.halfmove_clock
+                  fen = state.fen
+                  side_to_move = Game.get_side_to_move(pid)
+                  movelist = Game.get_all_legal_moves(pid)
+                  dests = DojoWeb.Util.repack_dests(movelist)
+                  clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
+
+                  payload = %{}
+
+                  payload =
+                    Map.put(payload, :fen, fen)
+                    |> Map.put(:move, ai_move)
+                    |> Map.put(:side_to_move, side_to_move)
+                    |> Map.put(:dests, dests)
+                    |> Map.put(:halfmove_clock, halfmove_clock)
+                    |> Map.put(:white_clock, clock_state.white_time_milli)
+                    |> Map.put(:black_clock, clock_state.black_time_milli)
+
+                  broadcast(socket, "move", payload)
+
+                  if state.status != :continue do
+                    winner =
+                      case elem(state.status, 1) do
+                        :white_wins -> :white
+                        :black_wins -> :black
+                      end
+
+                    broadcast(socket, "endData", %{
+                      "winner" => winner,
+                      "reason" => elem(state.status, 0)
+                    })
+                  end
+                else
+                  winner =
+                    case elem(state.status, 1) do
+                      :white_wins -> :white
+                      :black_wins -> :black
+                    end
+
+                  broadcast(socket, "endData", %{
+                    "winner" => winner,
+                    "reason" => elem(state.status, 0)
+                  })
+                end
+
+                {:noreply, socket}
             end
-
-            state = Game.get_state(pid)
-            fen = state.fen
-            side_to_move = Game.get_side_to_move(pid)
-            clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
-
-            payload =
-              Map.put(payload, :fen, fen)
-              |> Map.put(:halfmove_clock, state.halfmove_clock)
-              |> Map.put(:side_to_move, side_to_move)
-              |> Map.put(:white_clock, clock_state.white_time_milli)
-              |> Map.put(:black_clock, clock_state.black_time_milli)
-
-            broadcast(socket, "move", payload)
-
-            ### Make the AI move ###
-            if state.status == :continue do
-              ai_move = get_ai_move(Dojo.Game.get_fen(pid), state.difficulty)
-              Game.make_move(pid, ai_move)
-              state = Game.get_state(pid)
-              halfmove_clock = state.halfmove_clock
-              fen = state.fen
-              side_to_move = Game.get_side_to_move(pid)
-              movelist = Game.get_all_legal_moves(pid)
-              dests = DojoWeb.Util.repack_dests(movelist)
-              clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
-
-              payload = %{}
-
-              payload =
-                Map.put(payload, :fen, fen)
-                |> Map.put(:move, ai_move)
-                |> Map.put(:side_to_move, side_to_move)
-                |> Map.put(:dests, dests)
-                |> Map.put(:halfmove_clock, halfmove_clock)
-                |> Map.put(:white_clock, clock_state.white_time_milli)
-                |> Map.put(:black_clock, clock_state.black_time_milli)
-
-              broadcast(socket, "move", payload)
-            end
-
-            {:noreply, socket}
         end
     end
   end
