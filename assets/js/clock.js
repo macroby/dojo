@@ -8,7 +8,7 @@ class Clock {
       this.element = element;
       this.inc = inc;
       this.milli = init_time;
-  
+      this.stopped = false;
       this.element.innerHTML = this.time_as_string();
     }
   
@@ -36,16 +36,20 @@ class Clock {
     }
   
     decrement_time(t) {
+      if (this.stopped) {
+        return;
+      }
       this.milli -= t;
-
       if (this.milli < 0) {
         this.milli = 0;
       }
-
       this.element.innerHTML = this.time_as_string();
     }
 
     set_time(t) {
+      if (this.stopped) {
+        return;
+      }
       this.milli = t;
       this.element.innerHTML = this.time_as_string();
     }
@@ -54,8 +58,15 @@ class Clock {
     // Not used rightnow because the increment is handled in the server.
     // And the server sends the new time to the client to update the clock.
     increment_by_setting() {
+      if (this.stopped) {
+        return;
+      }
       this.milli += this.inc*1000;
       this.element.innerHTML = this.time_as_string();
+    }
+
+    stop() {
+      this.stopped = true;
     }
   }
 

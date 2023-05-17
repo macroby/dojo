@@ -94,6 +94,8 @@ channel.on('ack', function (payload) {
 
 channel.on('endData', function (payload) {
   ground.stop();
+  clock.stop();
+  opponent_clock.stop();
 })
 
 channel.on('move', function (payload) {
