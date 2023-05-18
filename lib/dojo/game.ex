@@ -27,6 +27,10 @@ defmodule Dojo.Game do
   defp via_tuple(name),
     do: {:via, Registry, {GameRegistry, name}}
 
+  def make_move(p_name, move) do
+    GenServer.call(p_name, {:make_move, move})
+  end
+
   def get_state(p_name) do
     GenServer.call(p_name, :get_state)
   end
@@ -35,8 +39,8 @@ defmodule Dojo.Game do
     GenServer.call(p_name, :get_fen)
   end
 
-  def make_move(p_name, move) do
-    GenServer.call(p_name, {:make_move, move})
+  def get_clock_pid(p_name) do
+    GenServer.call(p_name, :get_clock_pid)
   end
 
   def get_all_legal_moves(p_name) do
@@ -100,17 +104,6 @@ defmodule Dojo.Game do
   end
 
   @impl true
-  def handle_call(:get_fen, _from, state) do
-    {_, fen} = :binbo.get_fen(state.board_pid)
-    {:reply, fen, state}
-  end
-
-  @impl true
-  def handle_call(:get_state, _from, state) do
-    {:reply, state, state}
-  end
-
-  @impl true
   def handle_call({:make_move, move}, _from, state) do
     case :binbo.move(state.board_pid, move) do
       {:error, reason} ->
@@ -156,6 +149,22 @@ defmodule Dojo.Game do
 
         # state = Map.replace(state, :status, :done)
     end
+  end
+
+  @impl true
+  def handle_call(:get_fen, _from, state) do
+    {_, fen} = :binbo.get_fen(state.board_pid)
+    {:reply, fen, state}
+  end
+
+  @impl true
+  def handle_call(:get_state, _from, state) do
+    {:reply, state, state}
+  end
+
+  @impl true
+  def handle_call(:get_clock_pid, _from, state) do
+    {:reply, state.clock_pid, state}
   end
 
   @impl true

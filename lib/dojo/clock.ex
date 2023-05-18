@@ -10,6 +10,10 @@ defmodule Dojo.Clock do
     GenServer.call(clock_pid, :start_clock)
   end
 
+  def stop_clock(clock_pid) do
+    GenServer.call(clock_pid, :stop_clock)
+  end
+
   def get_clock_state(clock_pid) do
     GenServer.call(clock_pid, :get_clock_state)
   end
@@ -42,13 +46,21 @@ defmodule Dojo.Clock do
        time_control: time_control,
        increment: increment,
        white_time_milli: white_time_milli,
-       black_time_milli: black_time_milli
+       black_time_milli: black_time_milli,
+       tref: nil
      }}
   end
 
   @impl true
   def handle_call(:start_clock, _from, state) do
-    :timer.send_interval(10, self(), :tick)
+    {_, tref} = :timer.send_interval(10, self(), :tick)
+    state = %{state | tref: tref}
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call(:stop_clock, _from, state) do
+    :timer.cancel(state.tref)
     {:reply, :ok, state}
   end
 

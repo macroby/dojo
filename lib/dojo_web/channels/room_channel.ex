@@ -39,6 +39,8 @@ defmodule DojoWeb.RoomChannel do
         raise "this room doesnt exist"
 
       [{pid, _}] ->
+        Dojo.Clock.stop_clock(Game.get_clock_pid(pid))
+
         winner =
           case Game.get_side_to_move(pid) do
             :white -> :black
@@ -121,6 +123,8 @@ defmodule DojoWeb.RoomChannel do
                   broadcast(socket, "move", payload)
 
                   if state.status != :continue do
+                    Dojo.Clock.stop_clock(state.clock_pid)
+
                     winner =
                       case elem(state.status, 1) do
                         :white_wins -> :white
@@ -133,6 +137,8 @@ defmodule DojoWeb.RoomChannel do
                     })
                   end
                 else
+                  Dojo.Clock.stop_clock(state.clock_pid)
+
                   winner =
                     case elem(state.status, 1) do
                       :white_wins -> :white
