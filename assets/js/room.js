@@ -261,6 +261,10 @@ ground.set({
   movable: {events: {after: playOtherSide()}}
 });
 
+if (game_status !== 'continue') {
+  ground.stop();
+}
+
 export function playOtherSide() {
   return (orig, dest) => {
     let move = sanitise(orig).concat(sanitise(dest));

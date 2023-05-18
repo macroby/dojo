@@ -65,7 +65,9 @@ defmodule DojoWeb.PageController do
               dests: DojoWeb.Util.repack_dests(game_info.dests) |> Jason.encode!([]),
               white_clock: clock_state.white_time_milli,
               black_clock: clock_state.black_time_milli,
-              user_token: cookie
+              user_token: cookie,
+              game_status:
+                Enum.map(Tuple.to_list(game_info.status), fn x -> Atom.to_string(x) end)
             )
         end
 

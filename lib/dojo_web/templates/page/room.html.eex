@@ -91,4 +91,5 @@
   const black_clock = '<%= @black_clock %>';
 
   const user_token = '<%= @user_token %>'
+  const game_status = '<%= @game_status %>'
 </script>
