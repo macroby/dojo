@@ -56,6 +56,10 @@ defmodule Dojo.Game do
     GenServer.call(p_name, :get_halfmove_clock)
   end
 
+  def get_game_status(p_name) do
+    GenServer.call(p_name, :get_game_status)
+  end
+
   def resign(p_name, side_to_resign) do
     GenServer.call(p_name, {:resign, side_to_resign})
   end
@@ -192,6 +196,17 @@ defmodule Dojo.Game do
   @impl true
   def handle_call(:get_halfmove_clock, _from, state) do
     {:reply, state.halfmove_clock, state}
+  end
+
+  @impl true
+  def handle_call(:get_game_status, _from, state) do
+    status =
+      case :binbo.game_status(state.board_pid) do
+        {:ok, status} -> status
+        {:error, reason} -> raise reason
+      end
+
+    {:reply, status, state}
   end
 
   @impl true

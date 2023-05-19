@@ -39,23 +39,29 @@ defmodule DojoWeb.RoomChannel do
         raise "this room doesnt exist"
 
       [{pid, _}] ->
-        winner =
-          case Game.get_side_to_move(pid) do
-            :white -> :black
-            :black -> :white
-          end
+        case Game.get_game_status(pid) do
+          :continue ->
+            winner =
+              case Game.get_side_to_move(pid) do
+                :white -> :black
+                :black -> :white
+              end
 
-        Game.resign(pid, winner)
+            Game.resign(pid, winner)
 
-        Dojo.Clock.stop_clock(Game.get_clock_pid(pid))
+            Dojo.Clock.stop_clock(Game.get_clock_pid(pid))
 
-        end_data_payload = %{
-          "winner" => winner,
-          "reason" => "resignation"
-        }
+            end_data_payload = %{
+              "winner" => winner,
+              "reason" => "resignation"
+            }
 
-        broadcast(socket, "endData", end_data_payload)
-        {:noreply, socket}
+            broadcast(socket, "endData", end_data_payload)
+
+          # do nothing since game is already over
+          _ ->
+            nil
+        end
     end
 
     {:noreply, socket}
