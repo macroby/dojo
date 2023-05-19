@@ -59,7 +59,8 @@ defmodule DojoWeb.PageController do
             game_status =
               case game_info.status do
                 :continue -> "continue"
-                _ -> Enum.map(Tuple.to_list(game_info.status), fn x -> Atom.to_string(x) end)
+                {_, _, _} -> Atom.to_string(elem(game_info.status, 1))
+                {_, _} -> Enum.map(Tuple.to_list(game_info.status), fn x -> Atom.to_string(x) end)
               end
 
             render(conn, "room.html",

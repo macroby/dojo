@@ -39,8 +39,6 @@ defmodule DojoWeb.RoomChannel do
         raise "this room doesnt exist"
 
       [{pid, _}] ->
-        Dojo.Clock.stop_clock(Game.get_clock_pid(pid))
-
         winner =
           case Game.get_side_to_move(pid) do
             :white -> :black
@@ -48,6 +46,8 @@ defmodule DojoWeb.RoomChannel do
           end
 
         Game.resign(pid, winner)
+
+        Dojo.Clock.stop_clock(Game.get_clock_pid(pid))
 
         end_data_payload = %{
           "winner" => winner,

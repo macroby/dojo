@@ -197,7 +197,14 @@ defmodule Dojo.Game do
   @impl true
   def handle_call({:resign, winning_color}, _from, state) do
     :binbo.set_game_winner(state.board_pid, winning_color, :resignation)
-    state = Map.replace(state, :status, :binbo.game_status(state.board_pid))
+
+    status =
+      case :binbo.game_status(state.board_pid) do
+        {:ok, status} -> status
+        {:error, reason} -> raise reason
+      end
+
+    state = Map.replace(state, :status, status)
     {:reply, :ok, state}
   end
 end

@@ -17,6 +17,7 @@ import socket from "./socket"
 import Clock from "./clock"
 import PromotionPrompt from "./promotion_prompt"
 import ResignButton from "./resign_button"
+import Result from "./result"
 import { Chessground } from 'chessground';
 import "phoenix_html"
 
@@ -34,23 +35,27 @@ if (color === 'white') {
 }
 let promotion_prompt = new PromotionPrompt(document.getElementById('promotion_prompt'));
 let resign_button = new ResignButton(document.getElementById('resign'));
+let result = new Result(document.getElementById('result'));
 let fen_array = fen.split(' ');
 let fen_side_to_play = fen_array[1];
 let fen_turn = parseInt(fen_array[fen_array.length - 1]);
-
 let side_to_play;
 if (fen_side_to_play === 'w') {
   side_to_play = 'white';
 } else {
   side_to_play = 'black';
 }
-
 let first_move;
-if (fen_turn === 1) {
-  first_move = false;
+if (game_status !== 'continue') {
+  result.setResult(game_status);
+  result.showResult();
 } else {
-  first_move = true;
-  startClock();
+  if (fen_turn === 1) {
+    first_move = false;
+  } else {
+    first_move = true;
+    startClock();
+  }
 }
 
 let promotion_dests = get_promotions_from_dests(dests);
@@ -96,6 +101,8 @@ channel.on('endData', function (payload) {
   ground.stop();
   clock.stop();
   opponent_clock.stop();
+  result.setResult(payload.winner);
+  result.showResult();
 })
 
 channel.on('move', function (payload) {
