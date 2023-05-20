@@ -131,29 +131,47 @@ defmodule DojoWeb.RoomChannel do
                   if state.status != :continue do
                     Dojo.Clock.stop_clock(state.clock_pid)
 
-                    winner =
-                      case elem(state.status, 1) do
-                        :white_wins -> :white
-                        :black_wins -> :black
+                    {winner, reason} =
+                      case state.status do
+                        {:checkmate, _} ->
+                          case elem(state.status, 1) do
+                            :white_wins -> {:white, "checkmate"}
+                            :black_wins -> {:black, "checkmate"}
+                          end
+
+                        {:draw, _} ->
+                          {:draw, "draw"}
+
+                        {:winner, winner, {_, reason}} ->
+                          {winner, reason}
                       end
 
                     broadcast(socket, "endData", %{
                       "winner" => winner,
-                      "reason" => elem(state.status, 0)
+                      "reason" => reason
                     })
                   end
                 else
                   Dojo.Clock.stop_clock(state.clock_pid)
 
-                  winner =
-                    case elem(state.status, 1) do
-                      :white_wins -> :white
-                      :black_wins -> :black
+                  {winner, reason} =
+                    case state.status do
+                      {:checkmate, _} ->
+                        case elem(state.status, 1) do
+                          :white_wins -> {:white, "checkmate"}
+                          :black_wins -> {:black, "checkmate"}
+                        end
+
+                      {:draw, _} ->
+                        {:draw, "draw"}
+
+                      {:winner, winner, {_, reason}} ->
+                        {winner, reason}
                     end
 
                   broadcast(socket, "endData", %{
                     "winner" => winner,
-                    "reason" => elem(state.status, 0)
+                    "reason" => reason
                   })
                 end
 
