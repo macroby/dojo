@@ -33,35 +33,24 @@ defmodule DojoWeb.RoomChannel do
     [_ | subtopic] = String.split(socket.topic, ":", parts: 2)
     gameid = List.first(subtopic)
 
-    Registry.lookup(GameRegistry, gameid)
-    |> case do
-      [] ->
-        raise "this room doesnt exist"
-
-      [{pid, _}] ->
-        case Game.get_game_status(pid) do
-          :continue ->
-            winner =
-              case Game.get_side_to_move(pid) do
-                :white -> :black
-                :black -> :white
-              end
-
-            Game.resign(pid, winner)
-
-            Dojo.Clock.stop_clock(Game.get_clock_pid(pid))
-
-            end_data_payload = %{
-              "winner" => winner,
-              "reason" => "resignation"
-            }
-
-            broadcast(socket, "endData", end_data_payload)
-
-          # do nothing since game is already over
-          _ ->
-            nil
+    with [{pid, _}] <- Registry.lookup(GameRegistry, gameid),
+         :continue <- Game.get_game_status(pid) do
+      winner =
+        case Game.get_side_to_move(pid) do
+          :white -> :black
+          :black -> :white
         end
+
+      Game.resign(pid, winner)
+
+      Dojo.Clock.stop_clock(Game.get_clock_pid(pid))
+
+      end_data_payload = %{
+        "winner" => winner,
+        "reason" => "resignation"
+      }
+
+      broadcast(socket, "endData", end_data_payload)
     end
 
     {:noreply, socket}
