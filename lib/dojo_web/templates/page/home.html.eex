@@ -101,9 +101,9 @@
 
     <label for="time-control-select">Time Control</label>
     <select name="time-control" id="time-control-select-with-friend">
+      <option value="unlimited">Unlimited</option>
       <option value="correspondence">Correspondence</option>
       <option value="real time">Real Time</option>
-      <option value="unlimited">Unlimited</option>
     </select>
 
     <div id="time-control-real-time-with-friend" style="display:none;">
