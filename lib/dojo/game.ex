@@ -17,17 +17,10 @@ defmodule Dojo.Game do
   Returns same results as GenServer.start_link().
   """
   def start_link([], config) do
-    # Logger.error("start_link: #{config}")
     start_link(config)
   end
 
-  def start_link(config) when config.time_control == :unlimited do
-    # Logger.error("start_link: #{config}")
-    GenServer.start_link(__MODULE__, config, name: via_tuple(config.id))
-  end
-
   def start_link(config) do
-    Logger.error("start_link: #{config}")
     GenServer.start_link(__MODULE__, config, name: via_tuple(config.id))
   end
 
