@@ -10,10 +10,6 @@ defmodule Dojo.Game do
   # API #
   #######
 
-  def start_link([], config) when config.minutes == :unlimited do
-    start_link(config)
-  end
-
   @doc """
   A wrapper around start_link(id), so that it plays
   nice with dynamic supervisor start_child.
@@ -21,14 +17,17 @@ defmodule Dojo.Game do
   Returns same results as GenServer.start_link().
   """
   def start_link([], config) do
+    # Logger.error("start_link: #{config}")
     start_link(config)
   end
 
-  def start_link(config) when config.minutes == :unlimited do
+  def start_link(config) when config.time_control == :unlimited do
+    # Logger.error("start_link: #{config}")
     GenServer.start_link(__MODULE__, config, name: via_tuple(config.id))
   end
 
   def start_link(config) do
+    Logger.error("start_link: #{config}")
     GenServer.start_link(__MODULE__, config, name: via_tuple(config.id))
   end
 
@@ -79,6 +78,29 @@ defmodule Dojo.Game do
   #######################
   # Server Implemention #
   #######################
+
+  @impl true
+  def init(config) when config.time_control == :unlimited do
+    {_, pid} = :binbo.new_server()
+    :binbo.new_game(pid, "r3k1nr/ppp1ppPp/3p4/8/8/8/PPPPPP1P/RNBQKBNR w KQkq - 0 1")
+    {_, fen} = :binbo.get_fen(pid)
+
+    dests =
+      case :binbo.all_legal_moves(pid, :str) do
+        {:error, reason} -> raise reason
+        {:ok, movelist} -> movelist
+      end
+
+    {:ok,
+    %{
+      board_pid: pid,
+      color: config.color,
+      fen: fen,
+      dests: dests,
+      halfmove_clock: 0,
+      status: :continue
+    }}
+  end
 
   @impl true
   def init(config) do
