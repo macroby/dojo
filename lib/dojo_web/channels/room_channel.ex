@@ -43,8 +43,6 @@ defmodule DojoWeb.RoomChannel do
 
       Game.resign(pid, winner)
 
-      Dojo.Clock.stop_clock(Game.get_clock_pid(pid))
-
       end_data_payload = %{
         "winner" => winner,
         "reason" => "resignation"
@@ -118,8 +116,6 @@ defmodule DojoWeb.RoomChannel do
                   broadcast(socket, "move", payload)
 
                   if state.status != :continue do
-                    Dojo.Clock.stop_clock(state.clock_pid)
-
                     {winner, reason} =
                       case state.status do
                         {:checkmate, _} ->
@@ -141,8 +137,6 @@ defmodule DojoWeb.RoomChannel do
                     })
                   end
                 else
-                  Dojo.Clock.stop_clock(state.clock_pid)
-
                   {winner, reason} =
                     case state.status do
                       {:checkmate, _} ->

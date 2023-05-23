@@ -122,6 +122,7 @@ defmodule Dojo.Game do
        fen: fen,
        dests: dests,
        halfmove_clock: 0,
+       time_control: config.time_control,
        minutes: config.minutes,
        increment: config.increment,
        clock_pid: clock_pid,
@@ -141,16 +142,21 @@ defmodule Dojo.Game do
 
         halfmove_clock = state.halfmove_clock + 1
 
-        cond do
-          halfmove_clock > 2 ->
-            Dojo.Clock.add_increment(state.clock_pid)
-            Dojo.Clock.switch_turn_color(state.clock_pid)
+        with :real_time <- state.time_control do
+          cond do
+            game_status != :continue ->
+              Dojo.Clock.stop_clock(state.clock_pid)
 
-          halfmove_clock == 2 ->
-            Dojo.Clock.start_clock(state.clock_pid)
+            halfmove_clock > 2 ->
+              Dojo.Clock.add_increment(state.clock_pid)
+              Dojo.Clock.switch_turn_color(state.clock_pid)
 
-          true ->
-            nil
+            halfmove_clock == 2 ->
+              Dojo.Clock.start_clock(state.clock_pid)
+
+            true ->
+              nil
+          end
         end
 
         dests =
@@ -235,6 +241,10 @@ defmodule Dojo.Game do
   @impl true
   def handle_call({:resign, winning_color}, _from, state) do
     :binbo.set_game_winner(state.board_pid, winning_color, :resignation)
+
+    if state.time_control == :real_time do
+      Dojo.Clock.stop_clock(state.clock_pid)
+    end
 
     status =
       case :binbo.game_status(state.board_pid) do
