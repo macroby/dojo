@@ -132,3 +132,19 @@ timeControlSelectWithFriend.onchange = function() {
   }
 }
 
+let timeControlSelectWithAI = document.getElementById("time-control-select-with-ai");
+timeControlSelectWithAI.onchange = function() {
+  let timeControl = timeControlSelectWithAI.value;
+  let timeControlRealTimeInput = document.getElementById("time-control-real-time-with-ai");
+  let timeControlCorrespondenceInput = document.getElementById("time-control-correspondence-with-ai");
+  if (timeControl == "real time") {
+    timeControlRealTimeInput.style.display = "block";
+  } else if (timeControl == "correspondence") {
+    timeControlCorrespondenceInput.style.display = "block";
+  }
+  else {
+    timeControlRealTimeInput.style.display = "none";
+    timeControlCorrespondenceInput.style.display = "none";
+  }
+}
+

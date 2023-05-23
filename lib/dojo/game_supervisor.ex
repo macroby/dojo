@@ -13,6 +13,7 @@ defmodule GameSupervisor do
 
   def create_game(id, color, time_control) when time_control == :unlimited do
     Logger.error("create_game: #{id}, #{color}, #{time_control}")
+
     DynamicSupervisor.start_child(
       __MODULE__,
       {Game,
@@ -29,13 +30,15 @@ defmodule GameSupervisor do
     end
   end
 
-  def create_game(id, color, minutes, increment, difficulty) do
+  def create_game(id, color, time_control, minutes, increment, difficulty)
+      when time_control == :real_time do
     DynamicSupervisor.start_child(
       __MODULE__,
       {Game,
        %{
          id: id,
          color: color,
+         time_control: time_control,
          minutes: minutes,
          increment: increment,
          difficulty: difficulty

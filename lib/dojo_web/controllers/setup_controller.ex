@@ -41,6 +41,7 @@ defmodule DojoWeb.SetupController do
 
   def setup_ai(conn, %{
         "color" => color,
+        "time-control" => time_control,
         "minutes" => minutes,
         "increment" => increment,
         "difficulty" => difficulty
@@ -58,6 +59,14 @@ defmodule DojoWeb.SetupController do
             x when x > 5 -> "white"
             _ -> "black"
           end
+      end
+
+    time_control =
+      case time_control do
+        "unlimited" -> :unlimited
+        "real time" -> :real_time
+        "correspondence" -> :correspondence
+        _ -> :unlimited
       end
 
     minutes =
@@ -96,7 +105,7 @@ defmodule DojoWeb.SetupController do
     game_id = Base.url_encode64(game_id, padding: false)
 
     pid =
-      GameSupervisor.create_game(game_id, color, minutes, increment, difficulty)
+      GameSupervisor.create_game(game_id, color, time_control, minutes, increment, difficulty)
       |> case do
         {nil, error} -> raise error
         pid -> pid

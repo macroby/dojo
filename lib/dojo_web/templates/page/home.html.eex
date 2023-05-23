@@ -161,8 +161,16 @@
         <option value="standard">Standard</option>
       </select>
 
-      <label for="minutes-select">Minutes per side</label>
-      <select name="minutes" id="minutes-select">
+      <label for="time-control-select">Time Control</label>
+      <select name="time-control" id="time-control-select-with-ai">
+      <option value="unlimited">Unlimited</option>
+      <option value="correspondence">Correspondence</option>
+      <option value="real time">Real Time</option>
+      </select>
+
+      <div id="time-control-real-time-with-ai" style="display:none;">
+      <label for="time-control-select-with-ai">Minutes per side</label>
+      <select name="minutes" id="minutes-select-with-ai">
         <option value="5">5</option>
         <option value="10">10</option>
         <option value="15">15</option>
@@ -170,13 +178,24 @@
       </select>
 
       <label for="increment-select">Increment in seconds</label>
-      <select name="increment" id="increment-select">
+      <select name="increment" id="increment-select-with-ai">
         <option value="0">0</option>
         <option value="3">3</option>
         <option value="5">5</option>
         <option value="10">10</option>
         <option value="20">20</option>
       </select>
+    </div>
+
+    <div id="time-control-correspondence-with-ai" style="display:none;">
+      <label for="time-control-select-with-ai">Days per move</label>
+      <select name="days" id="days-select-with-ai">
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="7">7</option>
+        <option value="14">14</option>
+      </select>
+    </div>
 
       <label for="difficulty-select">Difficulty</label>
       <select name="difficulty" id="difficulty-select">

@@ -85,18 +85,18 @@ defmodule Dojo.Game do
       end
 
     {:ok,
-    %{
-      board_pid: pid,
-      color: config.color,
-      fen: fen,
-      dests: dests,
-      halfmove_clock: 0,
-      status: :continue
-    }}
+     %{
+       board_pid: pid,
+       color: config.color,
+       fen: fen,
+       dests: dests,
+       halfmove_clock: 0,
+       status: :continue
+     }}
   end
 
   @impl true
-  def init(config) do
+  def init(config) when config.time_control == :real_time do
     {_, pid} = :binbo.new_server()
     :binbo.new_game(pid, "r3k1nr/ppp1ppPp/3p4/8/8/8/PPPPPP1P/RNBQKBNR w KQkq - 0 1")
 
