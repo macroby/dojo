@@ -116,6 +116,19 @@ window.onclick = function(event) {
   }
 }
 
-
-
+let timeControlSelectWithFriend = document.getElementById("time-control-select-with-friend");
+timeControlSelectWithFriend.onchange = function() {
+  let timeControl = timeControlSelectWithFriend.value;
+  let timeControlRealTimeInput = document.getElementById("time-control-real-time-with-friend");
+  let timeControlCorrespondenceInput = document.getElementById("time-control-correspondence-with-friend");
+  if (timeControl == "real time") {
+    timeControlRealTimeInput.style.display = "block";
+  } else if (timeControl == "correspondence") {
+    timeControlCorrespondenceInput.style.display = "block";
+  }
+  else {
+    timeControlRealTimeInput.style.display = "none";
+    timeControlCorrespondenceInput.style.display = "none";
+  }
+}
 

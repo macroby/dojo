@@ -100,10 +100,40 @@
     </select>
 
     <label for="time-control-select">Time Control</label>
-    <select name="variant" id="time-control-select-with-friend">
-      <option
-      value="unlimited">Unlimited</option>
+    <select name="time-control" id="time-control-select-with-friend">
+      <option value="correspondence">Correspondence</option>
+      <option value="real time">Real Time</option>
+      <option value="unlimited">Unlimited</option>
     </select>
+
+    <div id="time-control-real-time-with-friend" style="display:none;">
+      <label for="time-control-select-with-friend">Minutes per side</label>
+      <select name="time-control" id="time-control-select-with-friend">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="30">30</option>
+      </select>
+
+      <label for="increment-select">Increment in seconds</label>
+      <select name="increment" id="increment-select-with-friend">
+        <option value="0">0</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
+    </div>
+
+    <div id="time-control-correspondence-with-friend" style="display:none;">
+      <label for="time-control-select-with-friend">Days per move</label>
+      <select name="time-control" id="time-control-select-with-friend">
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="7">7</option>
+        <option value="14">14</option>
+      </select>
+    </div>
 
     <br>
     <button type="button">White</button>
