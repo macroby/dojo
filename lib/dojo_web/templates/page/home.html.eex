@@ -92,7 +92,7 @@
   <div class="modal-content">
     <span id="playWithFriendClose" class="close">&times;</span>
 
-    <form>
+    <form id="play-with-friend-form" action="/setup/friend" method="post">
     <label for="variant-select">Variant</label>
 
     <select name="variant" id="variant-select-with-friend">
@@ -108,7 +108,7 @@
 
     <div id="time-control-real-time-with-friend" style="display:none;">
       <label for="time-control-select-with-friend">Minutes per side</label>
-      <select name="time-control" id="time-control-select-with-friend">
+      <select name="minutes" id="minutes-select-with-friend">
         <option value="5">5</option>
         <option value="10">10</option>
         <option value="15">15</option>
@@ -127,7 +127,7 @@
 
     <div id="time-control-correspondence-with-friend" style="display:none;">
       <label for="time-control-select-with-friend">Days per move</label>
-      <select name="time-control" id="time-control-select-with-friend">
+      <select name="days" id="days-select-with-friend">
         <option value="1">1</option>
         <option value="3">3</option>
         <option value="7">7</option>
@@ -135,10 +135,10 @@
       </select>
     </div>
 
-    <br>
-    <button type="button">White</button>
-    <button type="button">Black</button>
-    <button type="button">Random</button>
+      <br>
+      <button id="play-friend-as-white-submit-button" type='submit' value='white' name='color'>White</button>
+      <button id="play-friend-as-black-submit-button" type='submit' value='black' name='color'>Black</button>
+      <button id="play-friend-as-random-submit-button" type='submit' value='rand' name='color'>Random</button>
     </form>
   </div>
 
@@ -161,8 +161,8 @@
         <option value="standard">Standard</option>
       </select>
 
-      <label for="time-control-select">Minutes per side</label>
-      <select name="time-control" id="time-control-select">
+      <label for="minutes-select">Minutes per side</label>
+      <select name="minutes" id="minutes-select">
         <option value="5">5</option>
         <option value="10">10</option>
         <option value="15">15</option>

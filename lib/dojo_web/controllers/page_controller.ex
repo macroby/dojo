@@ -67,7 +67,7 @@ defmodule DojoWeb.PageController do
               layout: {DojoWeb.LayoutView, "room_layout.html"},
               fen: game_info.fen,
               color: game_info.color,
-              time_control: game_info.time_control,
+              minutes: game_info.minutes,
               increment: game_info.increment,
               dests: DojoWeb.Util.repack_dests(game_info.dests) |> Jason.encode!([]),
               white_clock: clock_state.white_time_milli,

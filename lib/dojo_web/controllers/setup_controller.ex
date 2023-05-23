@@ -3,9 +3,45 @@ defmodule DojoWeb.SetupController do
   use DojoWeb, :controller
   require Logger
 
-  def setup_ai(conn, %{
+  def setup_friend(conn, %{
+        "color" => color,
+        "time-control" => time_control
+      })
+      when time_control == "unlimited" do
+    game_id = UUID.string_to_binary!(UUID.uuid1())
+    game_id = Base.url_encode64(game_id, padding: false)
+    GameSupervisor.create_game(game_id, color, :unlimited)
+    # pid =
+    #   GameSupervisor.create_game(game_id, color, :unlimited)
+    #   |> case do
+    #     {nil, error} -> raise error
+    #     pid -> pid
+    #   end
+    text(conn, "#{color}, #{time_control}")
+  end
+
+  def setup_friend(conn, %{
         "color" => color,
         "time-control" => time_control,
+        "minutes" => minutes,
+        "increment" => increment
+      })
+      when time_control == "real time" do
+    text(conn, "#{color}, #{time_control}, #{minutes}, #{increment}")
+  end
+
+  def setup_friend(conn, %{
+        "color" => color,
+        "time-control" => time_control,
+        "days" => days
+      })
+      when time_control == "correspondence" do
+    text(conn, "#{color}, #{time_control}, #{days}")
+  end
+
+  def setup_ai(conn, %{
+        "color" => color,
+        "minutes" => minutes,
         "increment" => increment,
         "difficulty" => difficulty
       }) do
@@ -24,8 +60,8 @@ defmodule DojoWeb.SetupController do
           end
       end
 
-    time_control =
-      case time_control do
+    minutes =
+      case minutes do
         "5" -> 5
         "10" -> 10
         "15" -> 15
@@ -60,7 +96,7 @@ defmodule DojoWeb.SetupController do
     game_id = Base.url_encode64(game_id, padding: false)
 
     pid =
-      GameSupervisor.create_game(game_id, color, time_control, increment, difficulty)
+      GameSupervisor.create_game(game_id, color, minutes, increment, difficulty)
       |> case do
         {nil, error} -> raise error
         pid -> pid

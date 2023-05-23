@@ -27,6 +27,7 @@ defmodule DojoWeb.Router do
   scope "/setup", DojoWeb do
     pipe_through(:api)
 
+    post("/friend", SetupController, :setup_friend)
     post("/ai", SetupController, :setup_ai)
   end
 

@@ -35,15 +35,15 @@ defmodule Dojo.Clock do
   #######################
 
   @impl true
-  def init(%{time_control: time_control, increment: increment}) do
-    white_time_milli = time_control * 60 * 1000
+  def init(%{minutes: minutes, increment: increment}) do
+    white_time_milli = minutes * 60 * 1000
 
-    black_time_milli = time_control * 60 * 1000
+    black_time_milli = minutes * 60 * 1000
 
     {:ok,
      %{
        turn_color: :white,
-       time_control: time_control,
+       minutes: minutes,
        increment: increment,
        white_time_milli: white_time_milli,
        black_time_milli: black_time_milli,

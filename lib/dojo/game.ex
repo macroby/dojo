@@ -10,6 +10,10 @@ defmodule Dojo.Game do
   # API #
   #######
 
+  def start_link([], config) when config.minutes == :unlimited do
+    start_link(config)
+  end
+
   @doc """
   A wrapper around start_link(id), so that it plays
   nice with dynamic supervisor start_child.
@@ -18,6 +22,10 @@ defmodule Dojo.Game do
   """
   def start_link([], config) do
     start_link(config)
+  end
+
+  def start_link(config) when config.minutes == :unlimited do
+    GenServer.start_link(__MODULE__, config, name: via_tuple(config.id))
   end
 
   def start_link(config) do
@@ -87,7 +95,7 @@ defmodule Dojo.Game do
       end
 
     clock_pid =
-      case Dojo.Clock.start_link(%{time_control: config.time_control, increment: config.increment}) do
+      case Dojo.Clock.start_link(%{minutes: config.minutes, increment: config.increment}) do
         {:error, reason} -> raise reason
         {:ok, pid} -> pid
       end
@@ -99,7 +107,7 @@ defmodule Dojo.Game do
        fen: fen,
        dests: dests,
        halfmove_clock: 0,
-       time_control: config.time_control,
+       minutes: config.minutes,
        increment: config.increment,
        clock_pid: clock_pid,
        difficulty: config.difficulty,
