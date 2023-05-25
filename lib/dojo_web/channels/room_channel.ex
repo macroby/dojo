@@ -79,7 +79,12 @@ defmodule DojoWeb.RoomChannel do
                 push(socket, "ack", %{})
                 state = Game.get_state(pid)
                 fen = state.fen
-                side_to_move = Game.get_side_to_move(pid)
+
+                side_to_move =
+                  case state.halfmove_clock |> rem(2) do
+                    0 -> :white
+                    1 -> :black
+                  end
 
                 payload =
                   Map.put(payload, :fen, fen)
@@ -96,7 +101,13 @@ defmodule DojoWeb.RoomChannel do
                   state = Game.get_state(pid)
                   halfmove_clock = state.halfmove_clock
                   fen = state.fen
-                  side_to_move = Game.get_side_to_move(pid)
+
+                  side_to_move =
+                    case state.halfmove_clock |> rem(2) do
+                      0 -> :white
+                      1 -> :black
+                    end
+
                   movelist = Game.get_all_legal_moves(pid)
                   dests = DojoWeb.Util.repack_dests(movelist)
 
