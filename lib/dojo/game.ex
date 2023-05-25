@@ -5,6 +5,7 @@ defmodule Dojo.Game do
   @moduledoc """
   Represents the state of a game.
   """
+  alias Dojo.Game
 
   #######
   # API #
@@ -21,7 +22,7 @@ defmodule Dojo.Game do
   end
 
   def start_link(config) do
-    GenServer.start_link(__MODULE__, config, name: via_tuple(config.id))
+    GenServer.start_link(__MODULE__, config, name: via_tuple(config.game_id))
   end
 
   defp via_tuple(name),
@@ -72,31 +73,26 @@ defmodule Dojo.Game do
   # Server Implemention #
   #######################
 
-  @impl true
-  def init(config) when config.time_control == :unlimited do
-    {_, pid} = :binbo.new_server()
-    :binbo.new_game(pid, "r3k1nr/ppp1ppPp/3p4/8/8/8/PPPPPP1P/RNBQKBNR w KQkq - 0 1")
-    {_, fen} = :binbo.get_fen(pid)
-
-    dests =
-      case :binbo.all_legal_moves(pid, :str) do
-        {:error, reason} -> raise reason
-        {:ok, movelist} -> movelist
-      end
-
-    {:ok,
-     %{
-       board_pid: pid,
-       color: config.color,
-       fen: fen,
-       dests: dests,
-       halfmove_clock: 0,
-       status: :continue
-     }}
-  end
+  defstruct [
+    :game_id,
+    :board_pid,
+    :color,
+    :fen,
+    :dests,
+    :halfmove_clock,
+    :status,
+    :time_control,
+    :minutes,
+    :increment,
+    :clock_pid,
+    :white_time_ms,
+    :black_time_ms,
+    :difficulty,
+    :status
+  ]
 
   @impl true
-  def init(config) when config.time_control == :real_time do
+  def init(config = %Game{}) do
     {_, pid} = :binbo.new_server()
     :binbo.new_game(pid, "r3k1nr/ppp1ppPp/3p4/8/8/8/PPPPPP1P/RNBQKBNR w KQkq - 0 1")
 
@@ -109,14 +105,18 @@ defmodule Dojo.Game do
         {:ok, movelist} -> movelist
       end
 
-    clock_pid =
-      case Dojo.Clock.start_link(%{minutes: config.minutes, increment: config.increment}) do
-        {:error, reason} -> raise reason
-        {:ok, pid} -> pid
+    {clock_pid, white_time_ms, black_time_ms} =
+      with :real_time <- config.time_control do
+        case Dojo.Clock.start_link(%{minutes: config.minutes, increment: config.increment}) do
+          {:error, reason} -> raise reason
+          {:ok, pid} -> {pid, config.minutes * 60 * 1000, config.minutes * 60 * 1000}
+        end
+      else
+        _ -> {nil, nil, nil}
       end
 
     {:ok,
-     %{
+     %Game{
        board_pid: pid,
        color: config.color,
        fen: fen,
@@ -126,6 +126,8 @@ defmodule Dojo.Game do
        minutes: config.minutes,
        increment: config.increment,
        clock_pid: clock_pid,
+       white_time_ms: white_time_ms,
+       black_time_ms: black_time_ms,
        difficulty: config.difficulty,
        status: :continue
      }}
@@ -142,22 +144,38 @@ defmodule Dojo.Game do
 
         halfmove_clock = state.halfmove_clock + 1
 
-        with :real_time <- state.time_control do
-          cond do
-            game_status != :continue ->
-              Dojo.Clock.stop_clock(state.clock_pid)
+        state =
+          case state.time_control do
+            :real_time ->
+              cond do
+                game_status != :continue ->
+                  Dojo.Clock.stop_clock(state.clock_pid)
+                  clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
+                  state = Map.replace(state, :white_time_ms, clock_state.white_time_milli)
+                  state = Map.replace(state, :black_time_ms, clock_state.black_time_milli)
+                  state
 
-            halfmove_clock > 2 ->
-              Dojo.Clock.add_increment(state.clock_pid)
-              Dojo.Clock.switch_turn_color(state.clock_pid)
+                halfmove_clock > 2 ->
+                  Dojo.Clock.add_increment(state.clock_pid)
+                  Dojo.Clock.switch_turn_color(state.clock_pid)
+                  clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
+                  state = Map.replace(state, :white_time_ms, clock_state.white_time_milli)
+                  state = Map.replace(state, :black_time_ms, clock_state.black_time_milli)
+                  state
 
-            halfmove_clock == 2 ->
-              Dojo.Clock.start_clock(state.clock_pid)
+                halfmove_clock == 2 ->
+                  Dojo.Clock.start_clock(state.clock_pid)
+                  state = Map.replace(state, :white_time_ms, state.minutes * 60 * 1000)
+                  state = Map.replace(state, :black_time_ms, state.minutes * 60 * 1000)
+                  state
 
-            true ->
-              nil
+                true ->
+                  state
+              end
+
+            _ ->
+              state
           end
-        end
 
         dests =
           case :binbo.all_legal_moves(state.board_pid, :str) do
@@ -242,9 +260,14 @@ defmodule Dojo.Game do
   def handle_call({:resign, winning_color}, _from, state) do
     :binbo.set_game_winner(state.board_pid, winning_color, :resignation)
 
-    if state.time_control == :real_time do
-      Dojo.Clock.stop_clock(state.clock_pid)
-    end
+    state =
+      if state.time_control == :real_time do
+        Dojo.Clock.stop_clock(state.clock_pid)
+        clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
+        state = Map.replace(state, :white_time_ms, clock_state.white_time_milli)
+        state = Map.replace(state, :black_time_ms, clock_state.black_time_milli)
+        state
+      end
 
     status =
       case :binbo.game_status(state.board_pid) do

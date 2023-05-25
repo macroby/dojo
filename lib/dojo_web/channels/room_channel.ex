@@ -80,14 +80,13 @@ defmodule DojoWeb.RoomChannel do
                 state = Game.get_state(pid)
                 fen = state.fen
                 side_to_move = Game.get_side_to_move(pid)
-                clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
 
                 payload =
                   Map.put(payload, :fen, fen)
                   |> Map.put(:halfmove_clock, state.halfmove_clock)
                   |> Map.put(:side_to_move, side_to_move)
-                  |> Map.put(:white_clock, clock_state.white_time_milli)
-                  |> Map.put(:black_clock, clock_state.black_time_milli)
+                  |> Map.put(:white_clock, state.white_time_ms)
+                  |> Map.put(:black_clock, state.black_time_ms)
 
                 broadcast(socket, "move", payload)
 
@@ -100,7 +99,6 @@ defmodule DojoWeb.RoomChannel do
                   side_to_move = Game.get_side_to_move(pid)
                   movelist = Game.get_all_legal_moves(pid)
                   dests = DojoWeb.Util.repack_dests(movelist)
-                  clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
 
                   payload = %{}
 
@@ -110,8 +108,8 @@ defmodule DojoWeb.RoomChannel do
                     |> Map.put(:side_to_move, side_to_move)
                     |> Map.put(:dests, dests)
                     |> Map.put(:halfmove_clock, halfmove_clock)
-                    |> Map.put(:white_clock, clock_state.white_time_milli)
-                    |> Map.put(:black_clock, clock_state.black_time_milli)
+                    |> Map.put(:white_clock, state.white_time_ms)
+                    |> Map.put(:black_clock, state.black_time_ms)
 
                   broadcast(socket, "move", payload)
 

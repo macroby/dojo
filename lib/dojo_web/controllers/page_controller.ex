@@ -54,7 +54,19 @@ defmodule DojoWeb.PageController do
                 "no-cache, no-store, must-revalidate"
               )
 
-            clock_state = Dojo.Clock.get_clock_state(game_info.clock_pid)
+            {white_time_ms, black_time_ms} =
+              case game_info.time_control do
+                :real_time ->
+                  clock_state = Dojo.Clock.get_clock_state(game_info.clock_pid)
+                  white_time_ms = clock_state.white_time_milli
+                  black_time_ms = clock_state.black_time_milli
+                  {white_time_ms, black_time_ms}
+
+                _ ->
+                  {nil, nil}
+              end
+
+            # Dojo.Clock.get_clock_state(game_info.clock_pid)
 
             game_status =
               case game_info.status do
@@ -70,8 +82,8 @@ defmodule DojoWeb.PageController do
               minutes: game_info.minutes,
               increment: game_info.increment,
               dests: DojoWeb.Util.repack_dests(game_info.dests) |> Jason.encode!([]),
-              white_clock: clock_state.white_time_milli,
-              black_clock: clock_state.black_time_milli,
+              white_clock: white_time_ms,
+              black_clock: black_time_ms,
               user_token: cookie,
               game_status: game_status
             )
