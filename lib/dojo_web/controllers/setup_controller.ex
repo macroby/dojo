@@ -19,13 +19,15 @@ defmodule DojoWeb.SetupController do
     }
 
     GameSupervisor.create_game(game_init_state)
-    # pid =
-    #   GameSupervisor.create_game(game_id, color, :unlimited)
-    #   |> case do
-    #     {nil, error} -> raise error
-    #     pid -> pid
-    #   end
-    text(conn, "#{color}, #{time_control}")
+    |> case do
+      {nil, error} -> raise error
+      pid -> pid
+    end
+
+    conn = put_session(conn, :game_type, "friend")
+
+    # redirect(conn, to: Routes.page_path(conn, :room, game_id))
+    text(conn, "#{game_id}")
   end
 
   def setup_friend(conn, %{
@@ -36,15 +38,6 @@ defmodule DojoWeb.SetupController do
       })
       when time_control == "real time" do
     text(conn, "#{color}, #{time_control}, #{minutes}, #{increment}")
-  end
-
-  def setup_friend(conn, %{
-        "color" => color,
-        "time-control" => time_control,
-        "days" => days
-      })
-      when time_control == "correspondence" do
-    text(conn, "#{color}, #{time_control}, #{days}")
   end
 
   def setup_ai(conn, %{
