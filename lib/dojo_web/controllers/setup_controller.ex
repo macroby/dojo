@@ -1,5 +1,5 @@
 defmodule DojoWeb.SetupController do
-  alias Dojo.Game
+  alias Dojo.GameState
   alias Dojo.Stockfish
   use DojoWeb, :controller
   require Logger
@@ -12,7 +12,7 @@ defmodule DojoWeb.SetupController do
     game_id = UUID.string_to_binary!(UUID.uuid1())
     game_id = Base.url_encode64(game_id, padding: false)
 
-    game_init_state = %Game{
+    game_init_state = %GameState{
       game_id: game_id,
       color: color,
       time_control: time_control
@@ -106,7 +106,7 @@ defmodule DojoWeb.SetupController do
     game_id = UUID.string_to_binary!(UUID.uuid1())
     game_id = Base.url_encode64(game_id, padding: false)
 
-    game_init_state = %Game{
+    game_init_state = %GameState{
       game_id: game_id,
       color: color,
       time_control: time_control,
@@ -186,7 +186,7 @@ defmodule DojoWeb.SetupController do
     game_id = Base.url_encode64(game_id, padding: false)
 
     pid =
-      GameSupervisor.create_game(%Game{
+      GameSupervisor.create_game(%GameState{
         game_id: game_id,
         color: color,
         time_control: time_control,

@@ -1,11 +1,7 @@
 defmodule Dojo.Game do
   use GenServer
   require Logger
-
-  @moduledoc """
-  Represents the state of a game.
-  """
-  alias Dojo.Game
+  alias Dojo.GameState
 
   #######
   # API #
@@ -92,7 +88,7 @@ defmodule Dojo.Game do
   ]
 
   @impl true
-  def init(config = %Game{}) do
+  def init(config = %GameState{}) do
     {_, pid} = :binbo.new_server()
     :binbo.new_game(pid, "r3k1nr/ppp1ppPp/3p4/8/8/8/PPPPPP1P/RNBQKBNR w KQkq - 0 1")
 
@@ -116,7 +112,7 @@ defmodule Dojo.Game do
       end
 
     {:ok,
-     %Game{
+     %GameState{
        board_pid: pid,
        color: config.color,
        fen: fen,

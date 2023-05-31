@@ -1,5 +1,6 @@
 defmodule GameSupervisor do
   alias Dojo.Game
+  alias Dojo.GameState
   use DynamicSupervisor
   require Logger
 
@@ -11,7 +12,7 @@ defmodule GameSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def create_game(game = %Game{}) do
+  def create_game(game = %GameState{}) do
     DynamicSupervisor.start_child(
       __MODULE__,
       {Game, game}
