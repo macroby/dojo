@@ -34,9 +34,11 @@ defmodule DojoWeb.PageController do
   end
 
   def room(conn, %{"gameid" => gameid}) do
-    cookie = get_session(conn, :user_token)
+    conn = fetch_cookies(conn)
 
-    case Token.verify(conn, "user auth", cookie, max_age: 60 * 60 * 24 * 365) do
+    cookie = conn.cookies["game_token"]
+
+    case Token.verify(conn, "game auth", cookie, max_age: 60 * 60 * 24 * 365) do
       {:ok, _} ->
         Registry.lookup(GameRegistry, gameid)
         |> case do
