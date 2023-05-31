@@ -267,6 +267,8 @@ defmodule Dojo.Game do
         state = Map.replace(state, :white_time_ms, clock_state.white_time_milli)
         state = Map.replace(state, :black_time_ms, clock_state.black_time_milli)
         state
+      else
+        state
       end
 
     status =
