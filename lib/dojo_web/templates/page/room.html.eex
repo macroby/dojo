@@ -1,4 +1,4 @@
-<div id="active_game">
+
   <div id="clock"></div>
   <div id="opponent_clock"></div>
   <div id="promotion_prompt"></div>
@@ -13,11 +13,7 @@
     <input type="text" id="name" placeholder="Your Name" autofocus>
     <input type="text" id="msg" placeholder="Your Message">
   </footer>
-</div>
 
-<div id="waiting_for_opponent">
-  <h1>Waiting for opponent...</h1>
-</div>
 
 <style>
   #msg-list {
@@ -97,13 +93,5 @@
   } else {
     clientStateObject = JSON.parse(clientStateJson);
     fen = clientStateObject.fen;
-  }
-
-  if (game_type == "friend" && invite_accepted == "false") {
-    active_game = document.getElementById('active_game');
-    active_game.style.display = 'none';
-
-    waiting_for_opponent = document.getElementById('waiting_for_opponent');
-    waiting_for_opponent.style.display = 'block';
   }
 </script>

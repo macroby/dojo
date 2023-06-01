@@ -134,6 +134,7 @@ defmodule DojoWeb.SetupController do
     game_init_state = %GameState{
       game_id: game_id,
       color: color,
+      game_type: :ai,
       time_control: time_control,
       minutes: minutes,
       increment: increment,
@@ -217,6 +218,7 @@ defmodule DojoWeb.SetupController do
       GameSupervisor.create_game(%GameState{
         game_id: game_id,
         color: color,
+        game_type: :ai,
         time_control: time_control,
         difficulty: difficulty
       })
