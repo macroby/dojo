@@ -115,6 +115,10 @@ defmodule Dojo.Game do
      %GameState{
        board_pid: pid,
        color: config.color,
+       game_type: config.game_type,
+       invite_accepted: config.invite_accepted,
+       white_user_id: config.white_user_id,
+       black_user_id: config.black_user_id,
        fen: fen,
        dests: dests,
        halfmove_clock: 0,

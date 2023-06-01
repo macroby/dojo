@@ -30,15 +30,14 @@ defmodule DojoWeb.SetupController do
           end
       end
 
-    Logger.error("white_user_id: #{white_user_id}")
-    Logger.error("black_user_id: #{black_user_id}")
-
     token = Token.sign(conn, "game auth", game_id)
     conn = put_resp_cookie(conn, "game_token", token)
 
     game_init_state = %GameState{
       game_id: game_id,
       color: color,
+      game_type: :friend,
+      invite_accepted: false,
       white_user_id: white_user_id,
       black_user_id: black_user_id,
       time_control: time_control
@@ -50,8 +49,7 @@ defmodule DojoWeb.SetupController do
       pid -> pid
     end
 
-    # redirect(conn, to: Routes.page_path(conn, :room, game_id))
-    text(conn, "redirect to room")
+    redirect(conn, to: Routes.page_path(conn, :room, game_id))
   end
 
   def setup_friend(conn, %{

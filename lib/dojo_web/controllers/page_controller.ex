@@ -87,6 +87,8 @@ defmodule DojoWeb.PageController do
                   layout: {DojoWeb.LayoutView, "room_layout.html"},
                   fen: game_info.fen,
                   color: game_info.color,
+                  game_type: game_info.game_type,
+                  invite_accepted: game_info.invite_accepted,
                   minutes: game_info.minutes,
                   increment: game_info.increment,
                   dests: DojoWeb.Util.repack_dests(game_info.dests) |> Jason.encode!([]),

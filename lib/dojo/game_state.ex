@@ -3,6 +3,8 @@ defmodule Dojo.GameState do
     :game_id,
     :board_pid,
     :color,
+    :game_type,
+    :invite_accepted,
     :white_user_id,
     :black_user_id,
     :fen,
