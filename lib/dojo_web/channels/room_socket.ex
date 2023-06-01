@@ -18,10 +18,8 @@ defmodule DojoWeb.RoomSocket do
   # performing token verification on connect.
   @impl true
   def connect(params, socket, _connect_info) do
-
     case Phoenix.Token.verify(socket, "game auth", params["token"], max_age: 60 * 60 * 24 * 365) do
       {:ok, _} ->
-
         {:ok, socket}
 
       {:error, _} ->

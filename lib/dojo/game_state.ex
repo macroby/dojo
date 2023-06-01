@@ -3,6 +3,8 @@ defmodule Dojo.GameState do
     :game_id,
     :board_pid,
     :color,
+    :white_user_id,
+    :black_user_id,
     :fen,
     :dests,
     :halfmove_clock,

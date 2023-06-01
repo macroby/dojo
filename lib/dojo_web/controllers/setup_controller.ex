@@ -13,12 +13,34 @@ defmodule DojoWeb.SetupController do
     game_id = UUID.string_to_binary!(UUID.uuid1())
     game_id = Base.url_encode64(game_id, padding: false)
 
+    user_id = get_session(conn, :user_token)
+
+    {white_user_id, black_user_id} =
+      case color do
+        "white" ->
+          {user_id, nil}
+
+        "black" ->
+          {nil, user_id}
+
+        _ ->
+          case :rand.uniform(10) do
+            x when x > 5 -> {user_id, nil}
+            _ -> {nil, user_id}
+          end
+      end
+
+    Logger.error("white_user_id: #{white_user_id}")
+    Logger.error("black_user_id: #{black_user_id}")
+
     token = Token.sign(conn, "game auth", game_id)
-    conn = put_session(conn, :game_token, token)
+    conn = put_resp_cookie(conn, "game_token", token)
 
     game_init_state = %GameState{
       game_id: game_id,
       color: color,
+      white_user_id: white_user_id,
+      black_user_id: black_user_id,
       time_control: time_control
     }
 
@@ -28,9 +50,8 @@ defmodule DojoWeb.SetupController do
       pid -> pid
     end
 
-    conn = put_session(conn, :game_type, "friend")
-
-    redirect(conn, to: Routes.page_path(conn, :room, game_id))
+    # redirect(conn, to: Routes.page_path(conn, :room, game_id))
+    text(conn, "redirect to room")
   end
 
   def setup_friend(conn, %{
@@ -110,7 +131,7 @@ defmodule DojoWeb.SetupController do
     game_id = Base.url_encode64(game_id, padding: false)
 
     token = Token.sign(conn, "game auth", game_id)
-    conn = put_session(conn, :game_token, token)
+    conn = put_resp_cookie(conn, "game_token", token)
 
     game_init_state = %GameState{
       game_id: game_id,

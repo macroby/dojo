@@ -33,63 +33,74 @@ defmodule DojoWeb.PageController do
     end
   end
 
-  def room(conn, %{"gameid" => gameid}) do
+  def room(conn, %{"gameid" => url_game_id}) do
     conn = fetch_cookies(conn)
 
     cookie = conn.cookies["game_token"]
 
-
     case Token.verify(conn, "game auth", cookie, max_age: 60 * 60 * 24 * 365) do
-      {:ok, _} ->
+      {:ok, game_id} ->
+        case game_id == url_game_id do
+          true ->
+            case Registry.lookup(GameRegistry, game_id) do
+              [] ->
+                info = game_id
+                render(conn, "room_error.html", info: info)
 
-        Registry.lookup(GameRegistry, gameid)
-        |> case do
-          [] ->
-            info = gameid
-            render(conn, "room_error.html", info: info)
+              [{pid, _}] ->
+                game_info = Dojo.Game.get_state(pid)
 
-          [{pid, _}] ->
-            game_info = Dojo.Game.get_state(pid)
+                conn =
+                  Plug.Conn.put_resp_header(
+                    conn,
+                    "cache-control",
+                    "no-cache, no-store, must-revalidate"
+                  )
 
-            conn =
-              Plug.Conn.put_resp_header(
-                conn,
-                "cache-control",
-                "no-cache, no-store, must-revalidate"
-              )
+                {white_time_ms, black_time_ms} =
+                  case game_info.time_control do
+                    :real_time ->
+                      clock_state = Dojo.Clock.get_clock_state(game_info.clock_pid)
+                      white_time_ms = clock_state.white_time_milli
+                      black_time_ms = clock_state.black_time_milli
+                      {white_time_ms, black_time_ms}
 
-            {white_time_ms, black_time_ms} =
-              case game_info.time_control do
-                :real_time ->
-                  clock_state = Dojo.Clock.get_clock_state(game_info.clock_pid)
-                  white_time_ms = clock_state.white_time_milli
-                  black_time_ms = clock_state.black_time_milli
-                  {white_time_ms, black_time_ms}
+                    _ ->
+                      {nil, nil}
+                  end
 
-                _ ->
-                  {nil, nil}
-              end
+                # Dojo.Clock.get_clock_state(game_info.clock_pid)
 
-            # Dojo.Clock.get_clock_state(game_info.clock_pid)
+                game_status =
+                  case game_info.status do
+                    :continue ->
+                      "continue"
 
-            game_status =
-              case game_info.status do
-                :continue -> "continue"
-                {_, _, _} -> Atom.to_string(elem(game_info.status, 1))
-                {_, _} -> Enum.map(Tuple.to_list(game_info.status), fn x -> Atom.to_string(x) end)
-              end
+                    {_, _, _} ->
+                      Atom.to_string(elem(game_info.status, 1))
 
-            render(conn, "room.html",
+                    {_, _} ->
+                      Enum.map(Tuple.to_list(game_info.status), fn x -> Atom.to_string(x) end)
+                  end
+
+                render(conn, "room.html",
+                  layout: {DojoWeb.LayoutView, "room_layout.html"},
+                  fen: game_info.fen,
+                  color: game_info.color,
+                  minutes: game_info.minutes,
+                  increment: game_info.increment,
+                  dests: DojoWeb.Util.repack_dests(game_info.dests) |> Jason.encode!([]),
+                  white_clock: white_time_ms,
+                  black_clock: black_time_ms,
+                  game_token: cookie,
+                  game_status: game_status
+                )
+            end
+
+          false ->
+            render(conn, "room_error.html",
               layout: {DojoWeb.LayoutView, "room_layout.html"},
-              fen: game_info.fen,
-              color: game_info.color,
-              minutes: game_info.minutes,
-              increment: game_info.increment,
-              dests: DojoWeb.Util.repack_dests(game_info.dests) |> Jason.encode!([]),
-              white_clock: white_time_ms,
-              black_clock: black_time_ms,
-              game_token: cookie,
-              game_status: game_status
+              info: "catastrophic disaster..."
             )
         end
 

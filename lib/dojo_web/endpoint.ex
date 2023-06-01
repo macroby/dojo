@@ -16,10 +16,9 @@ defmodule DojoWeb.Endpoint do
   )
 
   socket("/room_socket", DojoWeb.RoomSocket,
-  websocket: true,
-  longpoll: false
-)
-
+    websocket: true,
+    longpoll: false
+  )
 
   socket("/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]])
 
