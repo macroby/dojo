@@ -1,7 +1,7 @@
 import "../css/phoenix.css"
 import "../css/app.css"
 
-import socket from "./socket"
+import socket from "./home_socket"
 //
 import "phoenix_html"
 

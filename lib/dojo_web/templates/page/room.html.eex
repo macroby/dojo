@@ -90,6 +90,6 @@
   const white_clock = '<%= @white_clock %>';
   const black_clock = '<%= @black_clock %>';
 
-  const user_token = '<%= @user_token %>'
-  const game_status = '<%= @game_status %>'
+  const game_token = '<%= @game_token %>';
+  const game_status = '<%= @game_status %>';
 </script>

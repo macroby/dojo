@@ -38,8 +38,10 @@ defmodule DojoWeb.PageController do
 
     cookie = conn.cookies["game_token"]
 
+
     case Token.verify(conn, "game auth", cookie, max_age: 60 * 60 * 24 * 365) do
       {:ok, _} ->
+
         Registry.lookup(GameRegistry, gameid)
         |> case do
           [] ->
@@ -86,7 +88,7 @@ defmodule DojoWeb.PageController do
               dests: DojoWeb.Util.repack_dests(game_info.dests) |> Jason.encode!([]),
               white_clock: white_time_ms,
               black_clock: black_time_ms,
-              user_token: cookie,
+              game_token: cookie,
               game_status: game_status
             )
         end

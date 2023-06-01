@@ -13,6 +13,9 @@ defmodule DojoWeb.SetupController do
     game_id = UUID.string_to_binary!(UUID.uuid1())
     game_id = Base.url_encode64(game_id, padding: false)
 
+    token = Token.sign(conn, "game auth", game_id)
+    conn = put_session(conn, :game_token, token)
+
     game_init_state = %GameState{
       game_id: game_id,
       color: color,
@@ -27,8 +30,7 @@ defmodule DojoWeb.SetupController do
 
     conn = put_session(conn, :game_type, "friend")
 
-    # redirect(conn, to: Routes.page_path(conn, :room, game_id))
-    text(conn, "#{game_id}")
+    redirect(conn, to: Routes.page_path(conn, :room, game_id))
   end
 
   def setup_friend(conn, %{

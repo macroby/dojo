@@ -13,7 +13,7 @@ import "../css/app.css"
 // Import deps with the dep name or local files with a relative path, for example:
 //
 //     import {Socket} from "phoenix"
-import socket from "./socket"
+import socket from "./room_socket"
 import Clock from "./clock"
 import PromotionPrompt from "./promotion_prompt"
 import ResignButton from "./resign_button"

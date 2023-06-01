@@ -10,10 +10,16 @@ defmodule DojoWeb.Endpoint do
     signing_salt: "qiJSSPUp"
   ]
 
-  socket("/socket", DojoWeb.UserSocket,
+  socket("/user_socket", DojoWeb.UserSocket,
     websocket: true,
     longpoll: false
   )
+
+  socket("/room_socket", DojoWeb.RoomSocket,
+  websocket: true,
+  longpoll: false
+)
+
 
   socket("/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]])
 

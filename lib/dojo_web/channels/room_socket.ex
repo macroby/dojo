@@ -1,9 +1,9 @@
-defmodule DojoWeb.UserSocket do
+defmodule DojoWeb.RoomSocket do
   use Phoenix.Socket
   require Logger
 
   ## Channels
-  channel("home:lobby", DojoWeb.HomeChannel)
+  channel("room:*", DojoWeb.RoomChannel)
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -19,7 +19,7 @@ defmodule DojoWeb.UserSocket do
   @impl true
   def connect(params, socket, _connect_info) do
 
-    case Phoenix.Token.verify(socket, "user auth", params["token"], max_age: 60 * 60 * 24 * 365) do
+    case Phoenix.Token.verify(socket, "game auth", params["token"], max_age: 60 * 60 * 24 * 365) do
       {:ok, _} ->
 
         {:ok, socket}
