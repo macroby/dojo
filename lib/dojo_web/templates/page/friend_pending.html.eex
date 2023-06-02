@@ -1,4 +1,5 @@
 pending
+<div id="cancel_invite"></div>
 <script>
     var game_type = '<%= @game_type %>';
     var invite_accepted = '<%= @invite_accepted %>';

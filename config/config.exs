@@ -33,7 +33,8 @@ import_config "#{Mix.env()}.exs"
 config :esbuild,
   version: "0.13.4",
   default: [
-    args: ~w(js/room.js js/home.js --bundle --target=es2016 --outdir=../priv/static/assets),
+    args:
+      ~w(js/room.js js/home.js js/friend_invite.js js/friend_pending.js --bundle --target=es2016 --outdir=../priv/static/assets),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]

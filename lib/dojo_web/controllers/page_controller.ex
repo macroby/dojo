@@ -46,16 +46,19 @@ defmodule DojoWeb.PageController do
 
     game_state = Dojo.Game.get_state(pid)
 
-    {conn, user_token} = case get_session(conn, :user_token) do
-      nil ->
-        user_id = UUID.string_to_binary!(UUID.uuid1())
-        user_id = Base.url_encode64(user_id, padding: false)
+    {conn, user_token} =
+      case get_session(conn, :user_token) do
+        nil ->
+          user_id = UUID.string_to_binary!(UUID.uuid1())
+          user_id = Base.url_encode64(user_id, padding: false)
 
-        token = Token.sign(conn, "user auth", user_id)
-        conn = put_session(conn, :user_token, token)
-        {conn, token}
-      user_token -> {conn, user_token}
-    end
+          token = Token.sign(conn, "user auth", user_id)
+          conn = put_session(conn, :user_token, token)
+          {conn, token}
+
+        user_token ->
+          {conn, user_token}
+      end
 
     conn = fetch_cookies(conn)
 
@@ -72,17 +75,19 @@ defmodule DojoWeb.PageController do
     case game_state.invite_accepted do
       true ->
         render_room_error(conn)
+
       false ->
         case game_state.white_user_id == user_token or game_state.black_user_id == user_token do
           true ->
             render(conn, "friend_pending.html",
-            layout: {DojoWeb.LayoutView, "room_layout.html"},
-            game_type: game_state.game_type,
-            invite_accepted: game_state.invite_accepted
-          )
+              layout: {DojoWeb.LayoutView, "friend_pending_layout.html"},
+              game_type: game_state.game_type,
+              invite_accepted: game_state.invite_accepted
+            )
+
           false ->
             render(conn, "friend_invite.html",
-              layout: {DojoWeb.LayoutView, "room_layout.html"},
+              layout: {DojoWeb.LayoutView, "friend_invite_layout.html"},
               game_type: game_state.game_type,
               invite_accepted: game_state.invite_accepted
             )
@@ -160,8 +165,8 @@ defmodule DojoWeb.PageController do
 
   def render_room_error(conn) do
     render(conn, "room_error.html",
-    layout: {DojoWeb.LayoutView, "room_layout.html"},
-    info: "catastrophic disaster..."
-  )
+      layout: {DojoWeb.LayoutView, "room_layout.html"},
+      info: "catastrophic disaster..."
+    )
   end
 end
