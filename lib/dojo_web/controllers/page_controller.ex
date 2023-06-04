@@ -73,6 +73,8 @@ defmodule DojoWeb.PageController do
                 token = Token.sign(conn, "game auth", game_id)
                 conn = put_resp_cookie(conn, "game_token", token)
 
+                DojoWeb.Endpoint.broadcast!("room:" <> game_id, "invite_accepted", %{})
+
                 redirect(conn, to: Routes.page_path(conn, :room, game_id))
             end
         end
@@ -187,8 +189,7 @@ defmodule DojoWeb.PageController do
           true ->
             render(conn, "friend_pending.html",
               layout: {DojoWeb.LayoutView, "friend_pending_layout.html"},
-              game_type: game_state.game_type,
-              invite_accepted: game_state.invite_accepted
+              game_token: conn.cookies["game_token"]
             )
 
           false ->
