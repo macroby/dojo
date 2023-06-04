@@ -24,6 +24,12 @@ defmodule DojoWeb.Router do
     get("/ping", PageController, :ping)
   end
 
+  scope "/", DojoWeb do
+    pipe_through(:api)
+
+    post("/:gameid/accept", PageController, :accept)
+  end
+
   scope "/setup", DojoWeb do
     pipe_through(:api)
 

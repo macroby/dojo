@@ -57,6 +57,18 @@ defmodule Dojo.Game do
     GenServer.call(p_name, :get_game_status)
   end
 
+  def set_white_user_id(pid, user_id) do
+    GenServer.call(pid, {:set_white_user_id, user_id})
+  end
+
+  def set_black_user_id(pid, user_id) do
+    GenServer.call(pid, {:set_black_user_id, user_id})
+  end
+
+  def accept_invite(p_name) do
+    GenServer.call(p_name, :accept_invite)
+  end
+
   def resign(p_name, side_to_resign) do
     GenServer.call(p_name, {:resign, side_to_resign})
   end
@@ -113,6 +125,7 @@ defmodule Dojo.Game do
 
     {:ok,
      %GameState{
+       game_id: config.game_id,
        board_pid: pid,
        color: config.color,
        game_type: config.game_type,
@@ -254,6 +267,24 @@ defmodule Dojo.Game do
       end
 
     {:reply, status, state}
+  end
+
+  @impl true
+  def handle_call({:set_white_user_id, white_user_id}, _from, state) do
+    state = Map.replace(state, :white_user_id, white_user_id)
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:set_black_user_id, black_user_id}, _from, state) do
+    state = Map.replace(state, :black_user_id, black_user_id)
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call(:accept_invite, _from, state) do
+    state = Map.replace(state, :invite_accepted, true)
+    {:reply, :ok, state}
   end
 
   @impl true

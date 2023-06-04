@@ -1,26 +1,4 @@
--implement checkmate flow
--implement stalemate flow
--implement draw by repetition flow
--implement draw by 50 move rule flow
--implement draw by agreement flow
--implement draw by insufficient material flow
--implement draw by time control flow
--create and handle sessions
--integrate session with move making functionality
--make ai worse
--start beautifying the front end
--implement resign button
--implement propose takeback button
--implement draw button
--implement chat
--general code refactoring when necessary
+implement "play with a friend" feature
 
-...after everything above is done...
 
--implement anonymous queuing for and creating games
--implement accounts
--implement elo
--implement game history
--implement correspondence chess
--implement account queuing for and creating games
 

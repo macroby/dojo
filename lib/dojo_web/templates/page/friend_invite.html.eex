@@ -1,9 +1,7 @@
 invite
 
-<div id="join_game"></div>
-
-
-<script>
-    var game_type = '<%= @game_type %>';
-    var invite_accepted = '<%= @invite_accepted %>';
-</script>
+<div id="join_game">
+    <form action="<%= @game_id %>/accept" method="post">
+        <input type="submit" value="Submit">
+    </form>
+</div>
