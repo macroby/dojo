@@ -11,6 +11,15 @@ defmodule DojoWeb.HomeChannel do
     # end
   end
 
+  def join("home:" <> _room_id, _payload, socket) do
+    {:ok, socket}
+    # if authorized?(payload) do
+    #   {:ok, socket}
+    # else
+    #   {:error, %{reason: "unauthorized"}}
+    # end
+  end
+
   # Channels can be used in a request/response fashion
   # by sending replies to requests from the client
   @impl true

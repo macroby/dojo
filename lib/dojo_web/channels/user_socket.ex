@@ -3,7 +3,7 @@ defmodule DojoWeb.UserSocket do
   require Logger
 
   ## Channels
-  channel("home:lobby", DojoWeb.HomeChannel)
+  channel("home:*", DojoWeb.HomeChannel)
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

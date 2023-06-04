@@ -2,6 +2,11 @@ invite
 
 <div id="join_game">
     <form action="<%= @game_id %>/accept" method="post">
-        <input type="submit" value="Submit">
+        <input type="submit" value="Accept">
     </form>
 </div>
+
+<script>
+    var user_token = '<%= @user_token %>';
+    var game_id = '<%= @game_id %>';
+</script>

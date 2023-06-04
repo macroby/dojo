@@ -1,5 +1,6 @@
 defmodule DojoWeb.PageController do
   alias Phoenix.Token
+  alias Dojo.Game
   use DojoWeb, :controller
   require Logger
 
@@ -30,6 +31,15 @@ defmodule DojoWeb.PageController do
           layout: {DojoWeb.LayoutView, "home_layout.html"},
           user_token: user_token
         )
+    end
+  end
+
+  def cancel(conn, %{"gameid" => game_id}) do
+    with [{pid, _}] <- Registry.lookup(GameRegistry, game_id),
+         true <- Game.get_halfmove_clock(pid) < 2 do
+      Game.cancel(pid, game_id)
+      DojoWeb.Endpoint.broadcast!("home:" <> game_id, "cancel", %{})
+      redirect(conn, to: Routes.page_path(conn, :room, game_id))
     end
   end
 
@@ -85,8 +95,8 @@ defmodule DojoWeb.PageController do
     pid =
       case Registry.lookup(GameRegistry, url_game_id) do
         [] ->
-          info = url_game_id
-          render(conn, "room_error.html", info: info)
+          render_room_error(conn)
+          raise "Game not found"
 
         [{pid, _}] ->
           pid
@@ -189,12 +199,14 @@ defmodule DojoWeb.PageController do
           true ->
             render(conn, "friend_pending.html",
               layout: {DojoWeb.LayoutView, "friend_pending_layout.html"},
-              game_token: conn.cookies["game_token"]
+              game_token: conn.cookies["game_token"],
+              game_id: game_state.game_id
             )
 
           false ->
             render(conn, "friend_invite.html",
               layout: {DojoWeb.LayoutView, "friend_invite_layout.html"},
+              user_token: user_token,
               game_id: game_state.game_id
             )
         end

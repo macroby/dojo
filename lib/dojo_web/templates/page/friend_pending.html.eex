@@ -1,5 +1,9 @@
 pending
-<div id="cancel_invite"></div>
+<div id="cancel_invite">
+    <form action="<%= @game_id %>/cancel" method="post">
+        <input type="submit" value="Cancel">
+    </form>
+</div>
 <script>
     var game_token = '<%= @game_token %>';
 </script>

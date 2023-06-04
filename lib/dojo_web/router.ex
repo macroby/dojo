@@ -28,6 +28,7 @@ defmodule DojoWeb.Router do
     pipe_through(:api)
 
     post("/:gameid/accept", PageController, :accept)
+    post("/:gameid/cancel", PageController, :cancel)
   end
 
   scope "/setup", DojoWeb do

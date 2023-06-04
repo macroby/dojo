@@ -69,6 +69,10 @@ defmodule Dojo.Game do
     GenServer.call(p_name, :accept_invite)
   end
 
+  def cancel(p_name, _game_id) do
+    GenServer.call(p_name, :cancel)
+  end
+
   def resign(p_name, side_to_resign) do
     GenServer.call(p_name, {:resign, side_to_resign})
   end
@@ -278,6 +282,13 @@ defmodule Dojo.Game do
   @impl true
   def handle_call({:set_black_user_id, black_user_id}, _from, state) do
     state = Map.replace(state, :black_user_id, black_user_id)
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call(:cancel, _from, state) do
+    Registry.unregister(GameRegistry, state.game_id)
+
     {:reply, :ok, state}
   end
 
