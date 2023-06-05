@@ -7,6 +7,18 @@
 // Pass the token on params as below. Or remove it
 // from the params if you are not using authentication.
 import {Socket} from "phoenix"
+import parseCookie from "./utils"
+
+// const parseCookie = str =>
+//   str
+//   .split(';')
+//   .map(v => v.split('='))
+//   .reduce((acc, v) => {
+//     acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+//     return acc;
+//   }, {});
+
+var game_token = parseCookie(document.cookie).game_token;
 
 let socket = new Socket("/room_socket", {params: {token: game_token}})
 

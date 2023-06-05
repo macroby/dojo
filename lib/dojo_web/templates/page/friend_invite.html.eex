@@ -8,5 +8,4 @@ invite
 
 <script>
     var user_token = '<%= @user_token %>';
-    var game_id = '<%= @game_id %>';
 </script>

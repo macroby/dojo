@@ -31,7 +31,7 @@ defmodule DojoWeb.SetupController do
       end
 
     token = Token.sign(conn, "game auth", game_id)
-    conn = put_resp_cookie(conn, "game_token", token)
+    conn = put_resp_cookie(conn, "game_token", token, http_only: false)
 
     game_init_state = %GameState{
       game_id: game_id,
@@ -129,7 +129,7 @@ defmodule DojoWeb.SetupController do
     game_id = Base.url_encode64(game_id, padding: false)
 
     token = Token.sign(conn, "game auth", game_id)
-    conn = put_resp_cookie(conn, "game_token", token)
+    conn = put_resp_cookie(conn, "game_token", token, http_only: false)
 
     game_init_state = %GameState{
       game_id: game_id,
@@ -212,7 +212,7 @@ defmodule DojoWeb.SetupController do
     game_id = Base.url_encode64(game_id, padding: false)
 
     token = Token.sign(conn, "game auth", game_id)
-    conn = put_resp_cookie(conn, "game_token", token)
+    conn = put_resp_cookie(conn, "game_token", token, http_only: false)
 
     pid =
       GameSupervisor.create_game(%GameState{

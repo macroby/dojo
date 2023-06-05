@@ -4,6 +4,3 @@ pending
         <input type="submit" value="Cancel">
     </form>
 </div>
-<script>
-    var game_token = '<%= @game_token %>';
-</script>

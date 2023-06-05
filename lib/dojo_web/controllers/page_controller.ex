@@ -81,7 +81,7 @@ defmodule DojoWeb.PageController do
                 end
 
                 token = Token.sign(conn, "game auth", game_id)
-                conn = put_resp_cookie(conn, "game_token", token)
+                conn = put_resp_cookie(conn, "game_token", token, http_only: false)
 
                 DojoWeb.Endpoint.broadcast!("room:" <> game_id, "invite_accepted", %{})
 
