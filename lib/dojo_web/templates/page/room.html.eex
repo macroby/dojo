@@ -81,7 +81,6 @@
   const increment = '<%= @increment %>';
   const white_clock = '<%= @white_clock %>';
   const black_clock = '<%= @black_clock %>';
-  const game_token = '<%= @game_token %>';
   const game_status = '<%= @game_status %>';
   let clientStateObject = null;
   let clientStateJson = localStorage.getItem(window.location.pathname);

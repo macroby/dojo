@@ -264,7 +264,6 @@ defmodule DojoWeb.PageController do
               dests: DojoWeb.Util.repack_dests(game_state.dests) |> Jason.encode!([]),
               white_clock: white_time_ms,
               black_clock: black_time_ms,
-              game_token: game_token,
               game_status: game_status
             )
 
