@@ -177,6 +177,8 @@ defmodule DojoWeb.PageController do
                       {nil, nil}
                   end
 
+                Logger.error("white_time_ms: #{game_state.time_control}")
+
                 color =
                   case {game_state.white_user_id == user_id, game_state.black_user_id == user_id} do
                     {true, false} -> :white
