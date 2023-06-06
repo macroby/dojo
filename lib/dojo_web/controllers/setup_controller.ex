@@ -9,68 +9,10 @@ defmodule DojoWeb.SetupController do
   def setup_friend(conn, %{
         "color" => color,
         "time-control" => time_control,
-        "_csrf_token" => csrf_token
-      })
-      when time_control == "unlimited" do
-    case csrf_token == conn.cookies["_csrf_token"] do
-      true ->
-        game_id = UUID.string_to_binary!(UUID.uuid1())
-        game_id = Base.url_encode64(game_id, padding: false)
-
-        user_token = get_session(conn, :user_token)
-
-        user_id =
-          case Token.verify(conn, "user auth", user_token) do
-            {:ok, user_id} -> user_id
-            _ -> raise "invalid user token"
-          end
-
-        {white_user_id, black_user_id} =
-          case color do
-            "white" ->
-              {user_id, nil}
-
-            "black" ->
-              {nil, user_id}
-
-            _ ->
-              case :rand.uniform(10) do
-                x when x > 5 -> {user_id, nil}
-                _ -> {nil, user_id}
-              end
-          end
-
-        game_init_state = %GameState{
-          game_id: game_id,
-          color: color,
-          game_type: :friend,
-          invite_accepted: false,
-          white_user_id: white_user_id,
-          black_user_id: black_user_id,
-          time_control: time_control
-        }
-
-        GameSupervisor.create_game(game_init_state)
-        |> case do
-          {nil, error} -> raise error
-          pid -> pid
-        end
-
-        redirect(conn, to: Routes.page_path(conn, :room, game_id))
-
-      false ->
-        raise "CSRF token mismatch"
-    end
-  end
-
-  def setup_friend(conn, %{
-        "color" => color,
-        "time-control" => time_control,
         "minutes" => minutes,
         "increment" => increment,
         "_csrf_token" => csrf_token
-      })
-      when time_control == "real time" do
+      }) do
     case csrf_token == conn.cookies["_csrf_token"] do
       true ->
         game_id = UUID.string_to_binary!(UUID.uuid1())
@@ -99,29 +41,38 @@ defmodule DojoWeb.SetupController do
               end
           end
 
-        minutes =
-          case minutes do
-            "5" -> 5
-            "10" -> 10
-            "15" -> 15
-            "30" -> 30
-            _ -> 5
-          end
+        {minutes, increment} =
+          case time_control do
+            "unlimited" ->
+              {nil, nil}
 
-        increment =
-          case increment do
-            "0" -> 0
-            "3" -> 3
-            "5" -> 5
-            "10" -> 10
-            "20" -> 20
-            _ -> 0
+            _ ->
+              minutes =
+                case minutes do
+                  "5" -> 5
+                  "10" -> 10
+                  "15" -> 15
+                  "30" -> 30
+                  _ -> 5
+                end
+
+              increment =
+                case increment do
+                  "0" -> 0
+                  "3" -> 3
+                  "5" -> 5
+                  "10" -> 10
+                  "20" -> 20
+                  _ -> 0
+                end
+
+              {minutes, increment}
           end
 
         time_control =
           case time_control do
             "real time" -> :real_time
-            "ai" -> :ai
+            "unlimited" -> :unlimited
             _ -> raise "invalid time control"
           end
 

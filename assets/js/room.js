@@ -98,6 +98,11 @@ channel.on('ack', function (payload) {
 })
 
 channel.on('endData', function (payload) {
+  // I set viewonly to true here because ground.stop() alone
+  // doesn't seem to work properly for black client.
+  ground.set({
+    viewOnly: true
+  });
   ground.stop();
   clock.stop();
   opponent_clock.stop();
