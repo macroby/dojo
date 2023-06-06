@@ -18,9 +18,7 @@ import parseCookie from "./utils"
 //     return acc;
 //   }, {});
 
-var game_token = parseCookie(document.cookie).game_token;
-
-let socket = new Socket("/room_socket", {params: {token: game_token}})
+let socket = new Socket("/room_socket", {params: {token: user_token}})
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,

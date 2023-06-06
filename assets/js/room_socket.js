@@ -7,11 +7,8 @@
 // Pass the token on params as below. Or remove it
 // from the params if you are not using authentication.
 import {Socket} from "phoenix"
-import parseCookie from "./utils"
 
-var game_token = parseCookie(document.cookie).game_token;
-
-let socket = new Socket("/room_socket", {params: {token: game_token}})
+let socket = new Socket("/room_socket", {params: {token: user_token}})
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,

@@ -8,7 +8,7 @@
 // from the params if you are not using authentication.
 import {Socket} from "phoenix"
 
-let socket = new Socket("/user_socket", {params: {token: user_token}})
+let socket = new Socket("/room_socket", {params: {token: user_token}})
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,

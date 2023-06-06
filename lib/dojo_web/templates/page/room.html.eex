@@ -82,6 +82,7 @@
   const white_clock = '<%= @white_clock %>';
   const black_clock = '<%= @black_clock %>';
   const game_status = '<%= @game_status %>';
+  const user_token = '<%= @user_token %>';
   let clientStateObject = null;
   let clientStateJson = localStorage.getItem(window.location.pathname);
   if (clientStateJson == null) {

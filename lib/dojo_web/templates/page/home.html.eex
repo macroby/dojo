@@ -79,6 +79,8 @@
     <button type="button">Black</button>
     <button type="button">Random</button>
     </form>
+
+     <input type="hidden" name="_csrf_token" value="<%= @csrf_token %>">
   </div>
 
 </div>
@@ -135,6 +137,7 @@
       </select>
     </div>
 
+     <input type="hidden" name="_csrf_token" value="<%= @csrf_token %>">
       <br>
       <button id="play-friend-as-white-submit-button" type='submit' value='white' name='color'>White</button>
       <button id="play-friend-as-black-submit-button" type='submit' value='black' name='color'>Black</button>
@@ -208,6 +211,8 @@
         <option value="7">7</option>
         <option value="8">8</option>
       </select>
+
+    <input type="hidden" name="_csrf_token" value="<%= @csrf_token %>">
 
       <br>
       <button id="play-ai-as-white-submit-button" type='submit' value='white' name='color'>White</button>

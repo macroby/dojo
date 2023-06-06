@@ -21,14 +21,21 @@ defmodule DojoWeb.PageController do
         token = Token.sign(conn, "user auth", user_id)
         conn = put_session(conn, :user_token, token)
 
+        csrf_token = get_csrf_token()
+        conn = put_resp_cookie(conn, "_csrf_token", csrf_token, http_only: false)
+
         render(conn, "home.html",
           layout: {DojoWeb.LayoutView, "home_layout.html"},
+          csrf_token: csrf_token,
           user_token: token
         )
 
       user_token ->
+        csrf_token = conn.cookies["_csrf_token"]
+
         render(conn, "home.html",
           layout: {DojoWeb.LayoutView, "home_layout.html"},
+          csrf_token: csrf_token,
           user_token: user_token
         )
     end
@@ -38,7 +45,7 @@ defmodule DojoWeb.PageController do
     with [{pid, _}] <- Registry.lookup(GameRegistry, game_id),
          true <- Game.get_halfmove_clock(pid) < 2 do
       Game.cancel(pid, game_id)
-      DojoWeb.Endpoint.broadcast!("home:" <> game_id, "cancel", %{})
+      DojoWeb.Endpoint.broadcast!("room:" <> game_id, "cancel", %{})
       redirect(conn, to: Routes.page_path(conn, :room, game_id))
     end
   end
@@ -59,7 +66,13 @@ defmodule DojoWeb.PageController do
           false ->
             user_token = get_session(conn, :user_token)
 
-            case game_state.white_user_id == user_token or game_state.black_user_id == user_token do
+            user_id =
+              case Token.verify(conn, "user auth", user_token) do
+                {:ok, user_id} -> user_id
+                _ -> raise "invalid user token"
+              end
+
+            case game_state.white_user_id == user_id or game_state.black_user_id == user_id do
               true ->
                 render_room_error(conn)
 
@@ -71,17 +84,14 @@ defmodule DojoWeb.PageController do
                     raise "Game must have at least one player already in it"
 
                   {nil, _} ->
-                    Dojo.Game.set_white_user_id(pid, user_token)
+                    Dojo.Game.set_white_user_id(pid, user_id)
 
                   {_, nil} ->
-                    Dojo.Game.set_black_user_id(pid, user_token)
+                    Dojo.Game.set_black_user_id(pid, user_id)
 
                   _ ->
                     raise "Game already has two players"
                 end
-
-                token = Token.sign(conn, "game auth", game_id)
-                conn = put_resp_cookie(conn, "game_token", token, http_only: false)
 
                 DojoWeb.Endpoint.broadcast!("room:" <> game_id, "invite_accepted", %{})
 
@@ -125,152 +135,151 @@ defmodule DojoWeb.PageController do
         handle_friend_room(conn, game_state, user_token)
 
       :ai ->
-        handle_ai_room(conn, game_state, url_game_id)
+        handle_ai_room(conn, game_state, user_token)
     end
   end
 
   def handle_friend_room(conn, game_state, user_token) do
     case game_state.invite_accepted do
       true ->
-        case game_state.white_user_id == user_token or game_state.black_user_id == user_token do
-          true ->
-            conn =
-              Plug.Conn.put_resp_header(
-                conn,
-                "cache-control",
-                "no-cache, no-store, must-revalidate"
-              )
+        case Token.verify(conn, "user auth", user_token) do
+          {:ok, user_id} ->
+            case game_state.white_user_id == user_id or game_state.black_user_id == user_id do
+              true ->
+                conn =
+                  Plug.Conn.put_resp_header(
+                    conn,
+                    "cache-control",
+                    "no-cache, no-store, must-revalidate"
+                  )
 
-            game_status =
-              case game_state.status do
-                :continue ->
-                  "continue"
+                game_status =
+                  case game_state.status do
+                    :continue ->
+                      "continue"
 
-                {_, _, _} ->
-                  Atom.to_string(elem(game_state.status, 1))
+                    {_, _, _} ->
+                      Atom.to_string(elem(game_state.status, 1))
 
-                {_, _} ->
-                  Enum.map(Tuple.to_list(game_state.status), fn x -> Atom.to_string(x) end)
-              end
+                    {_, _} ->
+                      Enum.map(Tuple.to_list(game_state.status), fn x -> Atom.to_string(x) end)
+                  end
 
-            {white_time_ms, black_time_ms} =
-              case game_state.time_control do
-                :real_time ->
-                  clock_state = Dojo.Clock.get_clock_state(game_state.clock_pid)
-                  white_time_ms = clock_state.white_time_milli
-                  black_time_ms = clock_state.black_time_milli
-                  {white_time_ms, black_time_ms}
+                {white_time_ms, black_time_ms} =
+                  case game_state.time_control do
+                    :real_time ->
+                      clock_state = Dojo.Clock.get_clock_state(game_state.clock_pid)
+                      white_time_ms = clock_state.white_time_milli
+                      black_time_ms = clock_state.black_time_milli
+                      {white_time_ms, black_time_ms}
 
-                _ ->
-                  {nil, nil}
-              end
+                    _ ->
+                      {nil, nil}
+                  end
 
-            color =
-              case {game_state.white_user_id == user_token,
-                    game_state.black_user_id == user_token} do
-                {true, false} -> :white
-                {false, true} -> :black
-                _ -> raise "User is not a player in this game"
-              end
+                color =
+                  case {game_state.white_user_id == user_id, game_state.black_user_id == user_id} do
+                    {true, false} -> :white
+                    {false, true} -> :black
+                    _ -> raise "User is not a player in this game"
+                  end
 
-            render(conn, "room.html",
-              layout: {DojoWeb.LayoutView, "room_layout.html"},
-              fen: game_state.fen,
-              color: color,
-              game_type: game_state.game_type,
-              invite_accepted: game_state.invite_accepted,
-              minutes: game_state.minutes,
-              increment: game_state.increment,
-              dests: DojoWeb.Util.repack_dests(game_state.dests) |> Jason.encode!([]),
-              white_clock: white_time_ms,
-              black_clock: black_time_ms,
-              game_status: game_status
-            )
+                render(conn, "room.html",
+                  layout: {DojoWeb.LayoutView, "room_layout.html"},
+                  fen: game_state.fen,
+                  color: color,
+                  game_type: game_state.game_type,
+                  invite_accepted: game_state.invite_accepted,
+                  minutes: game_state.minutes,
+                  increment: game_state.increment,
+                  dests: DojoWeb.Util.repack_dests(game_state.dests) |> Jason.encode!([]),
+                  white_clock: white_time_ms,
+                  black_clock: black_time_ms,
+                  user_token: user_token,
+                  game_status: game_status
+                )
 
-          false ->
-            render_room_error(conn)
+              false ->
+                Logger.error("user id: #{user_id}")
+
+                raise "User is not a player in this game #{user_id} -- #{game_state.white_user_id} -- #{game_state.black_user_id}"
+            end
+
+          {:error, _} ->
+            raise "invalid user token"
         end
 
       false ->
-        case game_state.white_user_id == user_token or game_state.black_user_id == user_token do
-          true ->
-            render(conn, "friend_pending.html",
-              layout: {DojoWeb.LayoutView, "friend_pending_layout.html"},
-              game_token: conn.cookies["game_token"],
-              game_id: game_state.game_id
-            )
+        case Token.verify(conn, "user auth", user_token) do
+          {:ok, user_id} ->
+            case game_state.white_user_id == user_id or game_state.black_user_id == user_id do
+              true ->
+                render(conn, "friend_pending.html",
+                  layout: {DojoWeb.LayoutView, "friend_pending_layout.html"},
+                  user_token: user_token,
+                  game_id: game_state.game_id
+                )
 
-          false ->
-            render(conn, "friend_invite.html",
-              layout: {DojoWeb.LayoutView, "friend_invite_layout.html"},
-              user_token: user_token,
-              game_id: game_state.game_id
-            )
+              false ->
+                render(conn, "friend_invite.html",
+                  layout: {DojoWeb.LayoutView, "friend_invite_layout.html"},
+                  user_token: user_token,
+                  game_id: game_state.game_id
+                )
+            end
+
+          {:error, _} ->
+            raise "invalid user token"
         end
     end
   end
 
-  def handle_ai_room(conn, game_state, url_game_id) do
-    game_token = conn.cookies["game_token"]
+  def handle_ai_room(conn, game_state, user_token) do
+    conn =
+      Plug.Conn.put_resp_header(
+        conn,
+        "cache-control",
+        "no-cache, no-store, must-revalidate"
+      )
 
-    case Token.verify(conn, "game auth", game_token, max_age: 60 * 60 * 24 * 365) do
-      {:ok, game_id} ->
-        case game_id == url_game_id do
-          true ->
-            conn =
-              Plug.Conn.put_resp_header(
-                conn,
-                "cache-control",
-                "no-cache, no-store, must-revalidate"
-              )
+    {white_time_ms, black_time_ms} =
+      case game_state.time_control do
+        :real_time ->
+          clock_state = Dojo.Clock.get_clock_state(game_state.clock_pid)
+          white_time_ms = clock_state.white_time_milli
+          black_time_ms = clock_state.black_time_milli
+          {white_time_ms, black_time_ms}
 
-            {white_time_ms, black_time_ms} =
-              case game_state.time_control do
-                :real_time ->
-                  clock_state = Dojo.Clock.get_clock_state(game_state.clock_pid)
-                  white_time_ms = clock_state.white_time_milli
-                  black_time_ms = clock_state.black_time_milli
-                  {white_time_ms, black_time_ms}
+        _ ->
+          {nil, nil}
+      end
 
-                _ ->
-                  {nil, nil}
-              end
+    game_status =
+      case game_state.status do
+        :continue ->
+          "continue"
 
-            # Dojo.Clock.get_clock_state(game_state.clock_pid)
+        {_, _, _} ->
+          Atom.to_string(elem(game_state.status, 1))
 
-            game_status =
-              case game_state.status do
-                :continue ->
-                  "continue"
+        {_, _} ->
+          Enum.map(Tuple.to_list(game_state.status), fn x -> Atom.to_string(x) end)
+      end
 
-                {_, _, _} ->
-                  Atom.to_string(elem(game_state.status, 1))
-
-                {_, _} ->
-                  Enum.map(Tuple.to_list(game_state.status), fn x -> Atom.to_string(x) end)
-              end
-
-            render(conn, "room.html",
-              layout: {DojoWeb.LayoutView, "room_layout.html"},
-              fen: game_state.fen,
-              color: game_state.color,
-              game_type: game_state.game_type,
-              invite_accepted: game_state.invite_accepted,
-              minutes: game_state.minutes,
-              increment: game_state.increment,
-              dests: DojoWeb.Util.repack_dests(game_state.dests) |> Jason.encode!([]),
-              white_clock: white_time_ms,
-              black_clock: black_time_ms,
-              game_status: game_status
-            )
-
-          false ->
-            render_room_error(conn)
-        end
-
-      _ ->
-        render_room_error(conn)
-    end
+    render(conn, "room.html",
+      layout: {DojoWeb.LayoutView, "room_layout.html"},
+      fen: game_state.fen,
+      color: game_state.color,
+      game_type: game_state.game_type,
+      invite_accepted: game_state.invite_accepted,
+      minutes: game_state.minutes,
+      increment: game_state.increment,
+      dests: DojoWeb.Util.repack_dests(game_state.dests) |> Jason.encode!([]),
+      white_clock: white_time_ms,
+      black_clock: black_time_ms,
+      game_status: game_status,
+      user_token: user_token
+    )
   end
 
   def render_room_error(conn) do
