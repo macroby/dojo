@@ -19,7 +19,8 @@ defmodule DojoWeb.RoomSocket do
   @impl true
   def connect(params, socket, _connect_info) do
     case Phoenix.Token.verify(socket, "user auth", params["token"], max_age: 60 * 60 * 24 * 365) do
-      {:ok, _} ->
+      {:ok, user_id} ->
+        socket = assign(socket, :user_id, user_id)
         {:ok, socket}
 
       {:error, _} ->

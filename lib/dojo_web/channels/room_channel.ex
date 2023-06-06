@@ -86,64 +86,23 @@ defmodule DojoWeb.RoomChannel do
                     1 -> :black
                   end
 
+                dests = Game.get_all_legal_moves(pid)
+                dests = DojoWeb.Util.repack_dests(dests)
+
                 payload =
                   Map.put(payload, :fen, fen)
                   |> Map.put(:halfmove_clock, state.halfmove_clock)
                   |> Map.put(:side_to_move, side_to_move)
                   |> Map.put(:white_clock, state.white_time_ms)
                   |> Map.put(:black_clock, state.black_time_ms)
+                  |> Map.put(:dests, dests)
 
                 broadcast(socket, "move", payload)
 
                 if state.status == :continue do
-                  ai_move = get_ai_move(Dojo.Game.get_fen(pid), state.difficulty)
-                  Game.make_move(pid, ai_move)
-                  state = Game.get_state(pid)
-                  halfmove_clock = state.halfmove_clock
-                  fen = state.fen
-
-                  side_to_move =
-                    case state.halfmove_clock |> rem(2) do
-                      0 -> :white
-                      1 -> :black
-                    end
-
-                  movelist = Game.get_all_legal_moves(pid)
-                  dests = DojoWeb.Util.repack_dests(movelist)
-
-                  payload = %{}
-
-                  payload =
-                    Map.put(payload, :fen, fen)
-                    |> Map.put(:move, ai_move)
-                    |> Map.put(:side_to_move, side_to_move)
-                    |> Map.put(:dests, dests)
-                    |> Map.put(:halfmove_clock, halfmove_clock)
-                    |> Map.put(:white_clock, state.white_time_ms)
-                    |> Map.put(:black_clock, state.black_time_ms)
-
-                  broadcast(socket, "move", payload)
-
-                  if state.status != :continue do
-                    {winner, reason} =
-                      case state.status do
-                        {:checkmate, _} ->
-                          case elem(state.status, 1) do
-                            :white_wins -> {:white, "checkmate"}
-                            :black_wins -> {:black, "checkmate"}
-                          end
-
-                        {:draw, _} ->
-                          {:draw, "draw"}
-
-                        {:winner, winner, {_, reason}} ->
-                          {winner, reason}
-                      end
-
-                    broadcast(socket, "endData", %{
-                      "winner" => winner,
-                      "reason" => reason
-                    })
+                  case state.game_type do
+                    :friend -> nil
+                    :ai -> Task.start(fn -> ai_move(pid, state, socket) end)
                   end
                 else
                   {winner, reason} =
@@ -170,6 +129,93 @@ defmodule DojoWeb.RoomChannel do
                 {:noreply, socket}
             end
         end
+    end
+  end
+
+  intercept(["move"])
+
+  @impl true
+  def handle_out("move", payload, socket) do
+    [_ | subtopic] = String.split(socket.topic, ":", parts: 2)
+    gameid = List.first(subtopic)
+
+    with [{pid, _}] <- Registry.lookup(GameRegistry, gameid) do
+      game_state = Game.get_state(pid)
+      user_id = socket.assigns.user_id
+
+      case {game_state.white_user_id == user_id, game_state.black_user_id == user_id} do
+        {true, false} ->
+          case payload.side_to_move do
+            :black -> push(socket, "move", Map.delete(payload, :dests))
+            :white -> push(socket, "move", payload)
+          end
+
+        {false, true} ->
+          case payload.side_to_move do
+            :white -> push(socket, "move", Map.delete(payload, :dests))
+            :black -> push(socket, "move", payload)
+          end
+
+        {false, false} ->
+          raise "user id stored in socket should match at least one of the players"
+
+        {true, true} ->
+          raise "user id stored in socket should match at most one of the players"
+      end
+    end
+
+    {:noreply, socket}
+  end
+
+  def ai_move(pid, state, socket) do
+    ai_move = get_ai_move(Dojo.Game.get_fen(pid), state.difficulty)
+    Game.make_move(pid, ai_move)
+    state = Game.get_state(pid)
+    halfmove_clock = state.halfmove_clock
+    fen = state.fen
+
+    side_to_move =
+      case state.halfmove_clock |> rem(2) do
+        0 -> :white
+        1 -> :black
+      end
+
+    movelist = Game.get_all_legal_moves(pid)
+    dests = DojoWeb.Util.repack_dests(movelist)
+
+    payload = %{}
+
+    payload =
+      Map.put(payload, :fen, fen)
+      |> Map.put(:move, ai_move)
+      |> Map.put(:side_to_move, side_to_move)
+      |> Map.put(:dests, dests)
+      |> Map.put(:halfmove_clock, halfmove_clock)
+      |> Map.put(:white_clock, state.white_time_ms)
+      |> Map.put(:black_clock, state.black_time_ms)
+
+    broadcast(socket, "move", payload)
+
+    if state.status != :continue do
+      {winner, reason} =
+        case state.status do
+          {:checkmate, _} ->
+            case elem(state.status, 1) do
+              :white_wins -> {:white, "checkmate"}
+              :black_wins -> {:black, "checkmate"}
+            end
+
+          {:draw, _} ->
+            {:draw, "draw"}
+
+          {:winner, winner, {_, reason}} ->
+            {winner, reason}
+        end
+
+      broadcast(socket, "endData", %{
+        "winner" => winner,
+        "reason" => reason
+      })
     end
   end
 
