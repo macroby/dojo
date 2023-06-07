@@ -178,11 +178,9 @@
       <th>Time</th>
     </tr>
   </thead>
-  <tbody>
-    <tr class="user_game"><td>anon</td><td></td><td>5+3</td></tr>
-    <tr class="game"><td>anon</td><td></td><td>5+3</td></tr>
-    <tr class="game"><td>anon</td><td></td><td>5+3</td></tr>
-  </tbody>
+    <tbody>
+      <tr class="user_game"><td>anon</td><td></td><td>5+3</td></tr>
+    </tbody>
   </table>
 </span>
 
