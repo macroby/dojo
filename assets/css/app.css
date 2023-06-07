@@ -52,3 +52,110 @@ body {
   display: none;
 }
 
+/* home page css */
+#createGameBtn {
+  height:100%;
+  width: 100%;
+}
+
+#playWithFriendBtn {
+  height:100%;
+  width: 100%;
+}
+
+#playWithComputerBtn {
+  height:100%;
+  width: 100%;
+}
+
+#game_list {
+  color: #d9d9d9;
+  display: block;
+}
+
+#game_list td{
+  border-bottom: 0;
+}
+
+#game_list table tbody tr {
+  cursor: pointer;
+}
+
+#game_list table thead th {
+  border-top: 1px solid #888888;
+  border-bottom: 1px solid #888888;
+}
+
+select {
+  color: #d9d9d9;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #1a1a1a;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 40%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.game {
+  background: none;
+}
+
+.game:hover {
+  background-color:#606c76;
+  border-color:#606c76;
+  color:#d9d9d9;
+  outline:0
+}
+
+.game td {
+  padding-left: 5px;
+}
+
+.user_game {
+  background: #3e5322;
+}
+
+.user_game:hover {
+  background-color:#ad251c;
+  border-color:#606c76;
+  color:#d9d9d9;
+  outline:0;
+}
+
+.user_game td {
+  padding-left: 5px;
+}
+
