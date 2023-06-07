@@ -97,6 +97,9 @@ defmodule DojoWeb.PageController do
 
                 redirect(conn, to: Routes.page_path(conn, :room, game_id))
             end
+
+          _ ->
+            "invite_accepted must be set as true or false for play-with-friend games"
         end
     end
   end
@@ -177,8 +180,6 @@ defmodule DojoWeb.PageController do
                       {nil, nil}
                   end
 
-                Logger.error("white_time_ms: #{game_state.time_control}")
-
                 color =
                   case {game_state.white_user_id == user_id, game_state.black_user_id == user_id} do
                     {true, false} -> :white
@@ -233,6 +234,9 @@ defmodule DojoWeb.PageController do
           {:error, _} ->
             raise "invalid user token"
         end
+
+      _ ->
+        raise "invite_accepted must be set for play-with-friend games"
     end
   end
 
