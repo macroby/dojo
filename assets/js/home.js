@@ -2,6 +2,7 @@ import "../css/phoenix.css"
 import "../css/app.css"
 
 import socket from "./home_socket"
+import GameList from "./game_list"
 //
 import "phoenix_html"
 
@@ -148,3 +149,4 @@ timeControlSelectWithAI.onchange = function() {
   }
 }
 
+let game_list = new GameList(document.getElementById('game_list'));

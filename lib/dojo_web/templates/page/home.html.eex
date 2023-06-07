@@ -14,9 +14,8 @@
   width: 100%;
 }
 
-#border {
-  height: 1px;
-  background: #888888;
+#game_list {
+  color: #d9d9d9;
 }
 
 #game_list td{
@@ -25,6 +24,11 @@
 
 #game_list table tbody tr {
   cursor: pointer;
+}
+
+#game_list table thead th {
+  border-top: 1px solid #888888;
+  border-bottom: 1px solid #888888;
 }
 
 select {
@@ -271,9 +275,6 @@ select {
   </div>
 
 </div>
-
-<div id="border"></div>
-
 
 <div id="game_list">
   <table id="">
