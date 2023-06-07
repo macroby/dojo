@@ -14,6 +14,23 @@
   width: 100%;
 }
 
+#border {
+  height: 1px;
+  background: #888888;
+}
+
+#game_list td{
+  border-bottom: 0;
+}
+
+#game_list table tbody tr {
+  cursor: pointer;
+}
+
+select {
+  color: #d9d9d9;
+}
+
 /* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */
@@ -31,7 +48,7 @@
 
 /* Modal Content */
 .modal-content {
-  background-color: #fefefe;
+  background-color: #1a1a1a;
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
@@ -52,6 +69,37 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+.game {
+  background: none;
+}
+
+.game:hover {
+  background-color:#606c76;
+  border-color:#606c76;
+  color:#d9d9d9;
+  outline:0
+}
+
+.game td {
+  padding-left: 5px;
+}
+
+.user_game {
+  background: #3e5322;
+}
+
+.user_game:hover {
+  background-color:#ad251c;
+  border-color:#606c76;
+  color:#d9d9d9;
+  outline:0;
+}
+
+.user_game td {
+  padding-left: 5px;
+}
+
 </style>
 <!-- Trigger/Open The Modal -->
 <button id="createGameBtn">CREATE A GAME</button>
@@ -222,6 +270,26 @@
     </form>
   </div>
 
+</div>
+
+<div id="border"></div>
+
+
+<div id="game_list">
+  <table id="">
+  <thead>
+    <tr>
+      <th>Player</th>
+      <th>Rating</th>
+      <th>Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="user_game"><td>anon</td><td></td><td>5+3</td></tr>
+    <tr class="game"><td>anon</td><td></td><td>5+3</td></tr>
+    <tr class="game"><td>anon</td><td></td><td>5+3</td></tr>
+  </tbody>
+  </table>
 </div>
 
 <script>
