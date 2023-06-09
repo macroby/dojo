@@ -59,14 +59,6 @@ function sanitise(str) {
   return str.replace(reg, (match)=>(map[match]));
 }
 
-function sendComputerGameRequest()
-{
-  const form = document.getElementById("play-with-computer-form");
-  form.method = 'post';
-  form.submit();
-}
-
-
 // Get the modal
 let createGameModal = document.getElementById("createGameModal");
 let playWithFriendModal = document.getElementById("playWithFriendModal");
@@ -117,6 +109,22 @@ window.onclick = function(event) {
   }
 }
 
+let timeControlSelectCreateGame = document.getElementById("time-control-select-create-game");
+timeControlSelectCreateGame.onchange = function() {
+  let timeControl = timeControlSelectCreateGame.value;
+  let timeControlRealTimeInput = document.getElementById("time-control-real-time-create-game");
+  let timeControlCorrespondenceInput = document.getElementById("time-control-correspondence-create-game");
+  if (timeControl == "real time") {
+    timeControlRealTimeInput.style.display = "block";
+  } else if (timeControl == "correspondence") {
+    timeControlCorrespondenceInput.style.display = "block";
+  }
+  else {
+    timeControlRealTimeInput.style.display = "none";
+    timeControlCorrespondenceInput.style.display = "none";
+  }
+}
+
 let timeControlSelectWithFriend = document.getElementById("time-control-select-with-friend");
 timeControlSelectWithFriend.onchange = function() {
   let timeControl = timeControlSelectWithFriend.value;
@@ -149,4 +157,72 @@ timeControlSelectWithAI.onchange = function() {
   }
 }
 
+
+var white_submit_button = document.querySelector('#create-game-as-white-submit-button');
+var black_submit_button = document.querySelector('#create-game-as-black-submit-button');
+var random_submit_button = document.querySelector('#create-game-as-random-submit-button');
+
+white_submit_button.addEventListener('click', function(event) {
+  event.preventDefault();
+  handle_create_game_form(this.form, "create-game-as-white-submit-button");
+});
+
+black_submit_button.addEventListener('click', function(event) {
+  event.preventDefault();
+  handle_create_game_form(this.form, "create-game-as-black-submit-button");
+});
+
+random_submit_button.addEventListener('click', function(event) {
+  event.preventDefault();
+  handle_create_game_form(this.form, "create-game-as-random-submit-button");
+});
+
 let game_list = new GameList(document.getElementById('game_list'));
+
+function handle_create_game_form(form, button_id) {
+  var iterator = new FormData(form).entries();
+  var data = iterator.next();
+  var kv = new Map();
+
+  while(data.done === false) {
+    kv.set(data.value[0], data.value[1])
+    data = iterator.next();
+  }
+
+  switch(button_id) {
+    case "create-game-as-white-submit-button":
+      kv.set("color", "white")
+      break;
+    case "create-game-as-black-submit-button":
+      kv.set("color", "black")
+      break;
+    case "create-game-as-random-submit-button":
+      kv.set("color", "rand")
+      break;
+    default:
+      break;
+  }
+
+  form_data = new URLSearchParams(Object.fromEntries(kv));
+  fetch('/setup/game', {
+    method: 'POST',
+    body: form_data,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+  .then(response => {
+    if (response.ok) {
+      user_game = {player: kv.get("color"), time: kv.get("minutes")};
+      game_list.set_user_game(user_game);
+      game_list.show_user_game();
+      createGameModal.style.display = "none";
+    } else {
+      // Handle errors or other non-successful responses here
+    }
+  })
+  .catch(error => {
+    // Handle network errors or exceptions here
+  });
+}
+

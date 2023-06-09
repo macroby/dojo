@@ -5,29 +5,62 @@
 <div id="createGameModal" class="modal">
 
   <!-- Modal content -->
+  <!-- Modal content -->
   <div class="modal-content">
-    <span id = "createGameClose" class="close">&times;</span>
+    <span id="createGameClose" class="close">&times;</span>
 
-    <form>
+    <form id="create-game-form">
     <label for="variant-select">Variant</label>
+
     <select name="variant" id="variant-select-create-game">
       <option value="standard">Standard</option>
     </select>
 
     <label for="time-control-select">Time Control</label>
-    <select name="variant" id="time-control-select-create-game">
+    <select name="time-control" id="time-control-select-create-game">
       <option value="unlimited">Unlimited</option>
+      <option value="correspondence">Correspondence</option>
+      <option value="real time">Real Time</option>
     </select>
 
-    <br>
-    <button type="button">White</button>
-    <button type="button">Black</button>
-    <button type="button">Random</button>
-    </form>
+    <div id="time-control-real-time-create-game" style="display:none;">
+      <label for="time-control-select-create-game">Minutes per side</label>
+      <select name="minutes" id="minutes-select-create-game">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="30">30</option>
+      </select>
+
+      <label for="increment-select">Increment in seconds</label>
+      <select name="increment" id="increment-select-create-game">
+        <option value="0">0</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
+    </div>
+
+    <div id="time-control-correspondence-create-game" style="display:none;">
+      <label for="time-control-select-create-game">Days per move</label>
+      <select name="days" id="days-select-create-game">
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="7">7</option>
+        <option value="14">14</option>
+      </select>
+    </div>
 
      <input type="hidden" name="_csrf_token" value="<%= @csrf_token %>">
+      <br>
+      <div id="create-game-submit-buttons">
+        <button id="create-game-as-white-submit-button" type='submit' value='white' name='color'>White</button>
+        <button id="create-game-as-black-submit-button" type='submit' value='black' name='color'>Black</button>
+        <button id="create-game-as-random-submit-button" type='submit' value='rand' name='color'>Random</button>
+      </div>
+    </form>
   </div>
-
 </div>
 
 <!-- Trigger/Open The Modal -->

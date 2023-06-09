@@ -1,3 +1,5 @@
+import { render } from "chessground/anim";
+
 class GameList {
     constructor (element) {
         this.element = element;
@@ -13,6 +15,11 @@ class GameList {
 
     show_user_game() {
         this.element.querySelector('.user_game').style.display = 'table-row';
+    }
+
+    set_user_game(game) {
+        this.element.querySelector('.user_game').innerHTML = "<td>"+ game.player +"</td><td></td><td>"+ game.time +"</td>";
+        this.element.querySelector('.user_game').onclick = this.user_game_onclick.bind(this);
     }
 
     add_games(games) {
