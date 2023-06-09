@@ -170,8 +170,33 @@ defmodule DojoWeb.SetupController do
         game_id = UUID.string_to_binary!(UUID.uuid1())
         game_id = Base.url_encode64(game_id, padding: false)
 
+        user_token = get_session(conn, :user_token)
+
+        user_id =
+          case Token.verify(conn, "user auth", user_token) do
+            {:ok, user_id} -> user_id
+            _ -> raise "invalid user token"
+          end
+
+        {white_user_id, black_user_id} =
+          case color do
+            "white" ->
+              {user_id, nil}
+
+            "black" ->
+              {nil, user_id}
+
+            _ ->
+              case :rand.uniform(10) do
+                x when x > 5 -> {user_id, nil}
+                _ -> {nil, user_id}
+              end
+          end
+
         game_init_state = %GameState{
           game_id: game_id,
+          white_user_id: white_user_id,
+          black_user_id: black_user_id,
           color: color,
           game_type: :ai,
           time_control: time_control,
@@ -259,9 +284,34 @@ defmodule DojoWeb.SetupController do
         game_id = UUID.string_to_binary!(UUID.uuid1())
         game_id = Base.url_encode64(game_id, padding: false)
 
+        user_token = get_session(conn, :user_token)
+
+        user_id =
+          case Token.verify(conn, "user auth", user_token) do
+            {:ok, user_id} -> user_id
+            _ -> raise "invalid user token"
+          end
+
+        {white_user_id, black_user_id} =
+          case color do
+            "white" ->
+              {user_id, nil}
+
+            "black" ->
+              {nil, user_id}
+
+            _ ->
+              case :rand.uniform(10) do
+                x when x > 5 -> {user_id, nil}
+                _ -> {nil, user_id}
+              end
+          end
+
         pid =
           GameSupervisor.create_game(%GameState{
             game_id: game_id,
+            white_user_id: white_user_id,
+            black_user_id: black_user_id,
             color: color,
             game_type: :ai,
             time_control: time_control,

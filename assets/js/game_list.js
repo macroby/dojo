@@ -12,7 +12,7 @@ class GameList {
     }
 
     show_user_game() {
-        this.element.querySelector('.user_game').style.display = 'block';
+        this.element.querySelector('.user_game').style.display = 'table-row';
     }
 
     add_games(games) {

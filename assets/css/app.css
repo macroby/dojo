@@ -155,6 +155,7 @@ select {
 
 .user_game {
   background: #3e5322;
+  display: none;
 }
 
 .user_game:hover {
