@@ -177,7 +177,11 @@ random_submit_button.addEventListener('click', function(event) {
   handle_create_game_form(this.form, "create-game-as-random-submit-button");
 });
 
+
+// GAME LIST
 let game_list = new GameList(document.getElementById('game_list'));
+
+game_list.add_game()
 
 function handle_create_game_form(form, button_id) {
   var iterator = new FormData(form).entries();
@@ -225,4 +229,3 @@ function handle_create_game_form(form, button_id) {
     // Handle network errors or exceptions here
   });
 }
-

@@ -1,4 +1,1 @@
-implement "play with a friend" feature
-
-
-
+move game creation from game supervisor module to game module

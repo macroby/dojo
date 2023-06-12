@@ -219,4 +219,5 @@
 
 <script>
   const user_token = '<%= @user_token %>'
+  var open_games = '<%= @open_games %>'
 </script>

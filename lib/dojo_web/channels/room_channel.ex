@@ -35,10 +35,14 @@ defmodule DojoWeb.RoomChannel do
 
     with [{pid, _}] <- Registry.lookup(GameRegistry, gameid),
          :continue <- Game.get_game_status(pid) do
+      user_id = socket.assigns.user_id
+      game_state = Game.get_state(pid)
+
       winner =
-        case Game.get_side_to_move(pid) do
-          :white -> :black
-          :black -> :white
+        case {game_state.white_user_id == user_id, game_state.black_user_id == user_id} do
+          {true, false} -> :black
+          {false, true} -> :white
+          {false, false} -> raise "user not in game"
         end
 
       Game.resign(pid, winner)

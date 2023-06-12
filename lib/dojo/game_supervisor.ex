@@ -1,4 +1,4 @@
-defmodule GameSupervisor do
+defmodule Dojo.GameSupervisor do
   alias Dojo.Game
   alias Dojo.GameState
   use DynamicSupervisor
@@ -12,7 +12,7 @@ defmodule GameSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def create_game(game = %GameState{}) do
+  def start_game(game = %GameState{}) do
     DynamicSupervisor.start_child(
       __MODULE__,
       {Game, game}
@@ -23,26 +23,6 @@ defmodule GameSupervisor do
       {:ok, pid} -> pid
     end
   end
-
-  # def create_game(id, color, time_control, minutes, increment, difficulty) do
-  #   DynamicSupervisor.start_child(
-  #     __MODULE__,
-  #     {Game,
-  #      %{
-  #        id: id,
-  #        color: color,
-  #        time_control: time_control,
-  #        minutes: minutes,
-  #        increment: increment,
-  #        difficulty: difficulty
-  #      }}
-  #   )
-  #   |> case do
-  #     {:error, {:already_started, pid}} -> pid
-  #     {:error, reason} -> raise reason
-  #     {:ok, pid} -> pid
-  #   end
-  # end
 
   @spec close_game(pid) :: :ok | {:error, :not_found}
   def close_game(game_pid) do

@@ -18,16 +18,18 @@ defmodule Dojo.Game do
   end
 
   def start_link(config) do
-    GenServer.start_link(__MODULE__, config, name: via_tuple(config.game_id))
+    GenServer.start_link(__MODULE__, config, name: register_game(config))
   end
 
-  defp via_tuple(name),
-    do: {:via, Registry, {GameRegistry, name}}
+  defp register_game(config) do
+    {:via, Registry, {GameRegistry, config.game_id}}
+  end
 
   def make_move(p_name, move) do
     GenServer.call(p_name, {:make_move, move})
   end
 
+  @spec get_state(atom | pid | {atom, any} | {:via, atom, any}) :: any
   def get_state(p_name) do
     GenServer.call(p_name, :get_state)
   end

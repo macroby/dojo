@@ -18,8 +18,9 @@ defmodule Dojo.Application do
       # Start a worker by calling: Dojo.Worker.start_link(arg)
       # {Dojo.Worker, arg}
       # Start the Game dynamic supervisor
-      GameSupervisor,
+      Dojo.GameSupervisor,
       {Registry, keys: :unique, name: GameRegistry},
+      Dojo.GameTracker,
       StockfishSupervisor,
       {Registry, keys: :unique, name: StockfishRegistry}
     ]
@@ -29,7 +30,7 @@ defmodule Dojo.Application do
     opts = [strategy: :one_for_one, name: Dojo.Supervisor]
     app_pid = Supervisor.start_link(children, opts)
 
-    # Start Stockfish process (in the future, we will start multiple Stockfish processes)
+    # Start the Stockfish process
     StockfishSupervisor.create_stockfish(<<"1">>)
 
     app_pid

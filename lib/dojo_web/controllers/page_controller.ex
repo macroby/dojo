@@ -13,32 +13,34 @@ defmodule DojoWeb.PageController do
         "no-cache, no-store, must-revalidate"
       )
 
-    case get_session(conn, :user_token) do
-      nil ->
-        user_id = UUID.string_to_binary!(UUID.uuid1())
-        user_id = Base.url_encode64(user_id, padding: false)
+    {user_token, csrf_token, conn} =
+      case get_session(conn, :user_token) do
+        nil ->
+          user_id = UUID.string_to_binary!(UUID.uuid1())
+          user_id = Base.url_encode64(user_id, padding: false)
 
-        token = Token.sign(conn, "user auth", user_id)
-        conn = put_session(conn, :user_token, token)
+          token = Token.sign(conn, "user auth", user_id)
+          conn = put_session(conn, :user_token, token)
 
-        csrf_token = get_csrf_token()
-        conn = put_resp_cookie(conn, "_csrf_token", csrf_token, http_only: false)
+          csrf_token = get_csrf_token()
+          conn = put_resp_cookie(conn, "_csrf_token", csrf_token, http_only: false)
 
-        render(conn, "home.html",
-          layout: {DojoWeb.LayoutView, "home_layout.html"},
-          csrf_token: csrf_token,
-          user_token: token
-        )
+          {token, csrf_token, conn}
 
-      user_token ->
-        csrf_token = conn.cookies["_csrf_token"]
+        user_token ->
+          csrf_token = conn.cookies["_csrf_token"]
 
-        render(conn, "home.html",
-          layout: {DojoWeb.LayoutView, "home_layout.html"},
-          csrf_token: csrf_token,
-          user_token: user_token
-        )
-    end
+          {user_token, csrf_token, conn}
+      end
+
+    open_games = Dojo.GameTracker.get_open_game_ids()
+
+    render(conn, "home.html",
+      layout: {DojoWeb.LayoutView, "home_layout.html"},
+      csrf_token: csrf_token,
+      user_token: user_token,
+      open_games: open_games
+    )
   end
 
   def cancel(conn, %{"gameid" => game_id}) do

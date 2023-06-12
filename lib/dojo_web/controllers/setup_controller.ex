@@ -1,7 +1,9 @@
 defmodule DojoWeb.SetupController do
   require Logger
+  alias Dojo.GameFactory
   alias Dojo.GameState
   alias Dojo.Stockfish
+  alias Dojo.GameTracker
   alias Phoenix.Token
   use DojoWeb, :controller
   require Logger
@@ -79,7 +81,7 @@ defmodule DojoWeb.SetupController do
         game_init_state = %GameState{
           game_id: game_id,
           color: color,
-          game_type: :friend,
+          game_type: :open,
           invite_accepted: false,
           white_user_id: white_user_id,
           black_user_id: black_user_id,
@@ -88,11 +90,14 @@ defmodule DojoWeb.SetupController do
           increment: increment
         }
 
-        GameSupervisor.create_game(game_init_state)
+        GameFactory.create_game(game_init_state)
         |> case do
           {nil, error} -> raise error
           pid -> pid
         end
+
+        open_games = GameTracker.get_open_games()
+        Logger.error("open games: #{inspect(open_games)}")
 
         conn
         |> put_resp_content_type("text/plain")
@@ -185,7 +190,7 @@ defmodule DojoWeb.SetupController do
           increment: increment
         }
 
-        GameSupervisor.create_game(game_init_state)
+        GameFactory.create_game(game_init_state)
         |> case do
           {nil, error} -> raise error
           pid -> pid
@@ -303,7 +308,7 @@ defmodule DojoWeb.SetupController do
         }
 
         pid =
-          GameSupervisor.create_game(game_init_state)
+          GameFactory.create_game(game_init_state)
           |> case do
             {nil, error} -> raise error
             pid -> pid
@@ -405,7 +410,7 @@ defmodule DojoWeb.SetupController do
           end
 
         pid =
-          GameSupervisor.create_game(%GameState{
+          GameFactory.create_game(%GameState{
             game_id: game_id,
             white_user_id: white_user_id,
             black_user_id: black_user_id,

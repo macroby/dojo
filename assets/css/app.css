@@ -84,6 +84,7 @@ body {
 #game_list table thead th {
   border-top: 1px solid #888888;
   border-bottom: 1px solid #888888;
+  text-align: left;
 }
 
 select {
