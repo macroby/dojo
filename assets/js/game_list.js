@@ -24,8 +24,7 @@ class GameList {
 
     add_games(games) {
         for(var i = 0; i < games.length; i++) {
-            const id = games[i].id;
-            this.game_map.set(id, games[i]);
+            this.game_map.set(games[i].id, games[i]);
         }
         this.render_from_game_map();
     }
@@ -43,7 +42,8 @@ class GameList {
     render_from_game_map() {
         this.element.querySelector('tbody').innerHTML = "<tr class=\"user_game\"><td>anon</td><td></td><td>5+3</td></tr>";
         this.game_map.forEach((value, key) => {
-            this.element.querySelector('tbody').innerHTML += "<tr class=\"game\"><td>"+ value.player +"</td><td></td><td>"+ value.time +"</td></tr>"
+            
+            this.element.querySelector('tbody').innerHTML += "<tr class=\"game\"><td>"+ value.player +"</td><td></td><td>"+ value.minutes + "+" + value.increment +"</td></tr>"
         });
         this.element.querySelector('.user_game').onclick = this.user_game_onclick.bind(this);
 
@@ -54,10 +54,10 @@ class GameList {
     }
 
     user_game_onclick() {
-        var game1 = { player: "anon", time: "5+5", id: "12345"};
-        var game2 = { player: "anon", time: "5+5", id: "12346"};
-        var game3 = { player: "anon", time: "5+5", id: "12347"};
-        var game4 = { player: "anon", time: "5+5", id: "12348"};
+        var game1 = { player: "anon", minutes: "5", increment: "5", id: "12345"};
+        var game2 = { player: "anon", minutes: "5", increment: "5", id: "12346"};
+        var game3 = { player: "anon", minutes: "5", increment: "5", id: "12347"};
+        var game4 = { player: "anon", minutes: "5", increment: "5", id: "12348"};
 
         var games = [game1, game2, game3, game4];
 

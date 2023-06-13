@@ -33,7 +33,28 @@ defmodule DojoWeb.PageController do
           {user_token, csrf_token, conn}
       end
 
-    open_games = Dojo.GameTracker.get_open_game_ids()
+    # open_games = Map.to_list(Dojo.GameTracker.get_open_games())
+
+    open_games =
+      Map.to_list(Dojo.GameTracker.get_open_games())
+      |> Enum.map(fn {game_id, game} ->
+        game_creator_id = case {game.white_user_id, game.black_user_id} do
+          {nil, nil} -> raise "Invalid game, both players are nil but a player is required to start a game."
+          {white_user_id, nil} -> white_user_id
+          {nil, black_user_id} -> black_user_id
+          {_white_user_id, _black_user_id} -> raise "Invalid game, both players are not nil but only one player is required to start a game."
+        end
+
+        time_control = game.time_control
+
+        {minutes, increment} = case time_control do
+          :real_time -> {Integer.to_string(game.minutes), Integer.to_string(game.increment)}
+          :unlimited -> {"inf", "inf"}
+        end
+
+        %{"game_id" => game_id, "game_creator_id" => game_creator_id, "minutes" => minutes, "increment" => increment}
+      end)
+      |> Jason.encode!()
 
     render(conn, "home.html",
       layout: {DojoWeb.LayoutView, "home_layout.html"},

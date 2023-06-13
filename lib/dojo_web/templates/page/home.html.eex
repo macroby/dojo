@@ -217,7 +217,9 @@
   </table>
 </span>
 
+<div id="open_games"></div>
+
 <script>
   const user_token = '<%= @user_token %>'
-  var open_games = '<%= @open_games %>'
+  var open_games = new Map(Object.entries(<%= raw @open_games %>));
 </script>

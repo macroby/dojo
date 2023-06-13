@@ -181,7 +181,15 @@ random_submit_button.addEventListener('click', function(event) {
 // GAME LIST
 let game_list = new GameList(document.getElementById('game_list'));
 
-game_list.add_game()
+let open_games_list = [];
+
+for (var open_game of open_games.values()) {
+  open_game = Object.values(open_game);
+  game_list_open_game = {id: open_game[1], player: open_game[0], minutes: open_game[2], increment: open_game[3]};
+  open_games_list.push(game_list_open_game);
+}
+
+game_list.add_games(open_games_list);
 
 function handle_create_game_form(form, button_id) {
   var iterator = new FormData(form).entries();

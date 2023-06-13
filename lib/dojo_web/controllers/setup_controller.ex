@@ -3,7 +3,6 @@ defmodule DojoWeb.SetupController do
   alias Dojo.GameFactory
   alias Dojo.GameState
   alias Dojo.Stockfish
-  alias Dojo.GameTracker
   alias Phoenix.Token
   use DojoWeb, :controller
   require Logger
@@ -95,9 +94,6 @@ defmodule DojoWeb.SetupController do
           {nil, error} -> raise error
           pid -> pid
         end
-
-        open_games = GameTracker.get_open_games()
-        Logger.error("open games: #{inspect(open_games)}")
 
         conn
         |> put_resp_content_type("text/plain")
