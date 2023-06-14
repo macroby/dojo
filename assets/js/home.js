@@ -194,7 +194,12 @@ for (var open_game of open_games.values()) {
     game_list_open_user_game = {game_id: open_game[1], game_creator_id: open_game[0], minutes: open_game[2], increment: open_game[3]};
   }
 }
-
+game_list.set_user_game_onclick(function() {
+  location.reload();
+});
+game_list.set_game_onclick(function(game_id) {
+  location.href = "/" + game_id;
+});
 game_list.add_games(open_games_list);
 if (game_list_open_user_game !== null) {
   game_list.set_user_game(game_list_open_user_game);
