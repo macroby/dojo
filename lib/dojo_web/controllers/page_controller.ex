@@ -13,7 +13,7 @@ defmodule DojoWeb.PageController do
         "no-cache, no-store, must-revalidate"
       )
 
-    {user_token, csrf_token, conn} =
+    {user_token, csrf_token, conn, user_id} =
       case get_session(conn, :user_token) do
         nil ->
           user_id = UUID.string_to_binary!(UUID.uuid1())
@@ -25,12 +25,18 @@ defmodule DojoWeb.PageController do
           csrf_token = get_csrf_token()
           conn = put_resp_cookie(conn, "_csrf_token", csrf_token, http_only: false)
 
-          {token, csrf_token, conn}
+          {token, csrf_token, conn, user_id}
 
         user_token ->
           csrf_token = conn.cookies["_csrf_token"]
 
-          {user_token, csrf_token, conn}
+          user_id =
+            case Token.verify(conn, "user auth", user_token) do
+              {:ok, user_id} -> user_id
+              _ -> raise "invalid user token"
+            end
+
+          {user_token, csrf_token, conn, user_id}
       end
 
     # open_games = Map.to_list(Dojo.GameTracker.get_open_games())
@@ -38,21 +44,35 @@ defmodule DojoWeb.PageController do
     open_games =
       Map.to_list(Dojo.GameTracker.get_open_games())
       |> Enum.map(fn {game_id, game} ->
-        game_creator_id = case {game.white_user_id, game.black_user_id} do
-          {nil, nil} -> raise "Invalid game, both players are nil but a player is required to start a game."
-          {white_user_id, nil} -> white_user_id
-          {nil, black_user_id} -> black_user_id
-          {_white_user_id, _black_user_id} -> raise "Invalid game, both players are not nil but only one player is required to start a game."
-        end
+        game_creator_id =
+          case {game.white_user_id, game.black_user_id} do
+            {nil, nil} ->
+              raise "Invalid game, both players are nil but a player is required to start a game."
+
+            {white_user_id, nil} ->
+              white_user_id
+
+            {nil, black_user_id} ->
+              black_user_id
+
+            {_white_user_id, _black_user_id} ->
+              raise "Invalid game, both players are not nil but only one player is required to start a game."
+          end
 
         time_control = game.time_control
 
-        {minutes, increment} = case time_control do
-          :real_time -> {Integer.to_string(game.minutes), Integer.to_string(game.increment)}
-          :unlimited -> {"inf", "inf"}
-        end
+        {minutes, increment} =
+          case time_control do
+            :real_time -> {Integer.to_string(game.minutes), Integer.to_string(game.increment)}
+            :unlimited -> {"inf", "inf"}
+          end
 
-        %{"game_id" => game_id, "game_creator_id" => game_creator_id, "minutes" => minutes, "increment" => increment}
+        %{
+          "game_id" => game_id,
+          "game_creator_id" => game_creator_id,
+          "minutes" => minutes,
+          "increment" => increment
+        }
       end)
       |> Jason.encode!()
 
@@ -60,6 +80,7 @@ defmodule DojoWeb.PageController do
       layout: {DojoWeb.LayoutView, "home_layout.html"},
       csrf_token: csrf_token,
       user_token: user_token,
+      user_id: user_id,
       open_games: open_games
     )
   end

@@ -182,14 +182,26 @@ random_submit_button.addEventListener('click', function(event) {
 let game_list = new GameList(document.getElementById('game_list'));
 
 let open_games_list = [];
+let game_list_open_user_game = null;
+let game_list_open_game = null;
 
 for (var open_game of open_games.values()) {
   open_game = Object.values(open_game);
-  game_list_open_game = {id: open_game[1], player: open_game[0], minutes: open_game[2], increment: open_game[3]};
-  open_games_list.push(game_list_open_game);
+  if (user_id !== open_game[0]) {
+    game_list_open_game = {game_id: open_game[1], game_creator_id: open_game[0], minutes: open_game[2], increment: open_game[3]};
+    open_games_list.push(game_list_open_game);
+  } else {
+    game_list_open_user_game = {game_id: open_game[1], game_creator_id: open_game[0], minutes: open_game[2], increment: open_game[3]};
+  }
 }
 
 game_list.add_games(open_games_list);
+if (game_list_open_user_game !== null) {
+  game_list.set_user_game(game_list_open_user_game);
+  game_list.show_user_game();
+}
+
+///
 
 function handle_create_game_form(form, button_id) {
   var iterator = new FormData(form).entries();
@@ -225,7 +237,7 @@ function handle_create_game_form(form, button_id) {
   })
   .then(response => {
     if (response.ok) {
-      user_game = {player: kv.get("color"), time: kv.get("minutes")};
+      user_game = {game_creator_id: kv.get("color"), time: kv.get("minutes")};
       game_list.set_user_game(user_game);
       game_list.show_user_game();
       createGameModal.style.display = "none";
