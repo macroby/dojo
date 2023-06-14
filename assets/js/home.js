@@ -3,7 +3,7 @@ import "../css/app.css"
 
 import socket from "./home_socket"
 import GameList from "./game_list"
-//
+
 import "phoenix_html"
 
 let channel = socket.channel('home:lobby', {}); // connect to chess "room"
@@ -237,7 +237,13 @@ function handle_create_game_form(form, button_id) {
   })
   .then(response => {
     if (response.ok) {
-      user_game = {game_creator_id: kv.get("color"), time: kv.get("minutes")};
+      user_game = 
+        {
+          game_creator_id: user_id, 
+          minutes: kv.get("minutes"), 
+          increment: kv.get("increment"), 
+          game_id: response.headers.get("game_id")
+        };
       game_list.set_user_game(user_game);
       game_list.show_user_game();
       createGameModal.style.display = "none";

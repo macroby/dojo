@@ -51,16 +51,19 @@ class GameList {
         }
     }
 
+    // set_user_game_onclick(callback) {
+    //     this.element.querySelector('.user_game').onclick = callback;
+    // }
+
+    // set_game_onclick(callback) {
+    //     var game_children = this.element.querySelectorAll('.game');
+    //     for(var i = 0; i < game_children.length; i++) {
+    //         game_children[i].onclick = callback;
+    //     }
+    // }
+
     user_game_onclick() {
-        var game1 = { player: "anon", minutes: "5", increment: "5", id: "12345"};
-        var game2 = { player: "anon", minutes: "5", increment: "5", id: "12346"};
-        var game3 = { player: "anon", minutes: "5", increment: "5", id: "12347"};
-        var game4 = { player: "anon", minutes: "5", increment: "5", id: "12348"};
-
-        var games = [game1, game2, game3, game4];
-
-        this.add_games(games);
-        // this.hide_user_game();
+        this.hide_user_game();
     }
 
     game_onclick() {
