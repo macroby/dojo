@@ -1,1 +1,3 @@
-move game creation from game supervisor module to game module
+remove game from game list after it is selected
+
+send new games to lobby via channel

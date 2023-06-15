@@ -105,6 +105,7 @@ defmodule DojoWeb.RoomChannel do
 
                 if state.status == :continue do
                   case state.game_type do
+                    :open -> nil
                     :friend -> nil
                     :ai -> Task.start(fn -> ai_move(pid, state, socket) end)
                   end
