@@ -95,8 +95,24 @@ defmodule DojoWeb.SetupController do
           pid -> pid
         end
 
+        Dojo.GameTracker.add_open_game(game_init_state)
+
+        {minutes, increment} =
+          case {minutes, increment} do
+            {nil, nil} -> {"inf", "inf"}
+            {minutes, increment} -> {minutes, increment}
+          end
+
+        DojoWeb.Endpoint.broadcast("home:lobby", "new_game", %{
+          game_id: game_id,
+          game_creator_id: user_id,
+          minutes: minutes,
+          increment: increment
+        })
+
         conn
         |> put_resp_content_type("text/plain")
+        |> put_resp_header("game_id", game_id)
         |> send_resp(201, "game created")
 
       false ->

@@ -24,6 +24,23 @@ channel.on('shout', function (payload) { // listen to the 'shout' event
   scrollToBottom();
 });
 
+channel.on('closed_game', function (payload) {
+  game_list.remove_game(payload.game_id);
+});
+
+channel.on('new_game', function (payload) {
+  if (payload.game_creator_id !== user_id) {
+    var new_open_game = 
+      {
+        game_id: payload.game_id, 
+        game_creator_id: payload.game_creator_id, 
+        minutes: payload.minutes, 
+        increment: payload.increment
+      };
+    game_list.add_game(new_open_game);
+  }
+});
+
 channel.join(); // join the channel.
 
 

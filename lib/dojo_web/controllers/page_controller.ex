@@ -293,7 +293,13 @@ defmodule DojoWeb.PageController do
                       {nil, nil}
                   end
 
+                Dojo.GameTracker.remove_open_game(game_state.game_id)
+
                 DojoWeb.Endpoint.broadcast!("home:" <> game_creator_id, "redirect", %{
+                  "game_id" => game_state.game_id
+                })
+
+                DojoWeb.Endpoint.broadcast!("home:lobby", "closed_game", %{
                   "game_id" => game_state.game_id
                 })
 
