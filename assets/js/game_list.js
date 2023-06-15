@@ -9,6 +9,8 @@ class GameList {
         this.game_callback = null;
     }
 
+    // need init function for rendering the game list
+
     hide_user_game() {
         this.element.querySelector('.user_game').style.display = 'none';
     }

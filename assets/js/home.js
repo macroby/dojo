@@ -6,6 +6,14 @@ import GameList from "./game_list"
 
 import "phoenix_html"
 
+let cast = socket.channel('home:' + user_id, {}); // connect to chess "room"
+
+cast.on('redirect', function (payload) {
+  location.href = payload.game_id;
+} );
+
+cast.join();
+
 let channel = socket.channel('home:lobby', {}); // connect to chess "room"
 
 channel.on('shout', function (payload) { // listen to the 'shout' event
