@@ -9,6 +9,8 @@ defmodule DojoWeb.Router do
     plug(:put_secure_browser_headers)
   end
 
+
+
   pipeline :api do
     plug(:accepts, ["json"])
     plug(:fetch_session)
@@ -37,6 +39,12 @@ defmodule DojoWeb.Router do
     post("/game", SetupController, :setup_game)
     post("/friend", SetupController, :setup_friend)
     post("/ai", SetupController, :setup_ai)
+  end
+
+  scope "/cancel", DojoWeb do
+    pipe_through(:browser)
+
+    post("/game", CancelController, :cancel_game)
   end
 
   # Other scopes may use custom stacks.

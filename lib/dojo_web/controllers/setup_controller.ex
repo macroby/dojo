@@ -5,7 +5,6 @@ defmodule DojoWeb.SetupController do
   alias Dojo.Stockfish
   alias Phoenix.Token
   use DojoWeb, :controller
-  require Logger
 
   def setup_game(conn, %{
         "color" => color,

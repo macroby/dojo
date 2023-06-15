@@ -220,7 +220,24 @@ for (var open_game of open_games.values()) {
   }
 }
 game_list.set_user_game_onclick(function() {
-  location.reload();
+  var form_data = new URLSearchParams({_csrf_token: csrf_token});
+  fetch('/cancel/game', {
+    method: 'POST',
+    body: form_data,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+  .then(response => {
+    if (response.ok) {
+      // Handle successful responses here
+    } else {
+      // Handle errors or other non-successful responses here
+    }
+  })
+  .catch(error => {
+    // Handle network errors or exceptions here
+  });
 });
 game_list.set_game_onclick(function(game_id) {
   location.href = "/" + game_id;

@@ -221,6 +221,7 @@
 
 <script>
   const user_token = '<%= @user_token %>'
+  const csrf_token = '<%= @csrf_token %>'
   const user_id = '<%= @user_id %>'
   var open_games = new Map(Object.entries(<%= raw @open_games %>));
 </script>
