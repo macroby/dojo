@@ -64,7 +64,7 @@ class GameList {
         
         if (this.user_game_callback != null && this.user_game != null) {
             this.element.querySelector('.user_game').addEventListener('click', function() {
-                this.user_game_callback();
+                this.user_game_callback(this.user_game.game_id);
             }.bind(this));
         }
 

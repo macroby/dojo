@@ -1,5 +1,6 @@
 defmodule DojoWeb.HomeChannel do
   use DojoWeb, :channel
+  require Logger
 
   @impl true
   def join("home:lobby", _payload, socket) do
@@ -33,6 +34,18 @@ defmodule DojoWeb.HomeChannel do
   @impl true
   def handle_in("shout", payload, socket) do
     broadcast(socket, "shout", payload)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_in("cancel", payload, socket) do
+    with [{pid, _}] <- Registry.lookup(GameRegistry, payload["game_id"]),
+         true <- Dojo.Game.get_halfmove_clock(pid) < 2 do
+      Dojo.Game.cancel(pid, payload["game_id"])
+      Dojo.GameTracker.remove_open_game(payload["game_id"])
+      DojoWeb.Endpoint.broadcast("home:lobby", "closed_game", payload)
+    end
+
     {:noreply, socket}
   end
 

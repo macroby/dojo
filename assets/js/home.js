@@ -6,13 +6,13 @@ import GameList from "./game_list"
 
 import "phoenix_html"
 
-let cast = socket.channel('home:' + user_id, {}); // connect to chess "room"
+let user_channel = socket.channel('home:' + user_id, {}); // connect to chess "room"
 
-cast.on('redirect', function (payload) {
+user_channel.on('redirect', function (payload) {
   location.href = payload.game_id;
 } );
 
-cast.join();
+user_channel.join();
 
 let channel = socket.channel('home:lobby', {}); // connect to chess "room"
 
@@ -219,29 +219,14 @@ for (var open_game of open_games.values()) {
     game_list_open_user_game = {game_id: open_game[1], game_creator_id: open_game[0], minutes: open_game[2], increment: open_game[3]};
   }
 }
-game_list.set_user_game_onclick(function() {
-  var form_data = new URLSearchParams({_csrf_token: csrf_token});
-  fetch('/cancel/game', {
-    method: 'POST',
-    body: form_data,
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
-  .then(response => {
-    if (response.ok) {
-      // Handle successful responses here
-    } else {
-      // Handle errors or other non-successful responses here
-    }
-  })
-  .catch(error => {
-    // Handle network errors or exceptions here
-  });
+game_list.set_user_game_onclick(function(game_id) {
+  user_channel.push("cancel", {game_id: game_id})
 });
+
 game_list.set_game_onclick(function(game_id) {
   location.href = "/" + game_id;
 });
+
 game_list.add_games(open_games_list);
 if (game_list_open_user_game !== null) {
   game_list.set_user_game(game_list_open_user_game);
