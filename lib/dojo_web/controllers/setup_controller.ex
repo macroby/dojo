@@ -94,6 +94,8 @@ defmodule DojoWeb.SetupController do
           pid -> pid
         end
 
+        Dojo.UserTracker.add_active_user(user_id)
+
         Dojo.GameTracker.add_open_game(game_init_state)
 
         {minutes, increment} =
@@ -206,6 +208,8 @@ defmodule DojoWeb.SetupController do
           {nil, error} -> raise error
           pid -> pid
         end
+
+        Dojo.UserTracker.add_active_user(user_id)
 
         redirect(conn, to: Routes.page_path(conn, :room, game_id))
 
@@ -325,6 +329,8 @@ defmodule DojoWeb.SetupController do
             pid -> pid
           end
 
+        Dojo.UserTracker.add_active_user(user_id)
+
         Logger.debug("Stockfish count: #{Registry.count(StockfishRegistry)}")
 
         if Dojo.Game.get_halfmove_clock(pid) == 0 && color == "black" do
@@ -434,6 +440,8 @@ defmodule DojoWeb.SetupController do
             {nil, error} -> raise error
             pid -> pid
           end
+
+        Dojo.UserTracker.add_active_user(user_id)
 
         Logger.debug("Stockfish count: #{Registry.count(StockfishRegistry)}")
 

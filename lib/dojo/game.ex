@@ -67,6 +67,14 @@ defmodule Dojo.Game do
     GenServer.call(pid, {:set_black_user_id, user_id})
   end
 
+  def get_white_user_id(pid) do
+    GenServer.call(pid, :get_white_user_id)
+  end
+
+  def get_black_user_id(pid) do
+    GenServer.call(pid, :get_black_user_id)
+  end
+
   def accept_invite(p_name) do
     GenServer.call(p_name, :accept_invite)
   end
@@ -79,8 +87,8 @@ defmodule Dojo.Game do
     GenServer.call(p_name, {:resign, side_to_resign})
   end
 
-  def stop do
-    GenServer.stop(self())
+  def stop(p_name) do
+    GenServer.stop(p_name)
   end
 
   #######################
@@ -276,6 +284,16 @@ defmodule Dojo.Game do
   end
 
   @impl true
+  def handle_call({:get_white_user_id}, _from, state) do
+    {:reply, state.white_user_id, state}
+  end
+
+  @impl true
+  def handle_call({:get_black_user_id}, _from, state) do
+    {:reply, state.black_user_id, state}
+  end
+
+  @impl true
   def handle_call({:set_white_user_id, white_user_id}, _from, state) do
     state = Map.replace(state, :white_user_id, white_user_id)
     {:reply, :ok, state}
@@ -290,7 +308,6 @@ defmodule Dojo.Game do
   @impl true
   def handle_call(:cancel, _from, state) do
     Registry.unregister(GameRegistry, state.game_id)
-
     {:reply, :ok, state}
   end
 
