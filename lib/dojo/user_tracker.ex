@@ -25,6 +25,10 @@ defmodule Dojo.UserTracker do
     GenServer.call(__MODULE__, :get_active_users)
   end
 
+  def contains_active_user(user_id) do
+    GenServer.call(__MODULE__, {:contains_active_user, user_id})
+  end
+
   #######################
   # Server Implemention #
   #######################
@@ -42,7 +46,7 @@ defmodule Dojo.UserTracker do
   end
 
   def handle_call({:remove_active_user, user_id}, _from, state) do
-    active_users = Map.delete(state.active_users, user_id)
+    active_users = MapSet.delete(state.active_users, user_id)
     state = %{state | active_users: active_users}
 
     {:reply, :ok, state}
@@ -50,5 +54,9 @@ defmodule Dojo.UserTracker do
 
   def handle_call(:get_active_users, _from, state) do
     {:reply, state.active_users, state}
+  end
+
+  def handle_call({:contains_active_user, user_id}, _from, state) do
+    {:reply, MapSet.member?(state.active_users, user_id), state}
   end
 end

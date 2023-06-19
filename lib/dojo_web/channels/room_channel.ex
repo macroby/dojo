@@ -48,11 +48,15 @@ defmodule DojoWeb.RoomChannel do
       Game.resign(pid, winner)
 
       case {game_state.white_user_id, game_state.black_user_id} do
-        {nil, nil} -> raise "no users in game"
+        {nil, nil} ->
+          raise "no users in game"
+
         {white_user_id, nil} ->
           Dojo.UserTracker.remove_active_user(white_user_id)
+
         {nil, black_user_id} ->
           Dojo.UserTracker.remove_active_user(black_user_id)
+
         {white_user_id, black_user_id} ->
           Dojo.UserTracker.remove_active_user(white_user_id)
           Dojo.UserTracker.remove_active_user(black_user_id)
@@ -237,9 +241,15 @@ defmodule DojoWeb.RoomChannel do
       })
 
       case {state.white_user_id, state.black_user_id} do
-        {nil, nil} -> raise "ai game should have at least one user"
-        {white_user_id, nil} -> Dojo.UserTracker.remove_active_user(white_user_id)
-        {nil, black_user_id} -> Dojo.UserTracker.remove_active_user(black_user_id)
+        {nil, nil} ->
+          raise "ai game should have at least one user"
+
+        {white_user_id, nil} ->
+          Dojo.UserTracker.remove_active_user(white_user_id)
+
+        {nil, black_user_id} ->
+          Dojo.UserTracker.remove_active_user(black_user_id)
+
         {_white_user_id, _black_user_id} ->
           raise "ai game should not have two users"
       end

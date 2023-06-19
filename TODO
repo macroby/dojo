@@ -3,3 +3,5 @@ remove creation of more than one game
 look into depedency injection, may be useful for game.ex in the future as complexity increases 
 
 improve the layout of game state struct
+
+redirect active player to their exisiting game after attempts at creating multiple games.
