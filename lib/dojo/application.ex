@@ -21,6 +21,7 @@ defmodule Dojo.Application do
       Dojo.GameSupervisor,
       {Registry, keys: :unique, name: GameRegistry},
       Dojo.GameTracker,
+      Dojo.UserTracker,
       StockfishSupervisor,
       {Registry, keys: :unique, name: StockfishRegistry}
     ]

@@ -90,7 +90,7 @@ defmodule DojoWeb.PageController do
          true <- Game.get_halfmove_clock(pid) < 2 do
       Game.cancel(pid, game_id)
       DojoWeb.Endpoint.broadcast!("room:" <> game_id, "cancel", %{})
-      redirect(conn, to: Routes.page_path(conn, :room, game_id))
+      redirect(conn, to: Routes.page_path(conn, :index))
     end
   end
 
