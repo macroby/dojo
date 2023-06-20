@@ -5,3 +5,7 @@ look into depedency injection, may be useful for game.ex in the future as comple
 improve the layout of game state struct
 
 redirect active player to their exisiting game after attempts at creating multiple games.
+
+give new session cookie to user when unknown user token is sent.
+
+check is game actually ends when timer runs out

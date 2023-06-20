@@ -95,6 +95,7 @@ defmodule Dojo.Game do
   # Server Implemention #
   #######################
 
+  # remove this struct since game state is now modeled in GameState module
   defstruct [
     :game_id,
     :board_pid,

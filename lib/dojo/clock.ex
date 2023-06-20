@@ -47,14 +47,18 @@ defmodule Dojo.Clock do
        increment: increment,
        white_time_milli: white_time_milli,
        black_time_milli: black_time_milli,
-       tref: nil
+       tref: nil,
+       tick_time: nil
      }}
   end
 
   @impl true
   def handle_call(:start_clock, _from, state) do
+    tick_time = :os.system_time(:milli_seconds)
     {_, tref} = :timer.send_interval(10, self(), :tick)
     state = %{state | tref: tref}
+    state = %{state | tick_time: tick_time}
+
     {:reply, :ok, state}
   end
 
@@ -95,37 +99,51 @@ defmodule Dojo.Clock do
     state =
       case state.turn_color do
         :white ->
-          %{state | turn_color: :black}
+          tick_time = :os.system_time(:milli_seconds)
+          state = %{state | turn_color: :black}
+          state = %{state | tick_time: tick_time}
+          state
 
         :black ->
-          %{state | turn_color: :white}
+          tick_time = :os.system_time(:milli_seconds)
+          state = %{state | turn_color: :white}
+          state = %{state | tick_time: tick_time}
+          state
       end
 
     {:reply, :ok, state}
   end
 
   @impl true
-  def handle_info(:tick, state) do
+  def handle_info(:tick, state) when state.tick_time != nil do
     state =
       case state.turn_color do
         :white ->
           cond do
-            state.white_time_milli == 0 ->
+            state.white_time_milli <= 0 ->
               state
 
             state.white_time_milli > 0 ->
-              white_time_milli = state.white_time_milli - 10
-              %{state | white_time_milli: white_time_milli}
+              new_tick_time = :os.system_time(:milli_seconds)
+              interval = new_tick_time - state.tick_time
+              white_time_milli = state.white_time_milli - interval
+              state = %{state | white_time_milli: white_time_milli}
+              state = %{state | tick_time: new_tick_time}
+              state
           end
 
         :black ->
           cond do
-            state.black_time_milli == 0 ->
+            state.black_time_milli <= 0 ->
               state
 
             state.black_time_milli > 0 ->
-              black_time_milli = state.black_time_milli - 10
-              %{state | black_time_milli: black_time_milli}
+              new_tick_time = :os.system_time(:milli_seconds)
+              interval = new_tick_time - state.tick_time
+              black_time_milli = state.black_time_milli - interval
+              state = %{state | black_time_milli: black_time_milli}
+              state = %{state | tick_time: new_tick_time}
+              state
           end
       end
 
