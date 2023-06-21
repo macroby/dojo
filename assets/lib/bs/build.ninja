@@ -1,0 +1,14 @@
+rescript = 1
+g_finger := /home/md/dojo/assets/node_modules/@rescript/react/lib/ocaml/install.stamp
+rule astj
+  command = /home/md/dojo/assets/node_modules/rescript/linux/bsc.exe  -bs-v 10.1.4 -bs-jsx 4 -bs-jsx-mode classic  -absname -bs-ast -o $out $i
+o js/result.ast : astj ../../js/result.res
+rule deps
+  command = /home/md/dojo/assets/node_modules/rescript/linux/bsb_helper.exe -hash fa09d0f43f29385682b7c9717325cb29 $in
+  restat = 1
+o js/result.d : deps js/result.ast
+rule mij
+  command = /home/md/dojo/assets/node_modules/rescript/linux/bsc.exe -I js -I /home/md/dojo/assets/node_modules/@rescript/react/lib/ocaml   -bs-package-name 'shahmat ui' -bs-package-output es6:$in_d:.bs.js -bs-v $g_finger $i
+  dyndep = 1
+  restat = 1
+o js/result.cmj js/result.cmi ../../js/result.bs.js : mij js/result.ast

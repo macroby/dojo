@@ -38,3 +38,7 @@ production.dump
 package-lock.json
 .DS_Store
 .env
+
+# Ignore rescript artifacts
+lib/bs
+*.bs.js

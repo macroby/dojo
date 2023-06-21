@@ -17,7 +17,7 @@ import socket from "./room_socket"
 import Clock from "./clock"
 import PromotionPrompt from "./promotion_prompt"
 import ResignButton from "./resign_button"
-import Result from "./result"
+import Result from "./result.bs"
 import { Chessground } from 'chessground';
 import "phoenix_html"
 
