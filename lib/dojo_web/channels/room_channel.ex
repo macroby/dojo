@@ -18,14 +18,14 @@ defmodule DojoWeb.RoomChannel do
     {:noreply, socket}
   end
 
-  # Channels can be used in a request/response fashion
-  # by sending replies to requests from the client
-  @impl true
-  def handle_in("shout", payload, socket) do
-    Dojo.Message.changeset(%Dojo.Message{}, payload) |> Dojo.Repo.insert()
-    broadcast(socket, "shout", payload)
-    {:noreply, socket}
-  end
+  # # Channels can be used in a request/response fashion
+  # # by sending replies to requests from the client
+  # @impl true
+  # def handle_in("shout", payload, socket) do
+  #   Dojo.Message.changeset(%Dojo.Message{}, payload) |> Dojo.Repo.insert()
+  #   broadcast(socket, "shout", payload)
+  #   {:noreply, socket}
+  # end
 
   # Handle a resignation message
   @impl true
@@ -266,14 +266,14 @@ defmodule DojoWeb.RoomChannel do
   def handle_info(:after_join, socket) do
     push(socket, "start_ping", %{})
 
-    Dojo.Message.get_messages()
-    |> Enum.reverse()
-    |> Enum.each(fn msg ->
-      push(socket, "shout", %{
-        name: msg.name,
-        message: msg.message
-      })
-    end)
+    # Dojo.Message.get_messages()
+    # |> Enum.reverse()
+    # |> Enum.each(fn msg ->
+    #   push(socket, "shout", %{
+    #     name: msg.name,
+    #     message: msg.message
+    #   })
+    # end)
 
     # :noreply
     {:noreply, socket}

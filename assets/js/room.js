@@ -156,13 +156,13 @@ channel.on('move', function (payload) {
   ground.playPremove();
 });
 
-channel.on('shout', function (payload) { // listen to the 'shout' event
-  let li = document.createElement("li"); // create new list item DOM element
-  let name = payload.name || 'guest';    // get name from payload or set default
-  li.innerHTML = '<b>' + name + '</b>: ' + payload.message; // set li contents
-  ul.appendChild(li);                    // append to list
-  scrollToBottom();
-});
+// channel.on('shout', function (payload) { // listen to the 'shout' event
+//   let li = document.createElement("li"); // create new list item DOM element
+//   let name = payload.name || 'guest';    // get name from payload or set default
+//   li.innerHTML = '<b>' + name + '</b>: ' + payload.message; // set li contents
+//   ul.appendChild(li);                    // append to list
+//   scrollToBottom();
+// });
 
 //
 // Clock UI Config and Timekeeping Functionality
@@ -211,20 +211,20 @@ function updateClock(expected) {
 // Chat Update and Client-Side Event Handlers
 //
 
-let ul = document.getElementById('msg-list');        // list of messages.
-let name = document.getElementById('name');          // name of message sender
-let msg = document.getElementById('msg');            // message input field
+// let ul = document.getElementById('msg-list');        // list of messages.
+// let name = document.getElementById('name');          // name of message sender
+// let msg = document.getElementById('msg');            // message input field
 
-// "listen" for the [Enter] keypress event to send a message:
-msg.addEventListener('keypress', function (event) {
-  if (event.keyCode == 13 && msg.value.length > 0) { // don't sent empty msg.
-    channel.push('shout', { // send the message to the server on "shout" channel
-      name: sanitise(name.value) || "guest",     // get value of "name" of person sending the message
-      message: sanitise(msg.value)    // get message text (value) from msg input field.
-    });
-    msg.value = '';         // reset the message input field for next message.
-  }
-});
+// // "listen" for the [Enter] keypress event to send a message:
+// msg.addEventListener('keypress', function (event) {
+//   if (event.keyCode == 13 && msg.value.length > 0) { // don't sent empty msg.
+//     channel.push('shout', { // send the message to the server on "shout" channel
+//       name: sanitise(name.value) || "guest",     // get value of "name" of person sending the message
+//       message: sanitise(msg.value)    // get message text (value) from msg input field.
+//     });
+//     msg.value = '';         // reset the message input field for next message.
+//   }
+// });
 
 // see: https://stackoverflow.com/a/33193668/1148249
 let scrollingElement = (document.scrollingElement || document.body)
