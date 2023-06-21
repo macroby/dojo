@@ -9,3 +9,5 @@ redirect active player to their exisiting game after attempts at creating multip
 give new session cookie to user when unknown user token is sent.
 
 check is game actually ends when timer runs out
+
+improve lobby game tabs

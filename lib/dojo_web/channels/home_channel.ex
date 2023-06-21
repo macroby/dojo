@@ -44,6 +44,7 @@ defmodule DojoWeb.HomeChannel do
       Dojo.Game.cancel(pid, payload["game_id"])
       Dojo.Game.stop(pid)
       Dojo.GameTracker.remove_open_game(payload["game_id"])
+      Dojo.UserTracker.remove_active_user(socket.assigns.user_id)
       DojoWeb.Endpoint.broadcast("home:lobby", "closed_game", payload)
     end
 
