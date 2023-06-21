@@ -224,7 +224,7 @@ game_list.set_user_game_onclick(function(game_id) {
 });
 
 game_list.set_game_onclick(function(game_id) {
-  location.href = "/" + game_id;
+  user_channel.push("accept", {game_id: game_id})
 });
 
 game_list.add_games(open_games_list);
@@ -272,6 +272,7 @@ function handle_create_game_form(form, button_id) {
       user_game = 
         {
           game_creator_id: user_id, 
+          time_control: kv.get("time-control"),
           minutes: kv.get("minutes"), 
           increment: kv.get("increment"), 
           game_id: response.headers.get("game_id")

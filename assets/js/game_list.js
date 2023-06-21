@@ -45,19 +45,19 @@ class GameList {
         this.element.querySelector('tbody').innerHTML = "<tr class=\"user_game\"><td></td><td></td><td></td></tr>";
         if (this.user_game == null) {
             // dont render the user game if it is null
-        } else if (this.user_game.minutes == "inf" || this.user_game.increment == "inf") {
-            this.element.querySelector('.user_game').innerHTML = "<td>"+ this.user_game.game_creator_id +"</td><td>" + this.user_game.game_id + "</td><td>∞</td>";
+        } else if (this.user_game.time_control == "unlimited" || this.user_game.minutes == "inf" || this.user_game.increment == "inf") {
+            this.element.querySelector('.user_game').innerHTML = "<td>Anon</td><td></td><td>∞</td>";
         } else {
             this.element.querySelector('.user_game').innerHTML = 
-                "<td>"+ this.user_game.game_creator_id +"</td><td>" + this.user_game.game_id + "</td><td>"+ this.user_game.minutes + "+" + this.user_game.increment +"</td>";
+                "<td>Anon</td><td></td><td>"+ this.user_game.minutes + "+" + this.user_game.increment +"</td>";
         }
 
         let map_inc = 0;
         this.game_map.forEach((value, key) => {
             if (value.minutes == "inf" || value.increment == "inf") {
-                this.element.querySelector('tbody').innerHTML += "<tr id=\"game"+ map_inc +"\" class=\"game\"><td>"+ value.game_creator_id +"</td><td>" + value.game_id + "</td><td>∞</td></tr>"
+                this.element.querySelector('tbody').innerHTML += "<tr id=\"game"+ map_inc +"\" class=\"game\"><td>Anon</td><td></td><td>∞</td></tr>"
             } else {
-                this.element.querySelector('tbody').innerHTML += "<tr id=\"game"+ map_inc +"\" class=\"game\"><td>"+ value.game_creator_id +"</td><td>" + value.game_id + "</td><td>"+ value.minutes + "+" + value.increment +"</td></tr>"
+                this.element.querySelector('tbody').innerHTML += "<tr id=\"game"+ map_inc +"\" class=\"game\"><td>Anon</td><td></td><td>"+ value.minutes + "+" + value.increment +"</td></tr>"
             }
             map_inc++;
         });

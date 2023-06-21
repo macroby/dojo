@@ -1,4 +1,5 @@
 defmodule DojoWeb.PageController do
+  alias Dojo.ActiveUserState
   alias Phoenix.Token
   alias Dojo.Game
   use DojoWeb, :controller
@@ -137,6 +138,11 @@ defmodule DojoWeb.PageController do
 
                 Dojo.Game.accept_invite(pid)
 
+                Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{
+                  game_id: game_id
+                  # pid: pid
+                })
+
                 DojoWeb.Endpoint.broadcast!("room:" <> game_id, "invite_accepted", %{})
 
                 redirect(conn, to: Routes.page_path(conn, :room, game_id))
@@ -185,11 +191,11 @@ defmodule DojoWeb.PageController do
         handle_ai_room(conn, game_state, user_token)
 
       :open ->
-        handle_open_room(conn, game_state, user_token, pid)
+        handle_open_room(conn, game_state, user_token)
     end
   end
 
-  def handle_open_room(conn, game_state, user_token, pid) do
+  def handle_open_room(conn, game_state, user_token) do
     case Token.verify(conn, "user auth", user_token) do
       {:ok, user_id} ->
         case game_state.white_user_id == user_id or game_state.black_user_id == user_id do
@@ -248,76 +254,7 @@ defmodule DojoWeb.PageController do
             )
 
           false ->
-            case game_state.invite_accepted do
-              false ->
-                {game_creator_id, color} =
-                  case {game_state.white_user_id, game_state.black_user_id} do
-                    {nil, nil} ->
-                      raise "Game must have at least one player already in it"
-
-                    {nil, game_creator_id} ->
-                      Dojo.Game.set_white_user_id(pid, user_id)
-                      {game_creator_id, :white}
-
-                    {game_creator_id, nil} ->
-                      Dojo.Game.set_black_user_id(pid, user_id)
-                      {game_creator_id, :black}
-
-                    _ ->
-                      raise "Game already has two players"
-                  end
-
-                Dojo.Game.accept_invite(pid)
-
-                game_status =
-                  case game_state.status do
-                    :continue ->
-                      "continue"
-
-                    {_, _, _} ->
-                      Atom.to_string(elem(game_state.status, 1))
-
-                    {_, _} ->
-                      Enum.map(Tuple.to_list(game_state.status), fn x -> Atom.to_string(x) end)
-                  end
-
-                {white_time_ms, black_time_ms} =
-                  case game_state.time_control do
-                    :real_time ->
-                      clock_state = Dojo.Clock.get_clock_state(game_state.clock_pid)
-                      white_time_ms = clock_state.white_time_milli
-                      black_time_ms = clock_state.black_time_milli
-                      {white_time_ms, black_time_ms}
-
-                    _ ->
-                      {nil, nil}
-                  end
-
-                Dojo.GameTracker.remove_open_game(game_state.game_id)
-
-                DojoWeb.Endpoint.broadcast!("home:" <> game_creator_id, "redirect", %{
-                  "game_id" => game_state.game_id
-                })
-
-                DojoWeb.Endpoint.broadcast!("home:lobby", "closed_game", %{
-                  "game_id" => game_state.game_id
-                })
-
-                render(conn, "room.html",
-                  layout: {DojoWeb.LayoutView, "room_layout.html"},
-                  fen: game_state.fen,
-                  color: color,
-                  game_type: game_state.game_type,
-                  invite_accepted: game_state.invite_accepted,
-                  minutes: game_state.minutes,
-                  increment: game_state.increment,
-                  dests: DojoWeb.Util.repack_dests(game_state.dests) |> Jason.encode!([]),
-                  white_clock: white_time_ms,
-                  black_clock: black_time_ms,
-                  user_token: user_token,
-                  game_status: game_status
-                )
-            end
+            redirect(conn, to: Routes.page_path(conn, :index))
         end
     end
   end

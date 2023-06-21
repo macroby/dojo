@@ -1,4 +1,5 @@
 defmodule DojoWeb.HomeChannel do
+  alias Dojo.ActiveUserState
   use DojoWeb, :channel
   require Logger
 
@@ -46,6 +47,54 @@ defmodule DojoWeb.HomeChannel do
       Dojo.GameTracker.remove_open_game(payload["game_id"])
       Dojo.UserTracker.remove_active_user(socket.assigns.user_id)
       DojoWeb.Endpoint.broadcast("home:lobby", "closed_game", payload)
+    end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_in("accept", payload, socket) do
+    with [{pid, _}] <- Registry.lookup(GameRegistry, payload["game_id"]) do
+      game_state = Dojo.Game.get_state(pid)
+      user_id = socket.assigns.user_id
+
+      case game_state.invite_accepted do
+        false ->
+            game_creator_id = case {game_state.white_user_id, game_state.black_user_id} do
+              {nil, nil} ->
+                raise "Game must have at least one player already in it"
+
+              {nil, game_creator_id} ->
+                Dojo.Game.set_white_user_id(pid, user_id)
+                game_creator_id
+
+              {game_creator_id, nil} ->
+                Dojo.Game.set_black_user_id(pid, user_id)
+                game_creator_id
+
+              _ ->
+                raise "Game already has two players"
+            end
+
+          Dojo.Game.accept_invite(pid)
+
+          Dojo.GameTracker.remove_open_game(game_state.game_id)
+
+          Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{game_id: game_state.game_id})
+
+          DojoWeb.Endpoint.broadcast!("home:" <> user_id, "redirect", %{
+            "game_id" => game_state.game_id
+          })
+
+          DojoWeb.Endpoint.broadcast!("home:" <> game_creator_id, "redirect", %{
+            "game_id" => game_state.game_id
+          })
+
+          DojoWeb.Endpoint.broadcast!("home:lobby", "closed_game", %{
+            "game_id" => game_state.game_id
+          })
+        _ -> nil
+      end
     end
 
     {:noreply, socket}

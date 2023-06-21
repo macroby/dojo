@@ -1,5 +1,6 @@
 defmodule DojoWeb.SetupController do
   require Logger
+  alias Dojo.ActiveUserState
   alias Dojo.UserTracker
   alias Dojo.GameFactory
   alias Dojo.GameState
@@ -35,7 +36,7 @@ defmodule DojoWeb.SetupController do
             :ok
         end
 
-        Dojo.UserTracker.add_active_user(user_id)
+        Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{game_id: game_id})
 
         {white_user_id, black_user_id} =
           case color do
@@ -150,15 +151,15 @@ defmodule DojoWeb.SetupController do
             _ -> raise "invalid user token"
           end
 
-          case UserTracker.contains_active_user(user_id) do
-            true ->
-              raise "user already in game"
+        case UserTracker.contains_active_user(user_id) do
+          true ->
+            raise "user already in game"
 
-            false ->
-              :ok
-          end
+          false ->
+            :ok
+        end
 
-          Dojo.UserTracker.add_active_user(user_id)
+        Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{game_id: game_id})
 
         {white_user_id, black_user_id} =
           case color do
@@ -253,16 +254,6 @@ defmodule DojoWeb.SetupController do
             _ -> raise "invalid user token"
           end
 
-        case UserTracker.contains_active_user(user_id) do
-          true ->
-            raise "user already in game"
-
-          false ->
-            :ok
-        end
-
-        Dojo.UserTracker.add_active_user(user_id)
-
         color =
           case color do
             "white" ->
@@ -354,6 +345,16 @@ defmodule DojoWeb.SetupController do
             {nil, error} -> raise error
             pid -> pid
           end
+
+        case UserTracker.contains_active_user(user_id) do
+          true ->
+            raise "user already in game"
+
+          false ->
+            :ok
+        end
+
+        Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{game_id: game_id})
 
         Logger.debug("Stockfish count: #{Registry.count(StockfishRegistry)}")
 
