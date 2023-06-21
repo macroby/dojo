@@ -40,5 +40,5 @@ package-lock.json
 .env
 
 # Ignore rescript artifacts
-assets/lib/bs
+/assets/lib/bs
 *.bs.js
