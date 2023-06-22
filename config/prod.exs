@@ -4,8 +4,7 @@ config :dojo, DojoWeb.Endpoint,
   load_from_system_env: true,
   #
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "phxchat.herokuapp.com", port: 443],
-  # port: System.get_env("PORT")], # Heroku Supplies the TCP Port
+  url: [scheme: "https", host: "shahmat.org", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE")
