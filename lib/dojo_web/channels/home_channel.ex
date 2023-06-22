@@ -1,5 +1,4 @@
 defmodule DojoWeb.HomeChannel do
-  alias Dojo.ActiveUserState
   use DojoWeb, :channel
   require Logger
 
@@ -60,7 +59,8 @@ defmodule DojoWeb.HomeChannel do
 
       case game_state.invite_accepted do
         false ->
-            game_creator_id = case {game_state.white_user_id, game_state.black_user_id} do
+          game_creator_id =
+            case {game_state.white_user_id, game_state.black_user_id} do
               {nil, nil} ->
                 raise "Game must have at least one player already in it"
 
@@ -80,7 +80,7 @@ defmodule DojoWeb.HomeChannel do
 
           Dojo.GameTracker.remove_open_game(game_state.game_id)
 
-          Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{game_id: game_state.game_id})
+          Dojo.UserTracker.add_active_user(user_id, pid)
 
           DojoWeb.Endpoint.broadcast!("home:" <> user_id, "redirect", %{
             "game_id" => game_state.game_id
@@ -93,7 +93,9 @@ defmodule DojoWeb.HomeChannel do
           DojoWeb.Endpoint.broadcast!("home:lobby", "closed_game", %{
             "game_id" => game_state.game_id
           })
-        _ -> nil
+
+        _ ->
+          nil
       end
     end
 

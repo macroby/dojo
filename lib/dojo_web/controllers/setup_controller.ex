@@ -1,6 +1,5 @@
 defmodule DojoWeb.SetupController do
   require Logger
-  alias Dojo.ActiveUserState
   alias Dojo.UserTracker
   alias Dojo.GameFactory
   alias Dojo.GameState
@@ -30,101 +29,118 @@ defmodule DojoWeb.SetupController do
 
         case UserTracker.contains_active_user(user_id) do
           true ->
-            raise "user already in game"
+            active_user = UserTracker.get_active_user(user_id)
+            game_state = Dojo.Game.get_state(active_user.game_pid)
+            game_type = game_state.game_type
+            game_id = game_state.game_id
+            invite_accepted = game_state.invite_accepted
+
+            case game_type do
+              :open ->
+                case invite_accepted do
+                  true ->
+                    redirect(conn, to: Routes.page_path(conn, :room, game_id))
+
+                  false ->
+                    text(conn, "already created open game")
+                end
+
+              _ ->
+                redirect(conn, to: Routes.page_path(conn, :room, game_id))
+            end
 
           false ->
-            :ok
-        end
+            {white_user_id, black_user_id} =
+              case color do
+                "white" ->
+                  {user_id, nil}
 
-        Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{game_id: game_id})
+                "black" ->
+                  {nil, user_id}
 
-        {white_user_id, black_user_id} =
-          case color do
-            "white" ->
-              {user_id, nil}
-
-            "black" ->
-              {nil, user_id}
-
-            _ ->
-              case :rand.uniform(10) do
-                x when x > 5 -> {user_id, nil}
-                _ -> {nil, user_id}
+                _ ->
+                  case :rand.uniform(10) do
+                    x when x > 5 -> {user_id, nil}
+                    _ -> {nil, user_id}
+                  end
               end
-          end
 
-        {minutes, increment} =
-          case time_control do
-            "unlimited" ->
-              {nil, nil}
+            {minutes, increment} =
+              case time_control do
+                "unlimited" ->
+                  {nil, nil}
 
-            _ ->
-              minutes =
-                case minutes do
-                  "5" -> 5
-                  "10" -> 10
-                  "15" -> 15
-                  "30" -> 30
-                  _ -> 5
-                end
+                _ ->
+                  minutes =
+                    case minutes do
+                      "5" -> 5
+                      "10" -> 10
+                      "15" -> 15
+                      "30" -> 30
+                      _ -> 5
+                    end
 
-              increment =
-                case increment do
-                  "0" -> 0
-                  "3" -> 3
-                  "5" -> 5
-                  "10" -> 10
-                  "20" -> 20
-                  _ -> 0
-                end
+                  increment =
+                    case increment do
+                      "0" -> 0
+                      "3" -> 3
+                      "5" -> 5
+                      "10" -> 10
+                      "20" -> 20
+                      _ -> 0
+                    end
 
-              {minutes, increment}
-          end
+                  {minutes, increment}
+              end
 
-        time_control =
-          case time_control do
-            "real time" -> :real_time
-            "unlimited" -> :unlimited
-            _ -> raise "invalid time control"
-          end
+            time_control =
+              case time_control do
+                "real time" -> :real_time
+                "unlimited" -> :unlimited
+                _ -> raise "invalid time control"
+              end
 
-        game_init_state = %GameState{
-          game_id: game_id,
-          color: color,
-          game_type: :open,
-          invite_accepted: false,
-          white_user_id: white_user_id,
-          black_user_id: black_user_id,
-          time_control: time_control,
-          minutes: minutes,
-          increment: increment
-        }
+            game_init_state = %GameState{
+              game_id: game_id,
+              color: color,
+              game_type: :open,
+              invite_accepted: false,
+              white_user_id: white_user_id,
+              black_user_id: black_user_id,
+              time_control: time_control,
+              minutes: minutes,
+              increment: increment
+            }
 
-        GameFactory.create_game(game_init_state)
-        |> case do
-          {nil, error} -> raise error
-          pid -> pid
+            pid =
+              GameFactory.create_game(game_init_state)
+              |> case do
+                {nil, error} -> raise error
+                pid -> pid
+              end
+
+            Dojo.UserTracker.add_active_user(user_id, pid)
+
+            Dojo.GameTracker.add_open_game(game_init_state)
+
+            {minutes, increment} =
+              case {minutes, increment} do
+                {nil, nil} -> {"inf", "inf"}
+                {minutes, increment} -> {minutes, increment}
+              end
+
+            DojoWeb.Endpoint.broadcast("home:lobby", "new_game", %{
+              game_id: game_id,
+              game_creator_id: user_id,
+              minutes: minutes,
+              increment: increment
+            })
+
+            conn
+            |> put_resp_content_type("text/plain")
+            |> put_resp_header("game_id", game_id)
+            |> send_resp(201, "game created")
         end
-
-        Dojo.GameTracker.add_open_game(game_init_state)
-
-        {minutes, increment} =
-          case {minutes, increment} do
-            {nil, nil} -> {"inf", "inf"}
-            {minutes, increment} -> {minutes, increment}
-          end
-
-        DojoWeb.Endpoint.broadcast("home:lobby", "new_game", %{
-          game_id: game_id,
-          game_creator_id: user_id,
-          minutes: minutes,
-          increment: increment
-        })
-
-        conn
-        |> put_resp_content_type("text/plain")
-        |> put_resp_header("game_id", game_id)
-        |> send_resp(201, "game created")
 
       false ->
         raise "CSRF token mismatch"
@@ -153,83 +169,100 @@ defmodule DojoWeb.SetupController do
 
         case UserTracker.contains_active_user(user_id) do
           true ->
-            raise "user already in game"
+            active_user = UserTracker.get_active_user(user_id)
+            game_state = Dojo.Game.get_state(active_user.game_pid)
+            game_type = game_state.game_type
+            game_id = game_state.game_id
+            invite_accepted = game_state.invite_accepted
+
+            case game_type do
+              :open ->
+                case invite_accepted do
+                  true ->
+                    redirect(conn, to: Routes.page_path(conn, :room, game_id))
+
+                  false ->
+                    redirect(conn, to: Routes.page_path(conn, :index))
+                end
+
+              _ ->
+                redirect(conn, to: Routes.page_path(conn, :room, game_id))
+            end
 
           false ->
-            :ok
-        end
+            {white_user_id, black_user_id} =
+              case color do
+                "white" ->
+                  {user_id, nil}
 
-        Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{game_id: game_id})
+                "black" ->
+                  {nil, user_id}
 
-        {white_user_id, black_user_id} =
-          case color do
-            "white" ->
-              {user_id, nil}
-
-            "black" ->
-              {nil, user_id}
-
-            _ ->
-              case :rand.uniform(10) do
-                x when x > 5 -> {user_id, nil}
-                _ -> {nil, user_id}
+                _ ->
+                  case :rand.uniform(10) do
+                    x when x > 5 -> {user_id, nil}
+                    _ -> {nil, user_id}
+                  end
               end
-          end
 
-        {minutes, increment} =
-          case time_control do
-            "unlimited" ->
-              {nil, nil}
+            {minutes, increment} =
+              case time_control do
+                "unlimited" ->
+                  {nil, nil}
 
-            _ ->
-              minutes =
-                case minutes do
-                  "5" -> 5
-                  "10" -> 10
-                  "15" -> 15
-                  "30" -> 30
-                  _ -> 5
-                end
+                _ ->
+                  minutes =
+                    case minutes do
+                      "5" -> 5
+                      "10" -> 10
+                      "15" -> 15
+                      "30" -> 30
+                      _ -> 5
+                    end
 
-              increment =
-                case increment do
-                  "0" -> 0
-                  "3" -> 3
-                  "5" -> 5
-                  "10" -> 10
-                  "20" -> 20
-                  _ -> 0
-                end
+                  increment =
+                    case increment do
+                      "0" -> 0
+                      "3" -> 3
+                      "5" -> 5
+                      "10" -> 10
+                      "20" -> 20
+                      _ -> 0
+                    end
 
-              {minutes, increment}
-          end
+                  {minutes, increment}
+              end
 
-        time_control =
-          case time_control do
-            "real time" -> :real_time
-            "unlimited" -> :unlimited
-            _ -> raise "invalid time control"
-          end
+            time_control =
+              case time_control do
+                "real time" -> :real_time
+                "unlimited" -> :unlimited
+                _ -> raise "invalid time control"
+              end
 
-        game_init_state = %GameState{
-          game_id: game_id,
-          color: color,
-          game_type: :friend,
-          invite_accepted: false,
-          white_user_id: white_user_id,
-          black_user_id: black_user_id,
-          time_control: time_control,
-          minutes: minutes,
-          increment: increment
-        }
+            game_init_state = %GameState{
+              game_id: game_id,
+              color: color,
+              game_type: :friend,
+              invite_accepted: false,
+              white_user_id: white_user_id,
+              black_user_id: black_user_id,
+              time_control: time_control,
+              minutes: minutes,
+              increment: increment
+            }
 
-        GameFactory.create_game(game_init_state)
-        |> case do
-          {nil, error} -> raise error
-          pid -> pid
+            pid =
+              GameFactory.create_game(game_init_state)
+              |> case do
+                {nil, error} -> raise error
+                pid -> pid
+              end
+
+            Dojo.UserTracker.add_active_user(user_id, pid)
+
+            redirect(conn, to: Routes.page_path(conn, :room, game_id))
         end
-
-        redirect(conn, to: Routes.page_path(conn, :room, game_id))
 
       false ->
         raise "CSRF token mismatch"
@@ -339,41 +372,57 @@ defmodule DojoWeb.SetupController do
           difficulty: difficulty
         }
 
-        pid =
-          GameFactory.create_game(game_init_state)
-          |> case do
-            {nil, error} -> raise error
-            pid -> pid
-          end
-
         case UserTracker.contains_active_user(user_id) do
           true ->
-            raise "user already in game"
+            active_user = UserTracker.get_active_user(user_id)
+            game_state = Dojo.Game.get_state(active_user.game_pid)
+            game_type = game_state.game_type
+            game_id = game_state.game_id
+            invite_accepted = game_state.invite_accepted
+
+            case game_type do
+              :open ->
+                case invite_accepted do
+                  true ->
+                    redirect(conn, to: Routes.page_path(conn, :room, game_id))
+
+                  false ->
+                    redirect(conn, to: Routes.page_path(conn, :index))
+                end
+
+              _ ->
+                redirect(conn, to: Routes.page_path(conn, :room, game_id))
+            end
 
           false ->
-            :ok
+            pid =
+              GameFactory.create_game(game_init_state)
+              |> case do
+                {nil, error} -> raise error
+                pid -> pid
+              end
+
+            Dojo.UserTracker.add_active_user(user_id, pid)
+
+            Logger.debug("Stockfish count: #{Registry.count(StockfishRegistry)}")
+
+            if Dojo.Game.get_halfmove_clock(pid) == 0 && color == "black" do
+              # Dojo.Game.make_move(pid, <<"e2e4">>)
+              Registry.lookup(StockfishRegistry, <<"1">>)
+              |> case do
+                [] ->
+                  raise "Stockfish process not found"
+
+                [{stockfish_pid, _}] ->
+                  ai_move =
+                    Stockfish.find_best_move(stockfish_pid, Dojo.Game.get_fen(pid), difficulty)
+
+                  Dojo.Game.make_move(pid, ai_move)
+              end
+            end
+
+            redirect(conn, to: Routes.page_path(conn, :room, game_id))
         end
-
-        Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{game_id: game_id})
-
-        Logger.debug("Stockfish count: #{Registry.count(StockfishRegistry)}")
-
-        if Dojo.Game.get_halfmove_clock(pid) == 0 && color == "black" do
-          # Dojo.Game.make_move(pid, <<"e2e4">>)
-          Registry.lookup(StockfishRegistry, <<"1">>)
-          |> case do
-            [] ->
-              raise "Stockfish process not found"
-
-            [{stockfish_pid, _}] ->
-              ai_move =
-                Stockfish.find_best_move(stockfish_pid, Dojo.Game.get_fen(pid), difficulty)
-
-              Dojo.Game.make_move(pid, ai_move)
-          end
-        end
-
-        redirect(conn, to: Routes.page_path(conn, :room, game_id))
 
       false ->
         raise "CSRF token does not match"

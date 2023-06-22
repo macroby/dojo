@@ -1,5 +1,5 @@
 defmodule Dojo.ActiveUserState do
   defstruct [
-    :game_id
+    :game_pid
   ]
 end

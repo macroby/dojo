@@ -14,12 +14,16 @@ defmodule Dojo.UserTracker do
     GenServer.start_link(__MODULE__, config, name: __MODULE__)
   end
 
-  def add_active_user(user_id, active_user_state) do
-    GenServer.call(__MODULE__, {:add_active_user, user_id, active_user_state})
+  def add_active_user(user_id, game_pid) do
+    GenServer.call(__MODULE__, {:add_active_user, user_id, game_pid})
   end
 
   def remove_active_user(user_id) do
     GenServer.call(__MODULE__, {:remove_active_user, user_id})
+  end
+
+  def get_active_user(user_id) do
+    GenServer.call(__MODULE__, {:get_active_user, user_id})
   end
 
   def get_active_users do
@@ -39,8 +43,8 @@ defmodule Dojo.UserTracker do
     {:ok, config}
   end
 
-  def handle_call({:add_active_user, user_id, game_id}, _from, state) do
-    active_users = Map.put(state.active_users, user_id, %ActiveUserState{game_id: game_id})
+  def handle_call({:add_active_user, user_id, game_pid}, _from, state) do
+    active_users = Map.put(state.active_users, user_id, %ActiveUserState{game_pid: game_pid})
     state = %{state | active_users: active_users}
 
     {:reply, :ok, state}
@@ -51,6 +55,10 @@ defmodule Dojo.UserTracker do
     state = %{state | active_users: active_users}
 
     {:reply, :ok, state}
+  end
+
+  def handle_call({:get_active_user, user_id}, _from, state) do
+    {:reply, Map.get(state.active_users, user_id), state}
   end
 
   def handle_call(:get_active_users, _from, state) do

@@ -1,5 +1,4 @@
 defmodule DojoWeb.PageController do
-  alias Dojo.ActiveUserState
   alias Phoenix.Token
   alias Dojo.Game
   use DojoWeb, :controller
@@ -138,10 +137,7 @@ defmodule DojoWeb.PageController do
 
                 Dojo.Game.accept_invite(pid)
 
-                Dojo.UserTracker.add_active_user(user_id, %ActiveUserState{
-                  game_id: game_id
-                  # pid: pid
-                })
+                Dojo.UserTracker.add_active_user(user_id, pid)
 
                 DojoWeb.Endpoint.broadcast!("room:" <> game_id, "invite_accepted", %{})
 

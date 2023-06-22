@@ -269,7 +269,10 @@ function handle_create_game_form(form, button_id) {
   })
   .then(response => {
     if (response.ok) {
-      user_game = 
+      if (response.redirected == true) {
+        window.location.href = response.url;
+      } else {
+        user_game = 
         {
           game_creator_id: user_id, 
           time_control: kv.get("time-control"),
@@ -277,9 +280,10 @@ function handle_create_game_form(form, button_id) {
           increment: kv.get("increment"), 
           game_id: response.headers.get("game_id")
         };
-      game_list.set_user_game(user_game);
-      game_list.show_user_game();
-      createGameModal.style.display = "none";
+        game_list.set_user_game(user_game);
+        game_list.show_user_game();
+        createGameModal.style.display = "none";
+      }
     } else {
       // Handle errors or other non-successful responses here
     }
