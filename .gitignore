@@ -3,6 +3,8 @@
 
 # App artifacts
 /_build
+/rel
+/priv/static
 /db
 /deps
 /*.ez
