@@ -1,39 +1,36 @@
+open Tea.App
 
+open Tea.Html
 
-%%raw(`
-class Result {
-    constructor(element) {
-        this.result = element;
-        this.result.style.display =  'none';
-    }
+type msg =
+    | ShowResult
+    | HideResult
+    | SetResult(string)
 
-    showResult() {
-        this.result.style.display = 'block';
-    }
-
-    hideResult() {
-        this.result.style.display = 'none';
-    }
-
-    setResult(result) {
-        this.result.innerHTML = result;
-    }
-}
-export default Result;
-`)
-
-type rescript_result ={
-    element: React.element,
+type model = {
+    result: string,
+    isResultVisible: bool,
 }
 
-// let rescript_result_test = () => {
-//     let element = <h1> {React.string("Hello World")} </h1>
+let init = () => { result: "result", isResultVisible: false }
 
-//     switch ReactDOM.querySelector("#result") {
-//     | Some(resultElement) => {
-//         let result = ReactDOM.Client.createRoot(resultElement)
-//         ReactDOM.Client.Root.render(result, element)
-//         }
-//     | None => ()
-//     }
-// }
+let update = (model: model, msg: msg) =>
+    switch msg {
+        | ShowResult => { result: model.result, isResultVisible: true }
+        | HideResult => { result: model.result, isResultVisible: false }
+        | SetResult(result) => { result: result, isResultVisible: model.isResultVisible }
+    }
+
+let view = (model: model): Vdom.t<msg> =>
+    div(
+      list{},
+      list{ 
+        model.isResultVisible != false ? text(model.result) : noNode,
+      }  
+    )
+
+let main = beginnerProgram({
+    model: init (),
+    update: update,
+    view: view,
+  })

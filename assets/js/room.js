@@ -17,7 +17,7 @@ import socket from "./room_socket"
 import Clock from "./clock"
 import PromotionPrompt from "./promotion_prompt"
 import ResignButton from "./resign_button"
-import Result from "./result.bs"
+import { main } from "./result.bs"
 import { Chessground } from 'chessground';
 import "phoenix_html"
 
@@ -35,7 +35,9 @@ if (color === 'white') {
 }
 let promotion_prompt = new PromotionPrompt(document.getElementById('promotion_prompt'));
 let resign_button = new ResignButton(document.getElementById('resign'));
-let result = new Result(document.getElementById('result'));
+
+var result_tea = main(document.getElementById("result"));
+
 let fen_array = fen.split(' ');
 let fen_side_to_play = fen_array[1];
 let fen_turn = parseInt(fen_array[fen_array.length - 1]);
@@ -47,8 +49,8 @@ if (fen_side_to_play === 'w') {
 }
 let first_move;
 if (game_status !== 'continue') {
-  result.setResult(game_status);
-  result.showResult();
+  result_tea.pushMsg({msg: "SetResult", _0: game_status});
+  result_tea.pushMsg(0);
 } else {
   if (fen_turn === 1) {
     first_move = false;
@@ -106,8 +108,9 @@ channel.on('endData', function (payload) {
   ground.stop();
   clock.stop();
   opponent_clock.stop();
-  result.setResult(payload.winner);
-  result.showResult();
+
+  result_tea.pushMsg({msg: "SetResult", _0: payload.winner});
+  result_tea.pushMsg(0);
 })
 
 channel.on('move', function (payload) {

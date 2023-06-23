@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "js-beautify": "^1.14.8"
+  },
+  "devDependencies": {
+    "rescript-tea": "^0.16.0"
   }
 }
