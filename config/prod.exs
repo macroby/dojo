@@ -13,6 +13,7 @@ config :dojo, DojoWeb.Endpoint,
 config :logger, level: :info
 
 config :dojo, Dojo.Repo,
+  adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
   database: "dojo_dev",

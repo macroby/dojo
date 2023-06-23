@@ -13,3 +13,5 @@ check is game actually ends when timer runs out
 improve lobby game tabs
 
 user should be able to cancel open game by creating a friend game or ai game
+
+issue new user token if invalid token is presented
