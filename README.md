@@ -11,15 +11,14 @@ MIX_ENV=prod mix compile
 
 MIX_ENV=prod mix assets.deploy
 
-# Custom tasks (like DB migrations)
-
-MIX_ENV=prod mix ecto.migrate
-
 # Generate release files
 
 mix phx.gen.release
 
 # ...
+mix phx.new my_app
+cd my_app
+MIX_ENV=prod mix release
 scp _build/dev/rel/my_app-0.1.0.tar.gz $PROD:/srv/my_app.tar.gz
 ssh $PROD "untar -xz /srv/my_app.tar.gz"
 ssh $PROD "/srv/my_app/bin/my_app start_daemon
@@ -32,6 +31,8 @@ PORT=4001 MIX_ENV=prod mix phx.server
 go into the /assets directory and install npm packages:
 
 npm install
+
+npm run res:build
 
 return to root directory and run:
 

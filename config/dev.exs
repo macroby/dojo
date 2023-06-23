@@ -16,7 +16,6 @@ config :dojo, Dojo.Repo,
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :dojo, DojoWeb.Endpoint,
-  server: true,
   http: [port: {:system, "PORT"}],
   debug_errors: true,
   code_reloader: true,

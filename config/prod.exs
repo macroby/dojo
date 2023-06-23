@@ -5,6 +5,7 @@ host = System.get_env("PHX_HOST") || "shahmat.org"
 config :dojo, DojoWeb.Endpoint,
   server: true,
   http: [port: {:system, "PORT"}],
+  url: [host: "shahmat.org"],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE")
 
