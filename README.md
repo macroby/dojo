@@ -25,7 +25,7 @@ ssh $PROD "/srv/my_app/bin/my_app start_daemon
 
 # Finally run the server
 
-PORT=4001 MIX_ENV=prod mix phx.server
+MIX_ENV=prod PORT=4001 elixir --erl "-detached" -S mix phx.server
 ```
 
 go into the /assets directory and install npm packages:
