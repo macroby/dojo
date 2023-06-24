@@ -14,5 +14,5 @@
     ],
     "suffix": ".bs.js",
     "jsx": { "version": 4, "mode": "classic" },
-    "bs-dependencies": ["@rescript/react", "rescript-tea", "rescript-webapi"]
+    "bs-dependencies": ["rescript-tea", "rescript-webapi"]
   }

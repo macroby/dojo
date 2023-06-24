@@ -29,7 +29,7 @@ import "phoenix_html"
 
 @scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
 
-let result_tea = Result.main(getElementById("result"))(())
+let result = Result.main(getElementById("result"))(())
 // interface["pushMsg"](Result.SetResult("white"))
 // interface["pushMsg"](Result.ShowResult)
 
@@ -57,8 +57,8 @@ if (fen_side_to_play === 'w') {
 }
 let first_move;
 if (game_status !== 'continue') {
-  result_tea.pushMsg({msg: "SetResult", _0: game_status});
-  result_tea.pushMsg(0);
+  result.pushMsg({msg: "SetResult", _0: game_status});
+  result.pushMsg(0);
 } else {
   if (fen_turn === 1) {
     first_move = false;
@@ -117,8 +117,8 @@ channel.on('endData', function (payload) {
   clock.stop();
   opponent_clock.stop();
 
-  result_tea.pushMsg({msg: "SetResult", _0: payload.winner});
-  result_tea.pushMsg(0);
+  result.pushMsg({msg: "SetResult", _0: payload.winner});
+  result.pushMsg(0);
 })
 
 channel.on('move', function (payload) {
