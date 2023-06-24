@@ -1,3 +1,4 @@
+%%raw(`
 // We need to import the CSS so that webpack will load it.
 // The MiniCssExtractPlugin is used to separate it out into
 // its own CSS file.
@@ -17,13 +18,22 @@ import socket from "./room_socket"
 import Clock from "./clock"
 import PromotionPrompt from "./promotion_prompt"
 import ResignButton from "./resign_button"
-import { main } from "./result.bs"
+import { main } from "./Result.bs"
 import { Chessground } from 'chessground';
 import "phoenix_html"
+`)
 
 //
 // Initialize UI State
 //
+
+@scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
+
+let result_tea = Result.main(getElementById("result"))(())
+// interface["pushMsg"](Result.SetResult("white"))
+// interface["pushMsg"](Result.ShowResult)
+
+%%raw(`
 let clock;
 let opponent_clock;
 if (color === 'white') {
@@ -35,8 +45,6 @@ if (color === 'white') {
 }
 let promotion_prompt = new PromotionPrompt(document.getElementById('promotion_prompt'));
 let resign_button = new ResignButton(document.getElementById('resign'));
-
-var result_tea = main(document.getElementById("result"));
 
 let fen_array = fen.split(' ');
 let fen_side_to_play = fen_array[1];
@@ -331,3 +339,4 @@ promotion_prompt.onclick(function (orig, dest, piece) {
 resign_button.onClick(function () {
   channel.push('resign', {});
 });
+`)
