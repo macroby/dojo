@@ -98,7 +98,9 @@ function get_promotions_from_dests(dests) {
 var roomID = window.location.pathname;
 let channel = socket.channel('room:' + roomID.replace('/', ''), {}); // connect to chess "room"
 channel.join(); // join the channel.
+`)
 
+%%raw(`
 //
 // Incoming events from server
 //
@@ -181,7 +183,9 @@ channel.on('move', function (payload) {
 //   ul.appendChild(li);                    // append to list
 //   scrollToBottom();
 // });
+`)
 
+%%raw(`
 //
 // Clock UI Config and Timekeeping Functionality
 //
@@ -224,7 +228,9 @@ function updateClock(expected) {
     setTimeout(updateClock, Math.max(0, interval - dt), new_expected);
   }
 }
+`)
 
+%%raw(`
 //
 // Chat Update and Client-Side Event Handlers
 //
@@ -249,7 +255,9 @@ let scrollingElement = (document.scrollingElement || document.body)
 function scrollToBottom () {
   scrollingElement.scrollTop = scrollingElement.scrollHeight;
 }
+`)
 
+%%raw(`
 /**
  * sanitise input to avoid XSS see: https://git.io/fjpGZ
  * function borrowed from: https://stackoverflow.com/a/48226843/1148249
@@ -268,7 +276,9 @@ function sanitise(str) {
   const reg = /[&<>"'/]/ig;
   return str.replace(reg, (match)=>(map[match]));
 }
+`)
 
+%%raw(`
 //
 // Chessground config and Client-Side event handlers
 //
@@ -316,7 +326,10 @@ export function playOtherSide() {
     }
   };
 }
+`)
 
+
+%%raw(`
 //
 // Promotion Piece Selection UI
 //
@@ -338,7 +351,9 @@ promotion_prompt.onclick(function (orig, dest, piece) {
     });
   }
 });
+`)
 
+%%raw(`
 //
 // Resign Button
 //
