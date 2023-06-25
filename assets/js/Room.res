@@ -33,43 +33,48 @@ let result = Result.main(getElementById("result"))(())
 // interface["pushMsg"](Result.SetResult("white"))
 // interface["pushMsg"](Result.ShowResult)
 
-%%raw(`
-let clock;
-let opponent_clock;
-if (color === 'white') {
-  clock = new Clock(document.getElementById('clock'), white_clock, parseInt(increment));
-  opponent_clock = new Clock(document.getElementById('opponent_clock'), black_clock, parseInt(increment));
-} else {
-  clock = new Clock(document.getElementById('clock'), black_clock, parseInt(increment));
-  opponent_clock = new Clock(document.getElementById('opponent_clock'), white_clock, parseInt(increment));
-}
-let promotion_prompt = new PromotionPrompt(document.getElementById('promotion_prompt'));
-let resign_button = new ResignButton(document.getElementById('resign'));
+// let promotionPrompt = PromotionPromptTea.main(getElementById("test"))(())
+// promotionPrompt["pushMsg"](PromotionPromptTea.ShowPromotionPrompt)
 
-let fen_array = fen.split(' ');
-let fen_side_to_play = fen_array[1];
-let fen_turn = parseInt(fen_array[fen_array.length - 1]);
-let side_to_play;
-if (fen_side_to_play === 'w') {
-  side_to_play = 'white';
-} else {
-  side_to_play = 'black';
+let color_res: string = %raw(`color`)
+let (clock, opponent_clock) = switch color_res {
+  | "white" => (%raw(`new Clock(document.getElementById('clock'), white_clock, parseInt(increment))`), %raw(`new Clock(document.getElementById('opponent_clock'), black_clock, parseInt(increment))`))
+  | "black" => (%raw(`new Clock(document.getElementById('clock'), black_clock, parseInt(increment))`), %raw(`new Clock(document.getElementById('opponent_clock'), white_clock, parseInt(increment))`))
+  | _ => failwith("Invalid color")
 }
-let first_move;
-if (game_status !== 'continue') {
-  result.pushMsg({msg: "SetResult", _0: game_status});
-  result.pushMsg(0);
-} else {
-  if (fen_turn === 1) {
-    first_move = false;
-  } else {
-    first_move = true;
-    startClock();
+
+let promotion_prompt = %raw(`new PromotionPrompt(document.getElementById('promotion_prompt'))`)
+let resign_button = %raw(`new ResignButton(document.getElementById('resign'))`)
+
+let fen_array: array<string> = %raw(`fen.split(' ')`)
+let fen_side_to_play: string = fen_array[1]
+let fen_array_length = Js.Array.length(fen_array)
+let fen_turn: int = int_of_string(fen_array[fen_array_length - 1])
+let side_to_play = switch fen_side_to_play {
+  | "w" => "white"
+  | "b" => "black"
+  | _ => failwith("Invalid side to play")
+}
+
+let gameStatus: string = %raw(`game_status`)
+let first_move = switch gameStatus {
+  | "continue" => switch fen_turn {
+    | 1 => false
+    | _ => {
+        %raw(`startClock()`)
+        true
+      }
+  }
+  | _ => {
+    result["pushMsg"](Result.SetResult(gameStatus))
+    result["pushMsg"](Result.ShowResult)
+    false
   }
 }
 
-let promotion_dests = get_promotions_from_dests(dests);
+let promotion_dests = %raw(`get_promotions_from_dests(dests)`)
 
+%%raw(`
 function get_promotions_from_dests(dests) {
   let promotion_dests = [];
   for (const [key, value] of Object.entries(dests)) {
@@ -83,7 +88,9 @@ function get_promotions_from_dests(dests) {
   }
   return promotion_dests;
 }
+`)
 
+%%raw(`
 //
 // Connect to the game websocket
 //
