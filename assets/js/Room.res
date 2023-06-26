@@ -16,9 +16,7 @@ import "../css/app.css"
 //     import {Socket} from "phoenix"
 import socket from "./room_socket"
 import Clock from "./clock"
-import PromotionPrompt from "./promotion_prompt"
 import ResignButton from "./resign_button"
-import { main } from "./Result.bs"
 import { Chessground } from 'chessground';
 import "phoenix_html"
 `)
@@ -30,11 +28,7 @@ import "phoenix_html"
 @scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
 
 let result = Result.main(getElementById("result"))(())
-// interface["pushMsg"](Result.SetResult("white"))
-// interface["pushMsg"](Result.ShowResult)
-
-// let promotionPrompt = PromotionPromptTea.main(getElementById("test"))(())
-// promotionPrompt["pushMsg"](PromotionPromptTea.ShowPromotionPrompt)
+let promotionPrompt = PromotionPrompt.main(getElementById("promotion_prompt"))(())
 
 let color_res: string = %raw(`color`)
 let (clock, opponent_clock) = switch color_res {
@@ -42,8 +36,6 @@ let (clock, opponent_clock) = switch color_res {
   | "black" => (%raw(`new Clock(document.getElementById('clock'), black_clock, parseInt(increment))`), %raw(`new Clock(document.getElementById('opponent_clock'), white_clock, parseInt(increment))`))
   | _ => failwith("Invalid color")
 }
-
-let promotion_prompt = %raw(`new PromotionPrompt(document.getElementById('promotion_prompt'))`)
 let resign_button = %raw(`new ResignButton(document.getElementById('resign'))`)
 
 let fen_array: array<string> = %raw(`fen.split(' ')`)
@@ -61,7 +53,7 @@ let first_move = switch gameStatus {
   | "continue" => switch fen_turn {
     | 1 => false
     | _ => {
-        %raw(`startClock()`)
+        %raw(`startClock()`) -> ignore
         true
       }
   }
@@ -298,60 +290,105 @@ const config = {
 const ground = Chessground(document.getElementById('chessground'), config);
 
 ground.set({
-  movable: {events: {after: playOtherSide()}}
+  movable: {events: {after: playOtherSide}}
 });
 
 if (game_status !== 'continue') {
   ground.stop();
 }
-
-export function playOtherSide() {
-  return (orig, dest) => {
-    let move = sanitise(orig).concat(sanitise(dest));
-    let is_promotion_move = false;
-
-    for (let i = 0; i < promotion_dests.length; i++) {
-      if (promotion_dests[i][0] === orig && promotion_dests[i][1] === dest) {
-        is_promotion_move = true;
-        promotion_prompt.set_orig_dest(orig, dest);
-        promotion_prompt.reveal();
-        break;
-      }
-    }
-
-    if (is_promotion_move === false) {
-      channel.push('move', { 
-        move: move,
-      });
-    }
-  };
-}
 `)
 
+let playOtherSide = (orig: string, dest: string) => {
+  let move: string = %raw(`sanitise(orig).concat(sanitise(dest))`)
+  Js.log(move)// hack to get the compiler to keep move in js output
+  let is_promotion_move = ref(false);
+  
+  Js.Array.forEach(promotion_dest => {
+      is_promotion_move.contents = switch (promotion_dest == (orig, dest)) {
+        | true => {
+          promotionPrompt["pushMsg"](SetOrigDest(orig, dest))
+          promotionPrompt["pushMsg"](ShowPromotionPrompt)
+          true
+        }
+        | false => is_promotion_move.contents
+      };
+    }, promotion_dests);
+  switch (is_promotion_move.contents) {
+    | true => {
+      ()
+    }
+    | false => {
+      %raw(`
+        channel.push('move', { 
+          move: move,
+        })
+      `)
+    }
+  }
+}
 
-%%raw(`
 //
 // Promotion Piece Selection UI
 //
+let onclickFunction = (orig: option<string>, dest: option<string>, promoPromptOption: PromotionPrompt.promoPromptOption) => {
+  let orig_unwrap = Belt.Option.getWithDefault(orig, "")
+  let dest_unwrap = Belt.Option.getWithDefault(dest, "")
 
-promotion_prompt.onclick(function (orig, dest, piece) {
-  promotion_prompt.hide();
-  if (piece === 'c') {
-    ground.set({
-      fen: fen,
-      turnColor: color,
-      movable: {
-        color: color,
-        dests: dests_map
-      }
-    });
-  } else {
-    channel.push('move', { 
-      move: sanitise(orig).concat(sanitise(dest)).concat(sanitise(piece)),
-    });
+  // hack to force the compiler to keep orig_unwrap and dest_unwrap in the js output
+  Js.log(orig_unwrap)
+  Js.log(dest_unwrap)
+
+  promotionPrompt["pushMsg"](HidePromotionPrompt)
+  switch (promoPromptOption) {
+    | Cancel => {
+      %raw(`
+        ground.set({
+          fen: fen,
+          turnColor: color,
+          movable: {
+            color: color,
+            dests: dests_map
+          }
+        })
+      `) -> ignore
+      ()
+    }
+    | Queen => {
+      %raw(`
+        channel.push('move', { 
+          move: sanitise(orig_unwrap).concat(sanitise(dest_unwrap)).concat(sanitise("q")),
+        })
+      `) -> ignore
+      ()
+    }
+    | Rook => {
+      %raw(`
+        channel.push('move', { 
+          move: sanitise(orig_unwrap).concat(sanitise(dest_unwrap)).concat(sanitise("r")),
+        })
+      `) -> ignore
+      ()
+    }
+    | Bishop => {
+      %raw(`
+        channel.push('move', { 
+          move: sanitise(orig_unwrap).concat(sanitise(dest_unwrap)).concat(sanitise("b")),
+        })
+      `) -> ignore
+      ()
+    }
+    | Knight => {
+      %raw(`
+        channel.push('move', { 
+          move: sanitise(orig_unwrap).concat(sanitise(dest_unwrap)).concat(sanitise("n")),
+        })
+      `) -> ignore
+      ()
+    }
   }
-});
-`)
+}
+promotionPrompt["pushMsg"](SetOnClick(onclickFunction))
+
 
 %%raw(`
 //

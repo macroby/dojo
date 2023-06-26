@@ -55,10 +55,6 @@
 </style>
 
 <style>
-        #promotion_prompt {
-            display: none;
-        }
-
         #waiting_for_opponent {
             display: none;
         }
