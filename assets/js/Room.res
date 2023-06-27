@@ -40,21 +40,21 @@ let (clock, opponent_clock) = switch color_res {
   | _ => failwith("Invalid color")
 }
 
-// let (clockTea, opponentClockTea) = switch color_res {
-//   | "white" => (ClockTea.main(getElementById("test1"))(()), ClockTea.main(getElementById("test2"))(()))
-//   | "black" => (ClockTea.main(getElementById("test2"))(()), ClockTea.main(getElementById("test1"))(()))
-//   | _ => failwith("Invalid color")
-// }
+let (clockTea, opponentClockTea) = switch color_res {
+  | "white" => (ClockTea.main(getElementById("test1"))(()), ClockTea.main(getElementById("test2"))(()))
+  | "black" => (ClockTea.main(getElementById("test2"))(()), ClockTea.main(getElementById("test1"))(()))
+  | _ => failwith("Invalid color")
+}
 
-// switch color_res {
-//   | "white" => 
-//     clockTea["pushMsg"](SetTimeAsMilli(white_clock_res))
-//     opponentClockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
-//   | "black" => 
-//     clockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
-//     opponentClockTea["pushMsg"](SetTimeAsMilli(white_clock_res))  
-//   | _ => failwith("Invalid color")
-// }
+switch color_res {
+  | "white" => 
+    clockTea["pushMsg"](SetTimeAsMilli(white_clock_res))
+    opponentClockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
+  | "black" => 
+    clockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
+    opponentClockTea["pushMsg"](SetTimeAsMilli(white_clock_res))  
+  | _ => failwith("Invalid color")
+}
 
 let fen_array: array<string> = %raw(`fen.split(' ')`)
 let fen_side_to_play: string = fen_array[1]
@@ -101,11 +101,7 @@ function get_promotions_from_dests(dests) {
 `)
 
 %%raw(`
-//
-// Connect to the game websocket
-//
 import {Socket} from "phoenix"
-
 `)
 
 module Phoenix = {
@@ -130,6 +126,15 @@ module Phoenix = {
   let joinChannel = (channel: channel) => {
     %raw(`channel.join()`)
   }
+
+
+  let on = (channel: channel, message: string, callback: 'a) => {
+    %raw(`channel.on(message, callback)`)
+  }
+
+  let push = (channel: channel, message: string) => {
+    %raw(`channel.push(message, {})`)
+  }
 }
 
 let user_token_res: string = %raw(`user_token`)
@@ -142,36 +147,28 @@ let roomID = %raw(`window.location.pathname`)
 let channel = Phoenix.newChannel(socket, "room:" ++ Js.String.replace("/", "", roomID), {})
 Phoenix.joinChannel(channel)
 
+Phoenix.on(channel, "start_ping", payload => {
+  Phoenix.push(channel, "ping")
+})
+
+Phoenix.on(channel, "pong", payload => {
+  Js.Global.setTimeout(() => Phoenix.push(channel, "ping"), 2500)
+})
+
+Phoenix.on(channel, "ack", payload => {
+  ()
+})
+
+Phoenix.on(channel, "endData", payload => {
+  %raw(`ground.set({viewOnly: true})`)
+  %raw(`ground.stop()`)
+  %raw(`clock.stop()`)
+  %raw(`opponent_clock.stop()`)
+  result["pushMsg"](Result.SetResult(payload["winner"]))
+  result["pushMsg"](Result.ShowResult)
+})
+
 %%raw(`
-//
-// Incoming events from server
-//
-
-channel.on('start_ping', function (payload) { // listen to the 'shout' event
-  channel.push('ping', {});
-});
-
-channel.on('pong', function (payload) { // listen to the 'shout' event
-  setTimeout(() => channel.push('ping', {}), 2500);
-});
-
-channel.on('ack', function (payload) {
-})
-
-channel.on('endData', function (payload) {
-  // I set viewonly to true here because ground.stop() alone
-  // doesn't seem to work properly for black client.
-  ground.set({
-    viewOnly: true
-  });
-  ground.stop();
-  clock.stop();
-  opponent_clock.stop();
-
-  result.pushMsg({msg: "SetResult", _0: payload.winner});
-  result.pushMsg(0);
-})
-
 channel.on('move', function (payload) {
   // Store the new fen in local storage.
   // This is used to restore the board state when the tab is duplicated.
@@ -217,7 +214,9 @@ channel.on('move', function (payload) {
 
   ground.playPremove();
 });
+`)
 
+%%raw(`
 // channel.on('shout', function (payload) { // listen to the 'shout' event
 //   let li = document.createElement("li"); // create new list item DOM element
 //   let name = payload.name || 'guest';    // get name from payload or set default
