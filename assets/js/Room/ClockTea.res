@@ -18,7 +18,7 @@ type model =
     }
 
 let init = () => {
-    timeAsString: "0.00",
+    timeAsString: "0.0",
     timeAsMilli: 0,
     stopped: false
 }
@@ -30,43 +30,43 @@ let update = (model: model, msg: msg) =>
                 | true => model
                 | false => {
                     let newTimeAsMilli = model.timeAsMilli - value
-
-                    let minutes = newTimeAsMilli / 1000 / 60
-                    let seconds = mod(newTimeAsMilli / 1000, 60)
-                    let tenths = mod(newTimeAsMilli, 1000) / 100
-
-                    let newTimeAsString = 
-                        switch minutes {
-                            | 0 => 
-                                switch seconds < 10 {
-                                    | true => 
-                                        let secondsAsString = "0" ++ Js.Int.toString(seconds)
-                                        secondsAsString ++ "." ++ Js.Int.toString(tenths)
-                                    | false => 
-                                        Js.Int.toString(seconds) ++ "." ++ Js.Int.toString(tenths)
-                                }
-                            | _ => 
-                                switch minutes < 10 && seconds < 10 {
-                                    | true =>
-                                        "0" ++ Js.Int.toString(minutes) ++ ":0" ++ Js.Int.toString(seconds)
-                                    | false =>
-                                        switch minutes < 10 && seconds >= 10 {
-                                            | true =>
-                                                "0" ++ Js.Int.toString(minutes) ++ ":" ++ Js.Int.toString(seconds)
-                                            | false =>
-                                                switch minutes >= 10 && seconds < 10 {
-                                                    | true =>
-                                                        Js.Int.toString(minutes) ++ ":0" ++ Js.Int.toString(seconds)
-                                                    | false =>
-                                                        Js.Int.toString(minutes) ++ ":" ++ Js.Int.toString(seconds)
-                                                }
-                                }
-                                }
-                        }
+                    
                     if newTimeAsMilli < 0 {
-                        { ...model, timeAsMilli: 0, timeAsString: newTimeAsString }
+                        { timeAsString: "0.0", timeAsMilli: 0, stopped: model.stopped }
                     } else {
-                        { ...model, timeAsMilli: newTimeAsMilli }
+                        let minutes = newTimeAsMilli / 1000 / 60
+                        let seconds = mod(newTimeAsMilli / 1000, 60)
+                        let tenths = mod(newTimeAsMilli, 1000) / 100
+
+                        let newTimeAsString = 
+                            switch minutes {
+                                | 0 => 
+                                    switch seconds < 10 {
+                                        | true => 
+                                            let secondsAsString = "0" ++ Js.Int.toString(seconds)
+                                            secondsAsString ++ "." ++ Js.Int.toString(tenths)
+                                        | false => 
+                                            Js.Int.toString(seconds) ++ "." ++ Js.Int.toString(tenths)
+                                    }
+                                | _ => 
+                                    switch minutes < 10 && seconds < 10 {
+                                        | true =>
+                                            "0" ++ Js.Int.toString(minutes) ++ ":0" ++ Js.Int.toString(seconds)
+                                        | false =>
+                                            switch minutes < 10 && seconds >= 10 {
+                                                | true =>
+                                                    "0" ++ Js.Int.toString(minutes) ++ ":" ++ Js.Int.toString(seconds)
+                                                | false =>
+                                                    switch minutes >= 10 && seconds < 10 {
+                                                        | true =>
+                                                            Js.Int.toString(minutes) ++ ":0" ++ Js.Int.toString(seconds)
+                                                        | false =>
+                                                            Js.Int.toString(minutes) ++ ":" ++ Js.Int.toString(seconds)
+                                                    }
+                                            }
+                                    }   
+                            }
+                        { timeAsString: newTimeAsString, timeAsMilli: newTimeAsMilli, stopped: model.stopped }
                     }
                 }
             }

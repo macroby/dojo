@@ -289,7 +289,7 @@ channel.on('move', function (payload) {
 // Update clock UI. Accounts for drift and ensures that the clock is
 // updated at the correct interval. Accounts for idle tab messing with
 // the setInterval() function.
-let rec updateClock2 = (expected) => {
+let rec updateClock = (expected) => {
   let color_res = %raw(`color`)
   let side_to_play_res = %raw(`side_to_play`)
   let interval = 50
@@ -312,7 +312,7 @@ let rec updateClock2 = (expected) => {
       let new_expected = Belt.Float.toInt(Js.Date.now()) + interval
       let dt = mod(dt, interval)
 
-      setTimeout(updateClock2, Js.Math.max_int(0, interval), new_expected)
+      setTimeout(updateClock, Js.Math.max_int(0, interval), new_expected)
     }
     | false => {
       if (side_to_play_res === color_res) {
@@ -323,7 +323,7 @@ let rec updateClock2 = (expected) => {
         opponentClockTea["pushMsg"](DecrementTimeAsMilli(interval))
       }
 
-      setTimeout(updateClock2, Js.Math.max_int(0, interval - dt), new_expected)
+      setTimeout(updateClock, Js.Math.max_int(0, interval - dt), new_expected)
     }
   }
 }
@@ -335,7 +335,7 @@ let startClock = () => {
   let expected = %raw(`Date.now()`) + 50
   interval -> ignore
   expected -> ignore
-  %raw(`setTimeout(updateClock2, 50, Date.now() + 50)`)
+  %raw(`setTimeout(updateClock, 50, Date.now() + 50)`)
 }
 
 %%raw(`
