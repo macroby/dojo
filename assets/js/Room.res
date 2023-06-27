@@ -14,7 +14,7 @@ import "../css/app.css"
 // Import deps with the dep name or local files with a relative path, for example:
 //
 //     import {Socket} from "phoenix"
-import socket from "./room_socket"
+// import socket from "./room_socket"
 import Clock from "./clock"
 import { Chessground } from 'chessground';
 import "phoenix_html"
@@ -104,11 +104,43 @@ function get_promotions_from_dests(dests) {
 //
 // Connect to the game websocket
 //
+import {Socket} from "phoenix"
 
-var roomID = window.location.pathname;
-let channel = socket.channel('room:' + roomID.replace('/', ''), {}); // connect to chess "room"
-channel.join(); // join the channel.
 `)
+
+module Phoenix = {
+  type socket = Socket
+  type channel = Channel
+  type params = {token: string}
+  type chanParams = {}
+  type endPoint = string
+
+  let newSocket = (endPoint: endPoint, params: params) => {
+    %raw(`new Socket(endPoint, {params: params})`)
+  }
+
+  let connect = (socket: socket) => {
+    %raw(`socket.connect()`)
+  }
+
+  let newChannel = (socket: socket, topic: string, params: chanParams) => {
+    %raw(`socket.channel(topic, params)`)
+  }
+
+  let joinChannel = (channel: channel) => {
+    %raw(`channel.join()`)
+  }
+}
+
+let user_token_res: string = %raw(`user_token`)
+
+let socket = Phoenix.newSocket("/room_socket", {token: user_token_res})
+
+Phoenix.connect(socket)
+
+let roomID = %raw(`window.location.pathname`)
+let channel = Phoenix.newChannel(socket, "room:" ++ Js.String.replace("/", "", roomID), {})
+Phoenix.joinChannel(channel)
 
 %%raw(`
 //
