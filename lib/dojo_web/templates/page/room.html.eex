@@ -4,7 +4,8 @@
   <div id="promotion_prompt"></div>
   <div id="resign"></div>
   <div id="result"></div>
-  <div id="test"></div>
+  <div id="test1"></div>
+  <div id="test2"></div>
   <div id="chessground"></div>
 
   <!-- The list of messages will appear here: -->

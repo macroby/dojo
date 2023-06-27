@@ -16,7 +16,6 @@ import "../css/app.css"
 //     import {Socket} from "phoenix"
 import socket from "./room_socket"
 import Clock from "./clock"
-import ResignButton from "./resign_button"
 import { Chessground } from 'chessground';
 import "phoenix_html"
 `)
@@ -29,14 +28,33 @@ import "phoenix_html"
 
 let result = Result.main(getElementById("result"))(())
 let promotionPrompt = PromotionPrompt.main(getElementById("promotion_prompt"))(())
+let resignButton = ResignButton.main(getElementById("resign"))(())
 
 let color_res: string = %raw(`color`)
+let white_clock_res: int = %raw(`white_clock`)
+let black_clock_res: int = %raw(`black_clock`)
+
 let (clock, opponent_clock) = switch color_res {
   | "white" => (%raw(`new Clock(document.getElementById('clock'), white_clock, parseInt(increment))`), %raw(`new Clock(document.getElementById('opponent_clock'), black_clock, parseInt(increment))`))
   | "black" => (%raw(`new Clock(document.getElementById('clock'), black_clock, parseInt(increment))`), %raw(`new Clock(document.getElementById('opponent_clock'), white_clock, parseInt(increment))`))
   | _ => failwith("Invalid color")
 }
-let resign_button = %raw(`new ResignButton(document.getElementById('resign'))`)
+
+// let (clockTea, opponentClockTea) = switch color_res {
+//   | "white" => (ClockTea.main(getElementById("test1"))(()), ClockTea.main(getElementById("test2"))(()))
+//   | "black" => (ClockTea.main(getElementById("test2"))(()), ClockTea.main(getElementById("test1"))(()))
+//   | _ => failwith("Invalid color")
+// }
+
+// switch color_res {
+//   | "white" => 
+//     clockTea["pushMsg"](SetTimeAsMilli(white_clock_res))
+//     opponentClockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
+//   | "black" => 
+//     clockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
+//     opponentClockTea["pushMsg"](SetTimeAsMilli(white_clock_res))  
+//   | _ => failwith("Invalid color")
+// }
 
 let fen_array: array<string> = %raw(`fen.split(' ')`)
 let fen_side_to_play: string = fen_array[1]
@@ -389,13 +407,10 @@ let onclickFunction = (orig: option<string>, dest: option<string>, promoPromptOp
 }
 promotionPrompt["pushMsg"](SetOnClick(onclickFunction))
 
+let resignOnClick = () => {
+  %raw(`
+    channel.push('resign', {})
+  `) -> ignore
+}
 
-%%raw(`
-//
-// Resign Button
-//
-
-resign_button.onClick(function () {
-  channel.push('resign', {});
-});
-`)
+resignButton["pushMsg"](SetOnClick(resignOnClick))
