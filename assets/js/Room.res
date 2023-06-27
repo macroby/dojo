@@ -168,6 +168,60 @@ Phoenix.on(channel, "endData", payload => {
   result["pushMsg"](Result.ShowResult)
 })
 
+// Phoenix.on(channel, "move", payload => {
+//   let clientStateJson = %raw(`localStorage.getItem(window.location.pathname)`)
+//   let clientStateObject = %raw(`JSON.parse(clientStateJson)`)
+//   %raw(`clientStateObject.fen = payload.fen`)
+//   %raw(`localStorage.setItem(window.location.pathname, JSON.stringify(clientStateObject))`)
+
+//   let orig = %raw(`payload["move"].substring(0, 2)`)
+//   let dest = %raw(`payload["move"].substring(2, 4)`)
+//   %raw(`ground.move(orig, dest)`)
+//   %raw(`ground.set({fen: payload.fen})`)
+
+//   let side_to_play = %raw(`payload.side_to_move`)
+//   let color_res = %raw(`color`)
+//   let clock_res = %raw(`clock`)
+//   let opponent_clock_res = %raw(`opponent_clock`)
+//   let white_clock_res = %raw(`payload.white_clock`)
+//   let black_clock_res = %raw(`payload.black_clock`)
+//   switch color_res {
+//   | "white" => 
+//     clockTea["pushMsg"](SetTimeAsMilli(white_clock_res))
+//     opponentClockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
+//   | "black" =>
+//     clockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
+//     opponentClockTea["pushMsg"](SetTimeAsMilli(white_clock_res))
+//   | _ => ()
+//   }
+
+//   switch side_to_play == color_res {
+//     | true => {
+//       let new_dests = %raw(`new Map(Object.entries(payload.dests))`)
+//       %raw(`promotion_dests = get_promotions_from_dests(payload.dests)`) -> ignore
+//       %raw(`
+//       ground.set({
+//         turnColor: payload.side_to_move,
+//         movable: {
+//           color: payload.side_to_move,
+//           dests: new_dests
+//         }
+//       })`) -> ignore
+
+//       let first_move_res: bool = %raw(`first_move`)
+//       switch first_move_res {
+//       | false => {
+//         %raw(`first_move = true`)
+//         %raw(`startClock()`)
+//       }
+//       | true => ()
+//       }}
+//     | false => ()
+//     }
+
+//   %raw(`ground.playPremove()`)
+// })
+
 %%raw(`
 channel.on('move', function (payload) {
   // Store the new fen in local storage.
@@ -226,50 +280,63 @@ channel.on('move', function (payload) {
 // });
 `)
 
-%%raw(`
 //
 // Clock UI Config and Timekeeping Functionality
 //
 
-// Start the clock. This is called after the first move is made.
-// Initiates the clock with 50 ms update interval.
-function startClock() {
-  var interval = 50;
-  var expected = Date.now() + interval;
-  
-  setTimeout(updateClock, interval, expected);
-}
+@val external setTimeout: (int => unit, int, int) => unit = "setTimeout"
 
 // Update clock UI. Accounts for drift and ensures that the clock is
 // updated at the correct interval. Accounts for idle tab messing with
 // the setInterval() function.
-function updateClock(expected) {
-  var interval = 50;
-  var new_expected = expected + interval;
-  var dt = Date.now() - expected; // the drift (positive for overshooting)
-  if (dt > interval) {
-    // something really bad happened. Maybe the browser (tab) was inactive?
-    // possibly special handling to avoid futile "catch up" run
+let rec updateClock2 = (expected) => {
+  let color_res = %raw(`color`)
+  let side_to_play_res = %raw(`side_to_play`)
+  let interval = 50
+  let new_expected = expected + interval
+  let dt = Belt.Float.toInt(Js.Date.now()) - expected // the drift (positive for overshooting)
 
-    if (side_to_play === color) {
-      clock.decrement_time(dt);
-    } else {
-      opponent_clock.decrement_time(dt);
-    }
-    new_expected = Date.now() + interval;
-    dt = dt % interval;
 
-    setTimeout(updateClock, Math.max(0, interval), new_expected);
-  } else {
-    if (side_to_play === color) {
-      clock.decrement_time(50);
-    } else {
-      opponent_clock.decrement_time(50);
+  switch dt > interval {
+    | true => {
+      // something really bad happened. Maybe the browser (tab) was inactive?
+      // possibly special handling to avoid futile "catch up" run
+      if (side_to_play === color_res) {
+        %raw(`clock.decrement_time(dt)`)
+        clockTea["pushMsg"](DecrementTimeAsMilli(dt))
+      } else {
+        %raw(`opponent_clock.decrement_time(dt)`)
+        opponentClockTea["pushMsg"](DecrementTimeAsMilli(dt))
+      }
+
+      let new_expected = Belt.Float.toInt(Js.Date.now()) + interval
+      let dt = mod(dt, interval)
+
+      setTimeout(updateClock2, Js.Math.max_int(0, interval), new_expected)
     }
-    setTimeout(updateClock, Math.max(0, interval - dt), new_expected);
+    | false => {
+      if (side_to_play_res === color_res) {
+        %raw(`clock.decrement_time(50)`)
+        clockTea["pushMsg"](DecrementTimeAsMilli(interval))
+      } else {
+        %raw(`opponent_clock.decrement_time(50)`)
+        opponentClockTea["pushMsg"](DecrementTimeAsMilli(interval))
+      }
+
+      setTimeout(updateClock2, Js.Math.max_int(0, interval - dt), new_expected)
+    }
   }
 }
-`)
+
+let startClock = () => {
+  // I dont know how to get the compiler to keep these declarations but
+  // I am keeping them here for now for reference
+  let interval = 50
+  let expected = %raw(`Date.now()`) + 50
+  interval -> ignore
+  expected -> ignore
+  %raw(`setTimeout(updateClock2, 50, Date.now() + 50)`)
+}
 
 %%raw(`
 //
