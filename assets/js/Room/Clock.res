@@ -9,18 +9,21 @@ type msg =
     | IncrementTimeAsMilli(int)
     | SetTimeAsMilli(int)
     | Stop
+    | Hide
 
 type model = 
     { 
         timeAsString: string,
         timeAsMilli: int,
-        stopped: bool
+        stopped: bool,
+        hidden: bool
     }
 
 let init = () => {
     timeAsString: "0.0",
     timeAsMilli: 0,
-    stopped: false
+    stopped: false,
+    hidden: false
 }
 
 let update = (model: model, msg: msg) => 
@@ -32,7 +35,7 @@ let update = (model: model, msg: msg) =>
                     let newTimeAsMilli = model.timeAsMilli - value
                     
                     if newTimeAsMilli < 0 {
-                        { timeAsString: "0.0", timeAsMilli: 0, stopped: model.stopped }
+                        { timeAsString: "0.0", timeAsMilli: 0, stopped: model.stopped, hidden: model.hidden }
                     } else {
                         let minutes = newTimeAsMilli / 1000 / 60
                         let seconds = mod(newTimeAsMilli / 1000, 60)
@@ -66,7 +69,7 @@ let update = (model: model, msg: msg) =>
                                             }
                                     }   
                             }
-                        { timeAsString: newTimeAsString, timeAsMilli: newTimeAsMilli, stopped: model.stopped }
+                        { timeAsString: newTimeAsString, timeAsMilli: newTimeAsMilli, stopped: model.stopped, hidden: model.hidden }
                     }
                 }
             }
@@ -158,13 +161,16 @@ let update = (model: model, msg: msg) =>
         | Stop => {
             { ...model, stopped: true }
         }
+        | Hide => {
+            { ...model, hidden: true }
+        }
     }
 
 let view = (model: model): Vdom.t<msg> =>
     div(
         list{},
         list{
-            text(model.timeAsString)
+            model.hidden == false ? text(model.timeAsString) : noNode
         }
     )
 

@@ -15,7 +15,6 @@ import "../css/app.css"
 //
 //     import {Socket} from "phoenix"
 // import socket from "./room_socket"
-import Clock from "./clock"
 import { Chessground } from 'chessground';
 import "phoenix_html"
 `)
@@ -33,27 +32,28 @@ let resignButton = ResignButton.main(getElementById("resign"))(())
 let color_res: string = %raw(`color`)
 let white_clock_res: int = %raw(`white_clock`)
 let black_clock_res: int = %raw(`black_clock`)
+let timeControl: string = %raw(`time_control`)
 
-let (clock, opponent_clock) = switch color_res {
-  | "white" => (%raw(`new Clock(document.getElementById('clock'), white_clock, parseInt(increment))`), %raw(`new Clock(document.getElementById('opponent_clock'), black_clock, parseInt(increment))`))
-  | "black" => (%raw(`new Clock(document.getElementById('clock'), black_clock, parseInt(increment))`), %raw(`new Clock(document.getElementById('opponent_clock'), white_clock, parseInt(increment))`))
-  | _ => failwith("Invalid color")
-}
-
-let (clockTea, opponentClockTea) = switch color_res {
-  | "white" => (ClockTea.main(getElementById("test1"))(()), ClockTea.main(getElementById("test2"))(()))
-  | "black" => (ClockTea.main(getElementById("test2"))(()), ClockTea.main(getElementById("test1"))(()))
-  | _ => failwith("Invalid color")
-}
+let (clock, opponentClock) = (Clock.main(getElementById("clock"))(()), Clock.main(getElementById("opponent_clock"))(()))
 
 switch color_res {
   | "white" => 
-    clockTea["pushMsg"](SetTimeAsMilli(white_clock_res))
-    opponentClockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
+    clock["pushMsg"](SetTimeAsMilli(white_clock_res))
+    opponentClock["pushMsg"](SetTimeAsMilli(black_clock_res))
   | "black" => 
-    clockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
-    opponentClockTea["pushMsg"](SetTimeAsMilli(white_clock_res))  
+    clock["pushMsg"](SetTimeAsMilli(black_clock_res))
+    opponentClock["pushMsg"](SetTimeAsMilli(white_clock_res))  
   | _ => failwith("Invalid color")
+}
+
+switch timeControl {
+  | "real_time" => ()
+  | _ => {
+    clock["pushMsg"](Hide)
+    clock["pushMsg"](Stop)
+    opponentClock["pushMsg"](Hide)
+    opponentClock["pushMsg"](Stop)
+  }
 }
 
 let fen_array: array<string> = %raw(`fen.split(' ')`)
@@ -160,115 +160,63 @@ Phoenix.on(channel, "ack", payload => {
 })
 
 Phoenix.on(channel, "endData", payload => {
-  %raw(`ground.set({viewOnly: true})`)
-  %raw(`ground.stop()`)
-  %raw(`clock.stop()`)
-  %raw(`opponent_clock.stop()`)
+  %raw(`ground.set({viewOnly: true})`) -> ignore
+  %raw(`ground.stop()`) -> ignore
+  clock["pushMsg"](Stop)
+  opponentClock["pushMsg"](Stop)
   result["pushMsg"](Result.SetResult(payload["winner"]))
   result["pushMsg"](Result.ShowResult)
 })
 
-// Phoenix.on(channel, "move", payload => {
-//   let clientStateJson = %raw(`localStorage.getItem(window.location.pathname)`)
-//   let clientStateObject = %raw(`JSON.parse(clientStateJson)`)
-//   %raw(`clientStateObject.fen = payload.fen`)
-//   %raw(`localStorage.setItem(window.location.pathname, JSON.stringify(clientStateObject))`)
+Phoenix.on(channel, "move", payload => {
+  %raw(`clientStateJson = localStorage.getItem(window.location.pathname)`)
+  %raw(`clientStateObject = JSON.parse(clientStateJson)`)
+  %raw(`clientStateObject.fen = payload.fen`)
+  %raw(`localStorage.setItem(window.location.pathname, JSON.stringify(clientStateObject))`)
+  let orig = %raw(`payload.move.substring(0, 2)`)
+  let dest = %raw(`payload.move.substring(2, 4)`)
+  Js.log(orig) //trick the compiler
+  Js.log(dest)
+  %raw(`ground.move(orig, dest)`) -> ignore
+  %raw(`ground.set({fen: payload.fen})`) -> ignore
 
-//   let orig = %raw(`payload["move"].substring(0, 2)`)
-//   let dest = %raw(`payload["move"].substring(2, 4)`)
-//   %raw(`ground.move(orig, dest)`)
-//   %raw(`ground.set({fen: payload.fen})`)
-
-//   let side_to_play = %raw(`payload.side_to_move`)
-//   let color_res = %raw(`color`)
-//   let clock_res = %raw(`clock`)
-//   let opponent_clock_res = %raw(`opponent_clock`)
-//   let white_clock_res = %raw(`payload.white_clock`)
-//   let black_clock_res = %raw(`payload.black_clock`)
-//   switch color_res {
-//   | "white" => 
-//     clockTea["pushMsg"](SetTimeAsMilli(white_clock_res))
-//     opponentClockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
-//   | "black" =>
-//     clockTea["pushMsg"](SetTimeAsMilli(black_clock_res))
-//     opponentClockTea["pushMsg"](SetTimeAsMilli(white_clock_res))
-//   | _ => ()
-//   }
-
-//   switch side_to_play == color_res {
-//     | true => {
-//       let new_dests = %raw(`new Map(Object.entries(payload.dests))`)
-//       %raw(`promotion_dests = get_promotions_from_dests(payload.dests)`) -> ignore
-//       %raw(`
-//       ground.set({
-//         turnColor: payload.side_to_move,
-//         movable: {
-//           color: payload.side_to_move,
-//           dests: new_dests
-//         }
-//       })`) -> ignore
-
-//       let first_move_res: bool = %raw(`first_move`)
-//       switch first_move_res {
-//       | false => {
-//         %raw(`first_move = true`)
-//         %raw(`startClock()`)
-//       }
-//       | true => ()
-//       }}
-//     | false => ()
-//     }
-
-//   %raw(`ground.playPremove()`)
-// })
-
-%%raw(`
-channel.on('move', function (payload) {
-  // Store the new fen in local storage.
-  // This is used to restore the board state when the tab is duplicated.
-  clientStateJson = localStorage.getItem(window.location.pathname);
-  clientStateObject = JSON.parse(clientStateJson);
-  clientStateObject.fen = payload.fen;
-  localStorage.setItem(window.location.pathname, JSON.stringify(clientStateObject));
-
-  let orig = payload.move.substring(0, 2);
-  let dest = payload.move.substring(2, 4);
-  ground.move(orig, dest);
-  ground.set({
-    fen: payload.fen
-  });
-
-  side_to_play = payload.side_to_move;
-  if (color === 'white') {
-    clock.set_time(payload.white_clock);
-    opponent_clock.set_time(payload.black_clock);
-  } else {
-    clock.set_time(payload.black_clock);
-    opponent_clock.set_time(payload.white_clock);
+  %raw(`side_to_play = payload.side_to_move`)
+  switch %raw(`color`) {
+    | "white" => {
+      clock["pushMsg"](SetTimeAsMilli(payload["white_clock"]))
+      opponentClock["pushMsg"](SetTimeAsMilli(payload["black_clock"]))
+    }
+    | "black" => {
+      clock["pushMsg"](SetTimeAsMilli(payload["black_clock"]))
+      opponentClock["pushMsg"](SetTimeAsMilli(payload["white_clock"]))
+    }
+    | _ => failwith("Invalid side to play")
   }
-  
-  if (payload.side_to_move === color) {
-    let new_dests = new Map(Object.entries(payload.dests));
-    promotion_dests = get_promotions_from_dests(payload.dests);
+  switch %raw(`payload.side_to_move`) === %raw(`color`) {
+    | true => {
 
-    ground.set({
-      turnColor: payload.side_to_move,
-      movable: {
-        color: payload.side_to_move,
-        dests: new_dests
+      let new_dests = %raw(`new Map(Object.entries(payload.dests))`)
+      let promotion_dests = %raw(`get_promotions_from_dests(payload.dests)`)
+      Js.log(new_dests)
+      Js.log(promotion_dests)
+
+      %raw(`ground.set({turnColor: payload.side_to_move, movable: {color: payload.side_to_move, dests: new_dests}})`)
+      switch %raw(`first_move`) {
+        | false => {
+          %raw(`first_move = true`)
+          %raw(`startClock()`)
+        }
+        | true => {
+          ()
+        }
       }
-    }); 
-
-    // If the opponent has made their first move, start the clock.
-    if (first_move === false) {
-      first_move = true;
-      startClock();
+    }
+    | false => {
+        ()
     }
   }
-
-  ground.playPremove();
-});
-`)
+  %raw(`ground.playPremove()`)
+})
 
 %%raw(`
 // channel.on('shout', function (payload) { // listen to the 'shout' event
@@ -302,11 +250,9 @@ let rec updateClock = (expected) => {
       // something really bad happened. Maybe the browser (tab) was inactive?
       // possibly special handling to avoid futile "catch up" run
       if (side_to_play === color_res) {
-        %raw(`clock.decrement_time(dt)`)
-        clockTea["pushMsg"](DecrementTimeAsMilli(dt))
+        clock["pushMsg"](DecrementTimeAsMilli(dt))
       } else {
-        %raw(`opponent_clock.decrement_time(dt)`)
-        opponentClockTea["pushMsg"](DecrementTimeAsMilli(dt))
+        opponentClock["pushMsg"](DecrementTimeAsMilli(dt))
       }
 
       let new_expected = Belt.Float.toInt(Js.Date.now()) + interval
@@ -316,11 +262,9 @@ let rec updateClock = (expected) => {
     }
     | false => {
       if (side_to_play_res === color_res) {
-        %raw(`clock.decrement_time(50)`)
-        clockTea["pushMsg"](DecrementTimeAsMilli(interval))
+        clock["pushMsg"](DecrementTimeAsMilli(interval))
       } else {
-        %raw(`opponent_clock.decrement_time(50)`)
-        opponentClockTea["pushMsg"](DecrementTimeAsMilli(interval))
+        opponentClock["pushMsg"](DecrementTimeAsMilli(interval))
       }
 
       setTimeout(updateClock, Js.Math.max_int(0, interval - dt), new_expected)
@@ -338,32 +282,32 @@ let startClock = () => {
   %raw(`setTimeout(updateClock, 50, Date.now() + 50)`)
 }
 
-%%raw(`
-//
-// Chat Update and Client-Side Event Handlers
-//
+// %%raw(`
+// //
+// // Chat Update and Client-Side Event Handlers
+// //
 
-// let ul = document.getElementById('msg-list');        // list of messages.
-// let name = document.getElementById('name');          // name of message sender
-// let msg = document.getElementById('msg');            // message input field
+// // let ul = document.getElementById('msg-list');        // list of messages.
+// // let name = document.getElementById('name');          // name of message sender
+// // let msg = document.getElementById('msg');            // message input field
 
-// // "listen" for the [Enter] keypress event to send a message:
-// msg.addEventListener('keypress', function (event) {
-//   if (event.keyCode == 13 && msg.value.length > 0) { // don't sent empty msg.
-//     channel.push('shout', { // send the message to the server on "shout" channel
-//       name: sanitise(name.value) || "guest",     // get value of "name" of person sending the message
-//       message: sanitise(msg.value)    // get message text (value) from msg input field.
-//     });
-//     msg.value = '';         // reset the message input field for next message.
-//   }
-// });
+// // // "listen" for the [Enter] keypress event to send a message:
+// // msg.addEventListener('keypress', function (event) {
+// //   if (event.keyCode == 13 && msg.value.length > 0) { // don't sent empty msg.
+// //     channel.push('shout', { // send the message to the server on "shout" channel
+// //       name: sanitise(name.value) || "guest",     // get value of "name" of person sending the message
+// //       message: sanitise(msg.value)    // get message text (value) from msg input field.
+// //     });
+// //     msg.value = '';         // reset the message input field for next message.
+// //   }
+// // });
 
-// see: https://stackoverflow.com/a/33193668/1148249
-let scrollingElement = (document.scrollingElement || document.body)
-function scrollToBottom () {
-  scrollingElement.scrollTop = scrollingElement.scrollHeight;
-}
-`)
+// // // see: https://stackoverflow.com/a/33193668/1148249
+// // let scrollingElement = (document.scrollingElement || document.body)
+// // function scrollToBottom () {
+// //   scrollingElement.scrollTop = scrollingElement.scrollHeight;
+// // }
+// `)
 
 %%raw(`
 /**

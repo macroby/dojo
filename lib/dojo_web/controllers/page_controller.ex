@@ -397,7 +397,8 @@ defmodule DojoWeb.PageController do
       white_clock: white_time_ms,
       black_clock: black_time_ms,
       game_status: game_status,
-      user_token: user_token
+      user_token: user_token,
+      time_control: game_state.time_control
     )
   end
 
