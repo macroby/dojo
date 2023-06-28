@@ -19,7 +19,6 @@
     <label for="time-control-select">Time Control</label>
     <select name="time-control" id="time-control-select-create-game">
       <option value="unlimited">Unlimited</option>
-      <option value="correspondence">Correspondence</option>
       <option value="real time">Real Time</option>
     </select>
 
@@ -82,7 +81,6 @@
     <label for="time-control-select">Time Control</label>
     <select name="time-control" id="time-control-select-with-friend">
       <option value="unlimited">Unlimited</option>
-      <option value="correspondence">Correspondence</option>
       <option value="real time">Real Time</option>
     </select>
 
@@ -145,7 +143,6 @@
       <label for="time-control-select">Time Control</label>
       <select name="time-control" id="time-control-select-with-ai">
       <option value="unlimited">Unlimited</option>
-      <option value="correspondence">Correspondence</option>
       <option value="real time">Real Time</option>
       </select>
 
