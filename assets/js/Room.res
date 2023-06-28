@@ -16,6 +16,7 @@ import "../css/app.css"
 //     import {Socket} from "phoenix"
 // import socket from "./room_socket"
 import { Chessground } from 'chessground';
+import {Socket} from "phoenix";
 import "phoenix_html"
 `)
 
@@ -98,10 +99,6 @@ function get_promotions_from_dests(dests) {
   }
   return promotion_dests;
 }
-`)
-
-%%raw(`
-import {Socket} from "phoenix"
 `)
 
 module Phoenix = {
