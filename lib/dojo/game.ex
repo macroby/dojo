@@ -134,7 +134,11 @@ defmodule Dojo.Game do
 
     {clock_pid, white_time_ms, black_time_ms} =
       with :real_time <- config.time_control do
-        case Dojo.Clock.start_link(%{minutes: config.minutes, increment: config.increment, game_pid: self()}) do
+        case Dojo.Clock.start_link(%{
+               minutes: config.minutes,
+               increment: config.increment,
+               game_pid: self()
+             }) do
           {:error, reason} -> raise reason
           {:ok, pid} -> {pid, config.minutes * 60 * 1000, config.minutes * 60 * 1000}
         end
@@ -372,7 +376,7 @@ defmodule Dojo.Game do
       game_id: state.game_id,
       white_time_ms: state.white_time_ms,
       black_time_ms: state.black_time_ms,
-      winner: elem(state.status, 1),
+      winner: elem(state.status, 1)
     }
 
     # Dojo.UserTracker.remove_active_user(state.white_user_id)
@@ -386,7 +390,7 @@ defmodule Dojo.Game do
       _ -> Dojo.UserTracker.remove_active_user(state.white_user_id)
     end
 
-    DojoWeb.Endpoint.broadcast("room:" <> state.game_id , "endData", payload)
+    DojoWeb.Endpoint.broadcast("room:" <> state.game_id, "endData", payload)
 
     {:reply, :ok, state}
   end

@@ -34,7 +34,7 @@ config :esbuild,
   version: "0.13.4",
   default: [
     args:
-      ~w(js/Room.bs.js js/home.js js/friend_invite.js js/friend_pending.js --bundle --target=es2016 --outdir=../priv/static/assets),
+      ~w(js/Room.bs.js js/Home.bs.js js/friend_invite.js js/friend_pending.js --bundle --target=es2016 --outdir=../priv/static/assets),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]

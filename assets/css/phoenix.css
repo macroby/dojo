@@ -1,12 +1,4 @@
-/* Includes some default style for the starter application.
- * This can be safely deleted to start fresh.
- */
-
-/* Milligram v1.3.0 https://milligram.github.io
- * Copyright (c) 2017 CJ Patoilo Licensed under the MIT license
- */
-
- *,*:after,*:before{
+*,*:after,*:before{
   box-sizing:inherit
 }
 html{
@@ -123,10 +115,6 @@ input[type='email'],input[type='number'],input[type='password'],input[type='sear
   height:3.8rem;
   padding:.6rem 1.0rem;
   width:100%
-}
-input[type='email']:focus,input[type='number']:focus,input[type='password']:focus,input[type='search']:focus,input[type='tel']:focus,input[type='text']:focus,input[type='url']:focus,textarea:focus,select:focus{
-  border-color:#0069d9;
-  outline:0
 }
 select{
   background-image:url('data:image/svg+xml;charset=utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 4 5\'%3E%3Cpath fill=\'%230069d9\' d=\'M2 0L0 2h4zm0 5L0 3h4z\'/%3E%3C/svg%3E');
@@ -442,9 +430,5 @@ header nav a {
   }
   header nav ul {
     margin: 1rem;
-  }
-  .phx-logo {
-    flex-basis: 527px;
-    margin: 2rem 1rem;
   }
 }

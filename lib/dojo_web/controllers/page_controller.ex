@@ -86,7 +86,7 @@ defmodule DojoWeb.PageController do
   def cancel(conn, %{"gameid" => game_id}) do
     with [{pid, _}] <- Registry.lookup(GameRegistry, game_id),
          true <- Game.get_halfmove_clock(pid) < 2 do
-      user_id = Token.verify(conn, "user auth", get_session(conn, :user_token))
+      {_, user_id} = Token.verify(conn, "user auth", get_session(conn, :user_token))
       Dojo.UserTracker.remove_active_user(user_id)
       Game.cancel(pid, game_id)
       DojoWeb.Endpoint.broadcast!("room:" <> game_id, "cancel", %{})
@@ -316,8 +316,6 @@ defmodule DojoWeb.PageController do
                 )
 
               false ->
-                Logger.error("user id: #{user_id}")
-
                 raise "User is not a player in this game #{user_id} -- #{game_state.white_user_id} -- #{game_state.black_user_id}"
             end
 
