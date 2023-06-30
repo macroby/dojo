@@ -121,7 +121,7 @@ defmodule Dojo.Game do
   @impl true
   def init(config = %GameState{}) do
     {_, pid} = :binbo.new_server()
-    :binbo.new_game(pid, "rnbqk3/ppppppPp/8/8/8/8/PPPPPP1P/RNBQKBNR w KQq - 0 1")
+    :binbo.new_game(pid, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
     # :binbo.new_game(pid)
     {_, fen} = :binbo.get_fen(pid)
