@@ -1,17 +1,3 @@
-remove creation of more than one game
-
-look into depedency injection, may be useful for game.ex in the future as complexity increases 
-
 improve the layout of game state struct
 
-redirect active player to their exisiting game after attempts at creating multiple games.
-
-give new session cookie to user when unknown user token is sent.
-
-check is game actually ends when timer runs out
-
-improve lobby game tabs
-
-user should be able to cancel open game by creating a friend game or ai game
-
-issue new user token if invalid token is presented
+user should be able to cancel open game by creating a friend game or ai Game
