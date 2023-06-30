@@ -19,23 +19,23 @@ type model =
         hidden: bool
     }
 
-let init = () => {
+let init = () => ({
     timeAsString: "0.0",
     timeAsMilli: 0,
     stopped: false,
     hidden: false
-}
+}, Tea_cmd.none)
 
 let update = (model: model, msg: msg) => 
     switch msg {
         | DecrementTimeAsMilli(value) => {
             switch model.stopped {
-                | true => model
+                | true => (model, Tea_cmd.none)
                 | false => {
                     let newTimeAsMilli = model.timeAsMilli - value
                     
                     if newTimeAsMilli < 0 {
-                        { timeAsString: "0.0", timeAsMilli: 0, stopped: model.stopped, hidden: model.hidden }
+                        ({ timeAsString: "0.0", timeAsMilli: 0, stopped: model.stopped, hidden: model.hidden }, Tea_cmd.none)
                     } else {
                         let minutes = newTimeAsMilli / 1000 / 60
                         let seconds = mod(newTimeAsMilli / 1000, 60)
@@ -69,14 +69,14 @@ let update = (model: model, msg: msg) =>
                                             }
                                     }   
                             }
-                        { timeAsString: newTimeAsString, timeAsMilli: newTimeAsMilli, stopped: model.stopped, hidden: model.hidden }
+                        ({ timeAsString: newTimeAsString, timeAsMilli: newTimeAsMilli, stopped: model.stopped, hidden: model.hidden }, Tea_cmd.none)
                     }
                 }
             }
         }
         | IncrementTimeAsMilli(value) => {
             switch model.stopped {
-                | true => model
+                | true => (model, Tea_cmd.none)
                 | false => {
                     let newTimeAsMilli = model.timeAsMilli + value
 
@@ -112,13 +112,13 @@ let update = (model: model, msg: msg) =>
                                 }
                                 }
                         }
-                    { ...model, timeAsMilli: newTimeAsMilli, timeAsString: newTimeAsString}
+                    ({ ...model, timeAsMilli: newTimeAsMilli, timeAsString: newTimeAsString}, Tea_cmd.none)
                 }
             }
         }
         | SetTimeAsMilli(value) => {
             switch model.stopped {
-                | true => model
+                | true => (model, Tea_cmd.none)
                 | false => {
                     let newTimeAsMilli = value
 
@@ -154,15 +154,15 @@ let update = (model: model, msg: msg) =>
                                 }
                                 }
                         }
-                    { ...model, timeAsMilli: value, timeAsString: newTimeAsString }
+                    ({ ...model, timeAsMilli: value, timeAsString: newTimeAsString }, Tea_cmd.none)
                 }
             }
         }
         | Stop => {
-            { ...model, stopped: true }
+            ({...model, stopped: true}, Tea_cmd.none)
         }
         | Hide => {
-            { ...model, hidden: true }
+            ({...model, hidden: true}, Tea_cmd.none)
         }
     }
 
@@ -174,8 +174,11 @@ let view = (model: model): Vdom.t<msg> =>
         }
     )
 
-let main = beginnerProgram({
-    model: init (),
+let subscriptions = _ => Tea_sub.none
+
+let main = standardProgram({
+    init: init,
     update: update,
     view: view,
+    subscriptions: subscriptions,
   })

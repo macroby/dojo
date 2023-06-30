@@ -137,6 +137,7 @@ Phoenix.on(channel, "move", payload => {
   %raw(`clientStateObject = JSON.parse(clientStateJson)`)
   %raw(`clientStateObject.fen = payload.fen`)
   %raw(`localStorage.setItem(window.location.pathname, JSON.stringify(clientStateObject))`)
+  %raw(`fen = payload.fen`)
   let orig = %raw(`payload.move.substring(0, 2)`)
   let dest = %raw(`payload.move.substring(2, 4)`)
   Js.log(orig) //trick the compiler
