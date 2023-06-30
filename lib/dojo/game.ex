@@ -91,6 +91,10 @@ defmodule Dojo.Game do
     GenServer.stop(p_name)
   end
 
+  def zero_clock(p_name, winning_color, clock_state) do
+    GenServer.call(p_name, {:zero_clock, winning_color, clock_state})
+  end
+
   #######################
   # Server Implemention #
   #######################
@@ -130,7 +134,7 @@ defmodule Dojo.Game do
 
     {clock_pid, white_time_ms, black_time_ms} =
       with :real_time <- config.time_control do
-        case Dojo.Clock.start_link(%{minutes: config.minutes, increment: config.increment}) do
+        case Dojo.Clock.start_link(%{minutes: config.minutes, increment: config.increment, game_pid: self()}) do
           {:error, reason} -> raise reason
           {:ok, pid} -> {pid, config.minutes * 60 * 1000, config.minutes * 60 * 1000}
         end
@@ -340,6 +344,50 @@ defmodule Dojo.Game do
       end
 
     state = Map.replace(state, :status, status)
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:zero_clock, winning_color, clock_state}, _from, state) do
+    :binbo.set_game_winner(state.board_pid, winning_color, :time)
+
+    state =
+      if state.time_control == :real_time do
+        state = Map.replace(state, :white_time_ms, clock_state.white_time_milli)
+        state = Map.replace(state, :black_time_ms, clock_state.black_time_milli)
+        state
+      else
+        state
+      end
+
+    status =
+      case :binbo.game_status(state.board_pid) do
+        {:ok, status} -> status
+        {:error, reason} -> raise reason
+      end
+
+    state = Map.replace(state, :status, status)
+
+    payload = %{
+      game_id: state.game_id,
+      white_time_ms: state.white_time_ms,
+      black_time_ms: state.black_time_ms,
+      winner: elem(state.status, 1),
+    }
+
+    # Dojo.UserTracker.remove_active_user(state.white_user_id)
+    case state.black_user_id do
+      nil -> nil
+      _ -> Dojo.UserTracker.remove_active_user(state.black_user_id)
+    end
+
+    case state.white_user_id do
+      nil -> nil
+      _ -> Dojo.UserTracker.remove_active_user(state.white_user_id)
+    end
+
+    DojoWeb.Endpoint.broadcast("room:" <> state.game_id , "endData", payload)
+
     {:reply, :ok, state}
   end
 end

@@ -35,7 +35,7 @@ defmodule Dojo.Clock do
   #######################
 
   @impl true
-  def init(%{minutes: minutes, increment: increment}) do
+  def init(%{minutes: minutes, increment: increment, game_pid: game_pid}) do
     white_time_milli = minutes * 60 * 1000
 
     black_time_milli = minutes * 60 * 1000
@@ -48,7 +48,8 @@ defmodule Dojo.Clock do
        white_time_milli: white_time_milli,
        black_time_milli: black_time_milli,
        tref: nil,
-       tick_time: nil
+       tick_time: nil,
+       game_pid: game_pid
      }}
   end
 
@@ -121,6 +122,8 @@ defmodule Dojo.Clock do
         :white ->
           cond do
             state.white_time_milli <= 0 ->
+              :timer.cancel(state.tref)
+              Dojo.Game.zero_clock(state.game_pid, :black, state)
               state
 
             state.white_time_milli > 0 ->
@@ -135,6 +138,8 @@ defmodule Dojo.Clock do
         :black ->
           cond do
             state.black_time_milli <= 0 ->
+              :timer.cancel(state.tref)
+              Dojo.Game.zero_clock(state.game_pid, :white, state)
               state
 
             state.black_time_milli > 0 ->

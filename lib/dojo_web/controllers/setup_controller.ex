@@ -343,6 +343,8 @@ defmodule DojoWeb.SetupController do
 
         minutes =
           case minutes do
+            "1" -> 1
+            "3" -> 3
             "5" -> 5
             "10" -> 10
             "15" -> 15
