@@ -22,7 +22,9 @@
     <header>
       <section class="container">
         <nav role="navigation">
-          <h1 style="padding-top: 15px">shahmat</h1>
+          <h1 style="padding-top: 15px">
+            <a id="title_return" href='/'>shahmat.org</a>
+          </h1>
         </nav>
       </section>
     </header>
@@ -31,6 +33,10 @@
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
       <%= @inner_content %>
     </main>
-
+    <style>
+      a {
+        color: #d9d9d9;
+      }
+    </style>
   </body>
 </html>

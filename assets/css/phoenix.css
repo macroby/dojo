@@ -272,13 +272,6 @@ input[type='checkbox'],input[type='radio']{
       padding:0 1.0rem
   }
 }
-a{
-  color:#0069d9;
-  text-decoration:none
-}
-a:focus,a:hover{
-  color:#606c76
-}
 dl,ol,ul{
   list-style:none;
   margin-top:0;
