@@ -40,10 +40,14 @@ let (clock, opponentClock) = (Clock.main(getElementById("clock"))(()), Clock.mai
 switch color_res {
   | "white" => 
     clock["pushMsg"](SetTimeAsMilli(white_clock_res))
+    clock["pushMsg"](SetTitle("Anon(w)"))
     opponentClock["pushMsg"](SetTimeAsMilli(black_clock_res))
+    opponentClock["pushMsg"](SetTitle("Anon(b)"))
   | "black" => 
     clock["pushMsg"](SetTimeAsMilli(black_clock_res))
+    clock["pushMsg"](SetTitle("Anon(b)"))
     opponentClock["pushMsg"](SetTimeAsMilli(white_clock_res))  
+    opponentClock["pushMsg"](SetTitle("Anon(w)"))
   | _ => failwith("Invalid color")
 }
 

@@ -8,6 +8,7 @@ type msg =
     | DecrementTimeAsMilli(int)
     | IncrementTimeAsMilli(int)
     | SetTimeAsMilli(int)
+    | SetTitle(string)
     | Stop
     | Hide
 
@@ -15,6 +16,7 @@ type model =
     { 
         timeAsString: string,
         timeAsMilli: int,
+        title: string,
         stopped: bool,
         hidden: bool
     }
@@ -22,6 +24,7 @@ type model =
 let init = () => ({
     timeAsString: "0.0",
     timeAsMilli: 0,
+    title: "Anon",
     stopped: false,
     hidden: false
 }, Tea_cmd.none)
@@ -35,7 +38,7 @@ let update = (model: model, msg: msg) =>
                     let newTimeAsMilli = model.timeAsMilli - value
                     
                     if newTimeAsMilli < 0 {
-                        ({ timeAsString: "0.0", timeAsMilli: 0, stopped: model.stopped, hidden: model.hidden }, Tea_cmd.none)
+                        ({ timeAsString: "0.0", timeAsMilli: 0, stopped: model.stopped, hidden: model.hidden, title: model.title }, Tea_cmd.none)
                     } else {
                         let minutes = newTimeAsMilli / 1000 / 60
                         let seconds = mod(newTimeAsMilli / 1000, 60)
@@ -69,7 +72,7 @@ let update = (model: model, msg: msg) =>
                                             }
                                     }   
                             }
-                        ({ timeAsString: newTimeAsString, timeAsMilli: newTimeAsMilli, stopped: model.stopped, hidden: model.hidden }, Tea_cmd.none)
+                        ({ timeAsString: newTimeAsString, timeAsMilli: newTimeAsMilli, stopped: model.stopped, hidden: model.hidden, title: model.title }, Tea_cmd.none)
                     }
                 }
             }
@@ -158,6 +161,9 @@ let update = (model: model, msg: msg) =>
                 }
             }
         }
+        | SetTitle(value) => {
+            ({ ...model, title: value }, Tea_cmd.none)
+        }
         | Stop => {
             ({...model, stopped: true}, Tea_cmd.none)
         }
@@ -170,7 +176,7 @@ let view = (model: model): Vdom.t<msg> =>
     div(
         list{},
         list{
-            model.hidden == false ? text(model.timeAsString) : noNode
+            model.hidden == false ? text(model.title ++ ": " ++model.timeAsString) : noNode
         }
     )
 

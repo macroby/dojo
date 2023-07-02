@@ -1,10 +1,9 @@
-
-  <div id="clock"></div>
-  <div id="opponent_clock"></div>
-  <div id="promotion_prompt"></div>
-  <div id="resign"></div>
-  <div id="result"></div>
-  <div id="chessground"></div>
+<div id="result"></div>
+<div id="clock"></div>
+<div id="opponent_clock"></div>
+<div id="promotion_prompt"></div>
+<div id="chessground"></div>
+<div id="resign"></div>
 
   <!-- The list of messages will appear here: -->
   <!--<ul id='msg-list'> </ul>
@@ -54,18 +53,29 @@
 </style>
 
 <style>
-        #waiting_for_opponent {
-            display: none;
-        }
+  #waiting_for_opponent {
+    display: none;
+  }
 
-        #chessground {
-            width: 500px;
-            height: 500px;
-        }
+  #clock {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 20px;
+  }
 
-        cg-board {
-            background-color: #bfcfdd;
-        }
+  #opponent_clock {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  #chessground {
+    width: 500px;
+    height: 500px;
+  }
+
+  cg-board {
+    background-color: #bfcfdd;
+  }
 </style>
 
 <script>
