@@ -246,7 +246,8 @@ defmodule DojoWeb.PageController do
               white_clock: white_time_ms,
               black_clock: black_time_ms,
               user_token: user_token,
-              game_status: game_status
+              game_status: game_status,
+              time_control: game_state.time_control
             )
 
           false ->
@@ -312,7 +313,8 @@ defmodule DojoWeb.PageController do
                   white_clock: white_time_ms,
                   black_clock: black_time_ms,
                   user_token: user_token,
-                  game_status: game_status
+                  game_status: game_status,
+                  time_control: game_state.time_control
                 )
 
               false ->
