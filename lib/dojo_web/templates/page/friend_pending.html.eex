@@ -1,8 +1,7 @@
 <br>
 Give the following link to your friend:
 <br>
-<div id="invite_link">
-</div>
+https://shahmat.org/<%= @game_id %>
 <br>
 Once your friend accepts the invite, the game will load automatically.
 <br>

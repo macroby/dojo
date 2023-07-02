@@ -13,7 +13,3 @@ channel.on('invite_accepted', function (payload) { // listen to the 'shout' even
 // channel.on('cancel', function (payload) { // listen to the 'shout' event
 //   location.reload(); 
 // });
-
-var invite_link_element = document.getElementById("invite_link");
-var invite_link = window.location.href;
-invite_link_element.innerHTML = invite_link;
