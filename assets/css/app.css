@@ -52,11 +52,6 @@ body {
   display: none;
 }
 
-#title_return {
-  color: #d9d9d9;
-  text-decoration: none;
-}
-
 /* home page css */
 #createGameBtn {
   height:100%;
