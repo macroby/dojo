@@ -1,4 +1,12 @@
-pending
+<br>
+Give the following link to your friend:
+<br>
+<div id="invite_link">
+</div>
+<br>
+Once your friend accepts the invite, the game will load automatically.
+<br>
+<br>
 <div id="cancel_invite">
     <form action="<%= @game_id %>/cancel" method="post">
         <input type="submit" value="Cancel">
