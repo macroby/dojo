@@ -15,7 +15,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>shahmat.org</title>
-    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/assets/room.css") %>"/>
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/assets/Room.bs.css") %>"/>
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/assets/Room.bs.js") %>"></script>
 
   </head>
