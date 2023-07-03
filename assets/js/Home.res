@@ -36,48 +36,11 @@ Phoenix.on(channel, "new_game", payload => {
         %raw(`game_list.add_game(new_open_game)`)
     }
 })
-// %%raw(`
-// userChannel.on('redirect', function (payload) {
-//   location.href = payload.game_id;
-// } );
-
-// channel.on('closed_game', function (payload) {
-//   game_list.remove_game(payload.game_id);
-// });
-
-// channel.on('new_game', function (payload) {
-//   if (payload.game_creator_id !== user_id) {
-//     var new_open_game = 
-//       {
-//         game_id: payload.game_id, 
-//         game_creator_id: payload.game_creator_id, 
-//         minutes: payload.minutes, 
-//         increment: payload.increment
-//       };
-//     game_list.add_game(new_open_game);
-//   }
-// });
-// `)
 
 Phoenix.joinChannel(userChannel)
 Phoenix.joinChannel(channel)
 
 %%raw(`
-// let ul = document.getElementById('msg-list');        // list of messages.
-// let name = document.getElementById('name');          // name of message sender
-// let msg = document.getElementById('msg');            // message input field
-
-// // "listen" for the [Enter] keypress event to send a message:
-// msg.addEventListener('keypress', function (event) {
-//   if (event.keyCode == 13 && msg.value.length > 0) { // don't sent empty msg.
-//     channel.push('shout', { // send the message to the server on "shout" channel
-//       name: sanitise(name.value) || "guest",     // get value of "name" of person sending the message
-//       message: sanitise(msg.value)    // get message text (value) from msg input field.
-//     });
-//     msg.value = '';         // reset the message input field for next message.
-//   }
-// });
-
 // see: https://stackoverflow.com/a/33193668/1148249
 let scrollingElement = (document.scrollingElement || document.body)
 function scrollToBottom () {
@@ -102,7 +65,9 @@ function sanitise(str) {
   const reg = /[&<>"'/]/ig;
   return str.replace(reg, (match)=>(map[match]));
 }
+`)
 
+%%raw(`
 // Get the modal
 let createGameModal = document.getElementById("createGameModal");
 let playWithFriendModal = document.getElementById("playWithFriendModal");
@@ -312,3 +277,29 @@ function handle_create_game_form(form, button_id) {
   });
 }
 `)
+
+open Tea.App
+
+open Tea.Html
+
+type msg = 
+  | ClosedGame
+  | NewGame
+  | Redirect
+
+type open_games = {}
+
+type model = 
+  { 
+    user_token: string,
+    csrf_token: string,
+    user_id: string,
+    open_games: open_games
+  }
+
+let init = () => ({
+  user_token: %raw(`user_token`),
+  csrf_token: %raw(`csrf_token`),
+  user_id: %raw(`user_id`),
+  open_games: %raw(`open_games_tea`)
+})

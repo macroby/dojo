@@ -6,5 +6,7 @@ export DB_NAME=dojo_dev
 export DB_HOST=localhost
 export URL_HOST=localhost
 export STOCKFISH_PATH=$(find /home -name stockfish_15.1_x64_bmi2 -print -quit)
-MIX_ENV=prod mix phx.server 
+git add .
+git commit -m "deploy script changes, work on home res"
+# MIX_ENV=dev mix phx.server 
 # MIX_ENV=prod elixir --erl "-detached" -S mix phx.server
