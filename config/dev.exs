@@ -3,10 +3,10 @@ use Mix.Config
 # Configure your database
 config :dojo, Dojo.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: Map.fetch!(System.get_env(), "DB_USER"),
-  password: Map.fetch!(System.get_env(), "DB_PASS"),
-  database: Map.fetch!(System.get_env(), "DB_NAME"),
-  hostname: Map.fetch!(System.get_env(), "DB_HOST"),
+  username: "postgres",
+  password: "postgres",
+  database: "dojo_dev",
+  hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
@@ -17,8 +17,8 @@ config :dojo, Dojo.Repo,
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :dojo, DojoWeb.Endpoint,
-  http: [port: {:system, "PORT"}],
-  url: [host: {:system, "URL_HOST"}],
+  http: [port: 9000],
+  url: [host: "localhost"],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

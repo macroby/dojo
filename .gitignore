@@ -35,8 +35,6 @@ npm-debug.log
 /cover
 /docs
 
-deploy.sh
-
 # avoid adding data to .git
 production.dump
 package-lock.json
