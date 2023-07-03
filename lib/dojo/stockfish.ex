@@ -43,7 +43,7 @@ defmodule Dojo.Stockfish do
 
   def init(config) do
     {:ok, pid} = :binbo.new_server()
-    :binbo.new_uci_game(pid, %{engine_path: Map.fetch!(System.get_env(), "STOCKFISH_PATH")})
+    :binbo.new_uci_game(pid, %{engine_path: Map.fetch!(System.get_env(), "PWD") <> "/stockfish_15.1_x64_bmi2"})
 
     {:ok, %{inner_pid: pid, id: config.id}}
   end
