@@ -1,3 +1,111 @@
+open Tea.App
+
+open Tea.Html
+
+type msg = 
+  | CreateGame
+  | PlayWithFriend
+  | PlayWithComputer
+
+type open_game = 
+  {
+    "game_id": string,
+    "game_creator_id": string,
+    "minutes": string,
+    "increment": string
+  }
+
+type model = 
+  { 
+    user_token: string,
+    csrf_token: string,
+    user_id: string,
+    open_games: Belt.Array.t<open_game>
+  }
+
+let init = () => ({
+  user_token: %raw(`user_token`),
+  csrf_token: %raw(`csrf_token`),
+  user_id: %raw(`user_id`),
+  open_games: %raw(`open_games_tea`)
+})
+
+let update = (model: model, msg: msg) =>
+    switch msg {
+        | CreateGame => model
+        | PlayWithFriend => model
+        | PlayWithComputer => model
+    }
+
+let openGameButtons = (model: model) => { 
+  let openGameList = model.open_games -> Belt.Array.map(open_game => {
+    tr(
+      list{Attributes.class("game")}, 
+      list{
+        th(list{}, list{text("Anon")}),
+        th(list{}, list{text("")}),
+        open_game["minutes"] == "inf" ? th(list{}, list{text("∞")}) : th(list{}, list{text(open_game["minutes"] ++ " | " ++ open_game["increment"])}),
+      })
+  })
+  Belt.List.fromArray(openGameList)
+}
+
+let view = (model: model): Vdom.t<msg> =>
+    div(list{}, list{
+      div(
+        list{},
+        list{
+          button(
+            list{Attributes.id("createGameBtn")},
+            list{text("Create Game")}
+          ),
+          button(
+            list{Attributes.id("playWithFriendBtn")},
+            list{text("Play With Friend")}
+          ),
+          button(
+            list{Attributes.id("playWithComputerBtn")},
+            list{text("Play With Computer")}
+          )
+        }
+      ),
+      span(
+        list{Attributes.id("game_list")},
+        list{ 
+          table(
+            list{},
+            list{
+              thead(
+                list{}, 
+                list{
+                  tr(
+                    list{}, 
+                    list{
+                      th(list{}, list{text("Player")}),
+                      th(list{}, list{text("Rating")}),
+                      th(list{}, list{text("Time")}),
+                  })
+              }),
+              tbody(
+                list{}, 
+                openGameButtons(model)
+              )
+            })
+        }  
+      ) 
+    })
+    
+
+let main = beginnerProgram({
+    model: init (),
+    update: update,
+    view: view,
+  })
+
+@scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
+
+let homeTea = main(getElementById("home_tea"))(())
+
 %%raw(`
 import "../css/phoenix.css"
 import "../css/app.css"
@@ -278,28 +386,3 @@ function handle_create_game_form(form, button_id) {
 }
 `)
 
-open Tea.App
-
-open Tea.Html
-
-type msg = 
-  | ClosedGame
-  | NewGame
-  | Redirect
-
-type open_games = {}
-
-type model = 
-  { 
-    user_token: string,
-    csrf_token: string,
-    user_id: string,
-    open_games: open_games
-  }
-
-let init = () => ({
-  user_token: %raw(`user_token`),
-  csrf_token: %raw(`csrf_token`),
-  user_id: %raw(`user_id`),
-  open_games: %raw(`open_games_tea`)
-})
