@@ -115,13 +115,14 @@ let roomID = %raw(`window.location.pathname`)
 let channel = Phoenix.newChannel(socket, "room:" ++ Js.String.replace("/", "", roomID), {})
 Phoenix.joinChannel(channel)
 
-Phoenix.on(channel, "start_ping", payload => {
-  Phoenix.push(channel, "ping")
-})
+// Phoenix.on(channel, "start_ping", payload => {
+//   Phoenix.push(channel, "ping")
+// })
 
-Phoenix.on(channel, "pong", payload => {
-  Js.Global.setTimeout(() => Phoenix.push(channel, "ping"), 2500)
-})
+// TODO: get ping pong working again
+// Phoenix.on(channel, "pong", payload => {
+//   Js.Global.setTimeout(() => Phoenix.push(channel, "ping", %raw(`{}`)), 2500)
+// })
 
 Phoenix.on(channel, "ack", payload => {
   ()

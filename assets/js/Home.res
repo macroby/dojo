@@ -1,11 +1,16 @@
+%%raw(`
+import "../css/phoenix.css"
+import "../css/app.css"
+import "phoenix_html"
+`)
+
 open Tea.App
 
 open Tea.Html
 
-type msg = 
-  | CreateGame
-  | PlayWithFriend
-  | PlayWithComputer
+@scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
+
+type game_id = string
 
 type open_game = 
   {
@@ -15,6 +20,15 @@ type open_game =
     "increment": string
   }
 
+type msg = 
+  | CreateGame
+  | PlayWithFriend
+  | PlayWithComputer
+  | AcceptOpenGame(game_id)
+  | CancelUserGame(game_id)
+  | ClosedGameChannelMessage(game_id)
+  | NewOpenGameChannelMessage(open_game)
+
 type model = 
   { 
     user_token: string,
@@ -23,52 +37,99 @@ type model =
     open_games: Belt.Array.t<open_game>
   }
 
-let init = () => ({
+let user_token_res: string = %raw(`user_token`)
+
+let userIdRes: string = %raw(`user_id`)
+
+let socket = Phoenix.newSocket("/user_socket", {token: user_token_res})
+
+Phoenix.connect(socket)
+
+let userChannel = Phoenix.newChannel(socket, "home:" ++ userIdRes, {})
+let channel = Phoenix.newChannel(socket, "home:lobby", {})
+
+let init = () => (({
   user_token: %raw(`user_token`),
   csrf_token: %raw(`csrf_token`),
   user_id: %raw(`user_id`),
-  open_games: %raw(`open_games_tea`)
-})
+  open_games: %raw(`open_games`)
+}, Tea_cmd.none))
 
 let update = (model: model, msg: msg) =>
-    switch msg {
-        | CreateGame => model
-        | PlayWithFriend => model
-        | PlayWithComputer => model
+  switch msg {
+    | CreateGame => (model, Tea_cmd.none)
+    | PlayWithFriend => (model, Tea_cmd.none)
+    | PlayWithComputer => (model, Tea_cmd.none)
+    | AcceptOpenGame(game_id) => {
+      Phoenix.push(userChannel, "accept", {"game_id": game_id}) -> ignore
+      (model, Tea_cmd.none)
     }
+    | CancelUserGame(game_id) => {
+      Phoenix.push(userChannel, "cancel", {"game_id": game_id}) -> ignore
+      (model, Tea_cmd.none)
+    }
+    | ClosedGameChannelMessage(game_id) => {
+      let open_games = model.open_games -> Belt.Array.keep(open_game => open_game["game_id"] != game_id)
+      ({...model, open_games}, Tea_cmd.none)
+    }
+    | NewOpenGameChannelMessage(open_game) => {
+      let open_games = Belt.Array.concat(model.open_games, [open_game])
+      ({...model, open_games}, Tea_cmd.none)
+    }
+  }
 
 let openGameButtons = (model: model) => { 
+  let userGame: ref<option<open_game>> = ref(None)
   let openGameList = model.open_games -> Belt.Array.map(open_game => {
-    tr(
-      list{Attributes.class("game")}, 
-      list{
-        th(list{}, list{text("Anon")}),
-        th(list{}, list{text("")}),
-        open_game["minutes"] == "inf" ? th(list{}, list{text("∞")}) : th(list{}, list{text(open_game["minutes"] ++ " | " ++ open_game["increment"])}),
-      })
+    if open_game["game_creator_id"] == model.user_id {
+      userGame.contents = Some(open_game)
+      noNode
+    } else {
+      tr(
+        list{Attributes.class("game"), Events.onClick(AcceptOpenGame(open_game["game_id"]))}, 
+        list{
+          th(list{}, list{text("Anon")}),
+          th(list{}, list{text("")}),
+          open_game["minutes"] == "inf" ? th(list{}, list{text("∞")}) : th(list{}, list{text(open_game["minutes"] ++ " | " ++ open_game["increment"])}),
+        })
+    }
   })
+  
+  let userGameButton = switch userGame.contents {
+    | None => noNode
+    | Some(open_game) => 
+        tr(
+          list{Attributes.class("user_game_tea"), Events.onClick(CancelUserGame(open_game["game_id"]))}, 
+          list{
+            th(list{}, list{text("You")}),
+            th(list{}, list{text("")}),
+            open_game["minutes"] == "inf" ? th(list{}, list{text("∞")}) : th(list{}, list{text(open_game["minutes"] ++ " | " ++ open_game["increment"])}),
+          })
+  }
+
+  let openGameList = Belt.Array.concat([userGameButton], openGameList)
   Belt.List.fromArray(openGameList)
 }
 
 let view = (model: model): Vdom.t<msg> =>
     div(list{}, list{
-      div(
-        list{},
-        list{
-          button(
-            list{Attributes.id("createGameBtn")},
-            list{text("Create Game")}
-          ),
-          button(
-            list{Attributes.id("playWithFriendBtn")},
-            list{text("Play With Friend")}
-          ),
-          button(
-            list{Attributes.id("playWithComputerBtn")},
-            list{text("Play With Computer")}
-          )
-        }
-      ),
+      // div(
+      //   list{},
+      //   list{
+      //     button(
+      //       list{Attributes.id("createGameBtn")},
+      //       list{text("Create Game")}
+      //     ),
+      //     button(
+      //       list{Attributes.id("playWithFriendBtn")},
+      //       list{text("Play With Friend")}
+      //     ),
+      //     button(
+      //       list{Attributes.id("playWithComputerBtn")},
+      //       list{text("Play With Computer")}
+      //     )
+      //   }
+      // ),
       span(
         list{Attributes.id("game_list")},
         list{ 
@@ -94,42 +155,26 @@ let view = (model: model): Vdom.t<msg> =>
         }  
       ) 
     })
-    
 
-let main = beginnerProgram({
-    model: init (),
-    update: update,
-    view: view,
-  })
+let subscriptions: model => Tea_sub.t<'b> = _model => {
+  Tea_sub.none
+}
 
-@scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
+let main = standardProgram({
+  init: init,
+  update: update,
+  view: view,
+  subscriptions: subscriptions
+})
 
 let homeTea = main(getElementById("home_tea"))(())
-
-%%raw(`
-import "../css/phoenix.css"
-import "../css/app.css"
-
-import GameList from "./game_list"
-import "phoenix_html"
-`)
-
-let user_token_res: string = %raw(`user_token`)
-
-let socket = Phoenix.newSocket("/user_socket", {token: user_token_res})
-
-Phoenix.connect(socket)
-
-let userIdRes: string = %raw(`user_id`)
-let userChannel = Phoenix.newChannel(socket, "home:" ++ userIdRes, {})
-let channel = Phoenix.newChannel(socket, "home:lobby", {})
 
 Phoenix.on(userChannel, "redirect", payload => {
     %raw(`location.href = payload.game_id`)
 })
 
 Phoenix.on(channel, "closed_game", payload => {
-    %raw(`game_list.remove_game(payload.game_id)`)
+    homeTea["pushMsg"](ClosedGameChannelMessage(payload["game_id"]))
 })
 
 Phoenix.on(channel, "new_game", payload => {
@@ -140,40 +185,19 @@ Phoenix.on(channel, "new_game", payload => {
             "minutes": payload["minutes"],
             "increment": payload["increment"]
         }
-        Js.log(new_open_game)
-        %raw(`game_list.add_game(new_open_game)`)
+        homeTea["pushMsg"](NewOpenGameChannelMessage(new_open_game))
+    } else {
+      homeTea["pushMsg"](NewOpenGameChannelMessage({
+        "game_id": payload["game_id"],
+        "game_creator_id": payload["game_creator_id"],
+        "minutes": payload["minutes"],
+        "increment": payload["increment"]
+      }))
     }
 })
 
 Phoenix.joinChannel(userChannel)
 Phoenix.joinChannel(channel)
-
-%%raw(`
-// see: https://stackoverflow.com/a/33193668/1148249
-let scrollingElement = (document.scrollingElement || document.body)
-function scrollToBottom () {
-  scrollingElement.scrollTop = scrollingElement.scrollHeight;
-}
-
-/**
- * sanitise input to avoid XSS see: https://git.io/fjpGZ
- * function borrowed from: https://stackoverflow.com/a/48226843/1148249
- * @param {string} str - the text to be sanitised.
- * @return {string} str - the santised text
- */
-function sanitise(str) {
-  const map = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#x27;',
-      "/": '&#x2F;',
-  };
-  const reg = /[&<>"'/]/ig;
-  return str.replace(reg, (match)=>(map[match]));
-}
-`)
 
 %%raw(`
 // Get the modal
@@ -294,37 +318,6 @@ random_submit_button.addEventListener('click', function(event) {
   handle_create_game_form(this.form, "create-game-as-random-submit-button");
 });
 
-
-// GAME LIST
-let game_list = new GameList(document.getElementById('game_list'));
-
-let open_games_list = [];
-let game_list_open_user_game = null;
-let game_list_open_game = null;
-
-for (var open_game of open_games.values()) {
-  open_game = Object.values(open_game);
-  if (user_id !== open_game[0]) {
-    game_list_open_game = {game_id: open_game[1], game_creator_id: open_game[0], minutes: open_game[2], increment: open_game[3]};
-    open_games_list.push(game_list_open_game);
-  } else {
-    game_list_open_user_game = {game_id: open_game[1], game_creator_id: open_game[0], minutes: open_game[2], increment: open_game[3]};
-  }
-}
-game_list.set_user_game_onclick(function(game_id) {
-  userChannel.push("cancel", {game_id: game_id})
-});
-
-game_list.set_game_onclick(function(game_id) {
-  userChannel.push("accept", {game_id: game_id})
-});
-
-game_list.add_games(open_games_list);
-if (game_list_open_user_game !== null) {
-  game_list.set_user_game(game_list_open_user_game);
-  game_list.show_user_game();
-}
-
 ///
 
 function handle_create_game_form(form, button_id) {
@@ -372,8 +365,6 @@ function handle_create_game_form(form, button_id) {
           increment: kv.get("increment"), 
           game_id: response.headers.get("game_id")
         };
-        game_list.set_user_game(user_game);
-        game_list.show_user_game();
         createGameModal.style.display = "none";
       }
     } else {
@@ -385,4 +376,3 @@ function handle_create_game_form(form, button_id) {
   });
 }
 `)
-

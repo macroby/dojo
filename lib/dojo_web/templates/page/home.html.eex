@@ -201,21 +201,6 @@
 
 </div>
 
-<span id="game_list">
-  <table id="">
-  <thead>
-    <tr>
-      <th>Player</th>
-      <th>Rating</th>
-      <th>Time</th>
-    </tr>
-  </thead>
-    <tbody>
-      <tr class="user_game"><td>anon</td><td></td><td>5+3</td></tr>
-    </tbody>
-  </table>
-</span>
-
 <div id="home_tea"></div>
 
 <script>
@@ -223,5 +208,5 @@
   const csrf_token = '<%= @csrf_token %>'
   const user_id = '<%= @user_id %>'
   var open_games = new Map(Object.entries(<%= raw @open_games %>));
-  var open_games_tea = Array.from(open_games.values());
+  open_games = Array.from(open_games.values());
 </script>

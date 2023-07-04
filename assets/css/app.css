@@ -159,6 +159,30 @@ select {
   display: none;
 }
 
+.user_game_tea {
+  background: #3e5322;
+}
+
+.user_game_tea:hover {
+  background-color:#ad251c;
+  border-color:#606c76;
+  color:#d9d9d9;
+  outline:0;
+}
+
+.user_game_tea td {
+  border-bottom:0.1rem solid #e1e1e1;
+  padding:1.2rem 1.5rem;
+  text-align:left;
+  padding-left: 5px;
+}
+
+.user_game_tea th {
+  border-bottom:0.1rem solid #e1e1e1;
+  padding:1.2rem 1.5rem;
+  text-align:left
+}
+
 .user_game:hover {
   background-color:#ad251c;
   border-color:#606c76;

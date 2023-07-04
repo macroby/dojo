@@ -26,6 +26,6 @@ let on = (channel: channel, message: string, callback: 'a) => {
   %raw(`channel.on(message, callback)`)
 }
 
-let push = (channel: channel, message: string) => {
-  %raw(`channel.push(message, {})`)
+let push = (channel: channel, message: string, payload: 'a) => {
+  %raw(`channel.push(message, payload)`)
 }
