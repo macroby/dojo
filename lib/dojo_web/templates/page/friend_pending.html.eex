@@ -1,8 +1,14 @@
 <br>
 Give the following link to your friend:
 <br>
-https://shahmat.org/<%= @game_id %>
 <br>
+<!-- The text field -->
+<div class=flex-parent-element>
+<input type="text" value="https://shahmat.org/<%= @game_id %>" class="flex-child-element" id="myInput">
+
+<!-- The button used to copy the text -->
+<button onclick="myFunction()" class="flex-child-element">Copy link</button>
+</div>
 Once your friend accepts the invite, the game will load automatically.
 <br>
 <br>
@@ -14,4 +20,16 @@ Once your friend accepts the invite, the game will load automatically.
 
 <script>
     var user_token = "<%= @user_token %>";
+
+    function myFunction() {
+        // Get the text field
+        var copyText = document.getElementById("myInput");
+
+        // Select the text field
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+
+        // Copy the text inside the text field
+        navigator.clipboard.writeText(copyText.value);
+}
 </script>
