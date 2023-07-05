@@ -7,7 +7,7 @@ Give the following link to your friend:
 <input type="text" value="https://shahmat.org/<%= @game_id %>" class="flex-child-element" id="myInput">
 
 <!-- The button used to copy the text -->
-<button onclick="myFunction()" class="flex-child-element">Copy link</button>
+<button onclick="copyLinkFunction()" class="flex-child-element">Copy link</button>
 </div>
 Once your friend accepts the invite, the game will load automatically.
 <br>
@@ -21,7 +21,7 @@ Once your friend accepts the invite, the game will load automatically.
 <script>
     var user_token = "<%= @user_token %>";
 
-    function myFunction() {
+    function copyLinkFunction() {
         // Get the text field
         var copyText = document.getElementById("myInput");
 
