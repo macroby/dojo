@@ -104,6 +104,7 @@ input {
   border-top: 1px solid #888888;
   border-bottom: 1px solid #888888;
   text-align: left;
+  padding:0rem 0.5rem;
 }
 
 select {
@@ -162,14 +163,14 @@ select {
 
 .game td {
   border-bottom:0.1rem solid #e1e1e1;
-  padding:1.2rem 1.5rem;
+  padding:1.2rem 0rem;
   text-align:left;
   padding-left: 5px;
 }
 
 .game th {
   border-bottom:0.1rem solid #e1e1e1;
-  padding:1.2rem 1.5rem;
+  padding:1.2rem 0.5rem;
   text-align:left
 }
 
@@ -186,14 +187,14 @@ select {
 
 .user_game_tea td {
   border-bottom:0.1rem solid #e1e1e1;
-  padding:1.2rem 1.5rem;
+  padding:1.2rem 0rem;
   text-align:left;
   padding-left: 5px;
 }
 
 .user_game_tea th {
   border-bottom:0.1rem solid #e1e1e1;
-  padding:1.2rem 1.5rem;
+  padding:1.2rem 0.5rem;
   text-align:left
 }
 
@@ -206,13 +207,13 @@ select {
 
 .user_game td {
   border-bottom:0.1rem solid #e1e1e1;
-  padding:1.2rem 1.5rem;
+  padding:1.2rem 0rem;
   text-align:left;
   padding-left: 5px;
 }
 
 .user_game th {
   border-bottom:0.1rem solid #e1e1e1;
-  padding:1.2rem 1.5rem;
+  padding:1.2rem 0rem;
   text-align:left
 }
