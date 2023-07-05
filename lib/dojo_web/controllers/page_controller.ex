@@ -30,10 +30,19 @@ defmodule DojoWeb.PageController do
         user_token ->
           csrf_token = conn.cookies["_csrf_token"]
 
-          user_id =
+          {user_id, conn} =
             case Token.verify(conn, "user auth", user_token) do
-              {:ok, user_id} -> user_id
-              _ -> raise "invalid user token"
+              {:ok, user_id} -> {user_id, conn}
+              _ ->
+                user_id = UUID.string_to_binary!(UUID.uuid1())
+                user_id = Base.url_encode64(user_id, padding: false)
+
+                token = Token.sign(conn, "user auth", user_id)
+                conn = put_session(conn, :user_token, token)
+
+                csrf_token = get_csrf_token()
+                conn = put_resp_cookie(conn, "_csrf_token", csrf_token, http_only: false)
+                {user_id, conn}
             end
 
           {user_token, csrf_token, conn, user_id}

@@ -217,3 +217,22 @@ select {
   padding:1.2rem 0rem;
   text-align:left
 }
+
+.column-left {
+  float: left;
+  width: 75%;
+  padding: 0rem 1rem;
+}
+
+.column-right {
+  float: left;
+  width: 25%;
+}
+
+.container{
+  margin: 0 auto;
+  max-width: 100%;
+  padding: 0 2.0rem;
+  position: relative;
+  width: 100%
+}

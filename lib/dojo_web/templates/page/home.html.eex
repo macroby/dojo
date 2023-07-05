@@ -1,5 +1,4 @@
-<!-- Trigger/Open The Modal -->
-<button id="createGameBtn">CREATE A GAME</button>
+
 
 <!-- The Modal -->
 <div id="createGameModal" class="modal">
@@ -62,9 +61,6 @@
   </div>
 </div>
 
-<!-- Trigger/Open The Modal -->
-<button id="playWithFriendBtn">PLAY WITH A FRIEND</button>
-
 <!-- The Modal -->
 <div id="playWithFriendModal" class="modal">
   <!-- Modal content -->
@@ -122,9 +118,6 @@
   </div>
 
 </div>
-
-<!-- Trigger/Open The Modal -->
-<button id="playWithComputerBtn">PLAY WITH THE COMPUTER</button>
 
 <!-- The Modal -->
 <div id="playWithComputerModal" class="modal">
@@ -201,7 +194,16 @@
 
 </div>
 
-<div id="home_tea"></div>
+<div>
+  <div class="column-left">
+    <div id="home_tea"></div>
+  </div>
+  <div class="column-right">
+    <button id="createGameBtn">CREATE A GAME</button>
+    <button id="playWithFriendBtn">PLAY WITH A FRIEND</button>
+    <button id="playWithComputerBtn">PLAY WITH THE COMPUTER</button>
+  </div>
+</div>
 
 <script>
   const user_token = '<%= @user_token %>'
