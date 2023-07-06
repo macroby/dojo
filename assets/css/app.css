@@ -231,7 +231,7 @@ select {
 
 .container{
   margin: 0 auto;
-  max-width: 100%;
+  max-width: 80%;
   padding: 0 2.0rem;
   position: relative;
   width: 100%
