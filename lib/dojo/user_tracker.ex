@@ -4,7 +4,7 @@ defmodule Dojo.UserTracker do
   require Logger
 
   alias Dojo.UserTrackerState
-  alias Dojo.ActiveUserState
+  alias Dojo.ActiveUser
 
   #######
   # API #
@@ -44,7 +44,7 @@ defmodule Dojo.UserTracker do
   end
 
   def handle_call({:add_active_user, user_id, game_pid}, _from, state) do
-    active_users = Map.put(state.active_users, user_id, %ActiveUserState{game_pid: game_pid})
+    active_users = Map.put(state.active_users, user_id, %ActiveUser{game_pid: game_pid})
     state = %{state | active_users: active_users}
 
     {:reply, :ok, state}

@@ -113,7 +113,7 @@ defmodule DojoWeb.SetupController do
             }
 
             pid =
-              GameFactory.create_game(game_init_state)
+              Dojo.Game.create_game(game_init_state)
               |> case do
                 {nil, error} -> raise error
                 pid -> pid
@@ -253,7 +253,7 @@ defmodule DojoWeb.SetupController do
             }
 
             pid =
-              GameFactory.create_game(game_init_state)
+              Dojo.Game.create_game(game_init_state)
               |> case do
                 {nil, error} -> raise error
                 pid -> pid
@@ -398,7 +398,7 @@ defmodule DojoWeb.SetupController do
 
           false ->
             pid =
-              GameFactory.create_game(game_init_state)
+              Dojo.Game.create_game(game_init_state)
               |> case do
                 {nil, error} -> raise error
                 pid -> pid

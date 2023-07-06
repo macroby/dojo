@@ -95,6 +95,11 @@ defmodule Dojo.Game do
     GenServer.call(p_name, {:zero_clock, winning_color, clock_state})
   end
 
+  def create_game(game = %GameState{}) do
+    pid = Dojo.GameSupervisor.start_game(game)
+    pid
+  end
+
   #######################
   # Server Implemention #
   #######################
