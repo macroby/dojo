@@ -30,6 +30,11 @@ defmodule Dojo.Clock do
     GenServer.call(clock_pid, :add_increment)
   end
 
+  def stop_server(p_name) do
+    GenServer.stop(p_name)
+  end
+
+
   #######################
   # Server Implemention #
   #######################

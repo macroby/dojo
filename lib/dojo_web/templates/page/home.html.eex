@@ -195,13 +195,13 @@
 </div>
 
 <div>
-  <div class="column-left">
-    <div id="home_tea"></div>
-  </div>
-  <div class="column-right">
+  <div class="column-sidebar">
     <button id="createGameBtn">CREATE A GAME</button>
     <button id="playWithFriendBtn">PLAY WITH A FRIEND</button>
     <button id="playWithComputerBtn">PLAY WITH THE COMPUTER</button>
+  </div>
+  <div class="column-lobby">
+    <div id="home_tea"></div>
   </div>
 </div>
 

@@ -4,6 +4,8 @@
 <div id="promotion_prompt"></div>
 <div id="chessground"></div>
 <div id="resign"></div>
+<br>
+<div id="room-tea"></div>
 
 <style>
   .container{

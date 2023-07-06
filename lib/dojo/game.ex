@@ -233,7 +233,8 @@ defmodule Dojo.Game do
           if game_status == :continue do
             state
           else
-            # TODO: Dojo.Clock.stop_clock(state.clock_pid)
+            Dojo.Clock.stop_clock(state.clock_pid)
+            Dojo.Clock.stop_server(state.clock_pid)
             Map.replace(state, :status, game_status)
           end
 

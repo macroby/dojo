@@ -188,16 +188,6 @@ Phoenix.on(channel, "move", payload => {
   %raw(`ground.playPremove()`)
 })
 
-%%raw(`
-// channel.on('shout', function (payload) { // listen to the 'shout' event
-//   let li = document.createElement("li"); // create new list item DOM element
-//   let name = payload.name || 'guest';    // get name from payload or set default
-//   li.innerHTML = '<b>' + name + '</b>: ' + payload.message; // set li contents
-//   ul.appendChild(li);                    // append to list
-//   scrollToBottom();
-// });
-`)
-
 //
 // Clock UI Config and Timekeeping Functionality
 //
@@ -251,33 +241,6 @@ let startClock = () => {
   expected -> ignore
   %raw(`setTimeout(updateClock, 50, Date.now() + 50)`)
 }
-
-// %%raw(`
-// //
-// // Chat Update and Client-Side Event Handlers
-// //
-
-// // let ul = document.getElementById('msg-list');        // list of messages.
-// // let name = document.getElementById('name');          // name of message sender
-// // let msg = document.getElementById('msg');            // message input field
-
-// // // "listen" for the [Enter] keypress event to send a message:
-// // msg.addEventListener('keypress', function (event) {
-// //   if (event.keyCode == 13 && msg.value.length > 0) { // don't sent empty msg.
-// //     channel.push('shout', { // send the message to the server on "shout" channel
-// //       name: sanitise(name.value) || "guest",     // get value of "name" of person sending the message
-// //       message: sanitise(msg.value)    // get message text (value) from msg input field.
-// //     });
-// //     msg.value = '';         // reset the message input field for next message.
-// //   }
-// // });
-
-// // // see: https://stackoverflow.com/a/33193668/1148249
-// // let scrollingElement = (document.scrollingElement || document.body)
-// // function scrollToBottom () {
-// //   scrollingElement.scrollTop = scrollingElement.scrollHeight;
-// // }
-// `)
 
 %%raw(`
 /**
@@ -426,3 +389,160 @@ let resignOnClick = () => {
 }
 
 resignButton["pushMsg"](SetOnClick(resignOnClick))
+
+open Tea.App
+
+open Tea.Html
+
+@scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
+
+@send external floor: float => int = "Math.floor"
+
+type milliseconds = int
+type origin = string
+type destination = string
+type promoPromptOption =
+    | Queen
+    | Rook
+    | Bishop
+    | Knight
+    | Cancel
+
+type msg = 
+    | ShowPromotionPrompt(origin, destination)
+    | HidePromotionPrompt
+    | PromotionPromptClicked(promoPromptOption)
+    | ShowResult(string)
+    | UpdateClocksWithMovePayloadTime(milliseconds)
+    | DecrementTime(milliseconds)
+    | UpdateWhiteClockTitle(string)
+    | UpdateBlackClockTitle(string)
+    | StopClock
+    | HideClock
+    | ResignButtonClicked
+
+type model = {
+    isResignButtonVisible: bool,
+    userTimeAsString: string,
+    opponentTimeAsString: string,
+    userTimeAsMilli: int,
+    opponentTimeAsMilli: int,
+    userClockTitle: string,
+    opponentClockTitle: string,
+    clockStopped: bool,
+    clockHidden: bool,
+    origSquarePromotion: option<string>,
+    destSquarePromotion: option<string>,
+    isPromotionPromptVisible: bool,
+    resultText: string,
+    isResultVisible: bool,
+}
+
+let init = () => {
+  ({ 
+    isResignButtonVisible: true,
+    userTimeAsString: "0:00",
+    opponentTimeAsString: "0:00",
+    userTimeAsMilli: 0,
+    opponentTimeAsMilli: 0,
+    userClockTitle: "You",
+    opponentClockTitle: "Anon",
+    clockStopped: false,
+    clockHidden: false,
+    origSquarePromotion: None,
+    destSquarePromotion: None,
+    isPromotionPromptVisible: false,
+    resultText: "",
+    isResultVisible: false,
+  }, 
+  Tea_cmd.NoCmd)
+}
+
+let update = (model: model, msg: msg) => {
+  switch msg {
+    | ShowPromotionPrompt(orig, dest) => {
+      ({ 
+        ...model, 
+        isPromotionPromptVisible: true,
+        origSquarePromotion: Some(orig),
+        destSquarePromotion: Some(dest),
+      }, Tea_cmd.NoCmd)
+    }
+    | HidePromotionPrompt => {
+      ({ 
+        ...model, 
+        isPromotionPromptVisible: false,
+        origSquarePromotion: None,
+        destSquarePromotion: None,
+      }, Tea_cmd.NoCmd)
+    }
+    | PromotionPromptClicked(promoPromptOption) => {
+      (model, Tea_cmd.NoCmd)
+    }
+    | ShowResult(resultText) => {
+      (model, Tea_cmd.NoCmd)
+    }
+    | UpdateClocksWithMovePayloadTime(milliseconds) => {
+      (model, Tea_cmd.NoCmd)
+    }
+    | DecrementTime(milliseconds) => {
+      (model, Tea_cmd.NoCmd)
+    }
+    | UpdateWhiteClockTitle(title) => {
+      (model, Tea_cmd.NoCmd)
+    }
+    | UpdateBlackClockTitle(title) => {
+      (model, Tea_cmd.NoCmd)
+    }
+    | StopClock => {
+      (model, Tea_cmd.NoCmd)
+    }
+    | HideClock => {
+      (model, Tea_cmd.NoCmd)
+    }
+    | ResignButtonClicked => {
+      (model, Tea_cmd.NoCmd)
+    }
+  }
+}
+
+let view = (model: model): Vdom.t<msg> =>
+    div(
+        list{},
+        list{
+            div(list{}, list{
+              model.clockHidden == false ? text(model.userClockTitle ++ ": " ++model.userTimeAsString) : noNode,
+            }),
+            div(list{}, list{
+              model.clockHidden == false ? text(model.opponentClockTitle ++ ": " ++model.opponentTimeAsString) : noNode,
+            }),
+            div(list{}, list{ 
+              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Queen))}, list{text("Queen")}) : noNode,
+              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Rook))}, list{text("Rook")}) : noNode,
+              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Bishop))}, list{text("Bishop")}) : noNode,
+              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Knight))}, list{text("Knight")}) : noNode,
+              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Cancel))}, list{text("X")}) : noNode
+            }),
+            div(list{}, list{ 
+              model.isResignButtonVisible != false ? button(list{Events.onClick(ResignButtonClicked)}, list{text("Resign")}) : noNode
+            }),
+            div(
+              list{},
+              list{ 
+              model.isResultVisible != false ? text(model.resultText) : noNode,
+            })  
+        }
+    )
+
+let subscriptions = (model: model) => {
+  Tea_sub.none
+}
+
+let main = standardProgram({
+    init: init,
+    update: update,
+    view: view,
+    subscriptions: subscriptions,
+  })
+
+let roomTea = main(getElementById("room-tea"))(())

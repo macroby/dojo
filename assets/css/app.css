@@ -218,20 +218,20 @@ select {
   text-align:left
 }
 
-.column-left {
-  float: left;
+.column-lobby {
+  float: right;
   width: 75%;
   padding: 0rem 1rem;
 }
 
-.column-right {
+.column-sidebar {
   float: left;
   width: 25%;
 }
 
 .container{
   margin: 0 auto;
-  max-width: 80%;
+  max-width: 100%;
   padding: 0 2.0rem;
   position: relative;
   width: 100%

@@ -14,9 +14,9 @@ config :logger, level: :info
 
 config :dojo, Dojo.Repo,
   adapter: Ecto.Adapters.Postgres,
-    username: Map.fetch!(System.get_env(), "DB_USER"),
-    password: Map.fetch!(System.get_env(), "DB_PASS"),
-    database: Map.fetch!(System.get_env(), "DB_NAME"),
-    hostname: Map.fetch!(System.get_env(), "DB_HOST"),
+  username: Map.fetch!(System.get_env(), "DB_USER"),
+  password: Map.fetch!(System.get_env(), "DB_PASS"),
+  database: Map.fetch!(System.get_env(), "DB_NAME"),
+  hostname: Map.fetch!(System.get_env(), "DB_HOST"),
   show_sensitive_data_on_connection_error: true,
   pool_size: 10

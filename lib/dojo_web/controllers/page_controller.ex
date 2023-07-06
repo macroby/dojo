@@ -32,7 +32,9 @@ defmodule DojoWeb.PageController do
 
           {user_id, conn} =
             case Token.verify(conn, "user auth", user_token) do
-              {:ok, user_id} -> {user_id, conn}
+              {:ok, user_id} ->
+                {user_id, conn}
+
               _ ->
                 user_id = UUID.string_to_binary!(UUID.uuid1())
                 user_id = Base.url_encode64(user_id, padding: false)
