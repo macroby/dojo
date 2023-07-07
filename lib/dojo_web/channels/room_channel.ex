@@ -191,7 +191,7 @@ defmodule DojoWeb.RoomChannel do
   end
 
   def ai_move(pid, state, socket) do
-    ai_move = get_ai_move(Dojo.Game.get_fen(pid), state.difficulty)
+    ai_move = get_ai_move(state.fen, state.difficulty)
     Game.make_move(pid, ai_move)
     state = Game.get_state(pid)
     halfmove_clock = state.halfmove_clock
