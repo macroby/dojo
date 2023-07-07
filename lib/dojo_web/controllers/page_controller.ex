@@ -258,7 +258,8 @@ defmodule DojoWeb.PageController do
               black_clock: black_time_ms,
               user_token: user_token,
               game_status: game_status,
-              time_control: game_state.time_control
+              time_control: game_state.time_control,
+              halfmove_clock: game_state.halfmove_clock
             )
 
           false ->
@@ -325,7 +326,8 @@ defmodule DojoWeb.PageController do
                   black_clock: black_time_ms,
                   user_token: user_token,
                   game_status: game_status,
-                  time_control: game_state.time_control
+                  time_control: game_state.time_control,
+                  halfmove_clock: game_state.halfmove_clock
                 )
 
               false ->
@@ -409,7 +411,8 @@ defmodule DojoWeb.PageController do
       black_clock: black_time_ms,
       game_status: game_status,
       user_token: user_token,
-      time_control: game_state.time_control
+      time_control: game_state.time_control,
+      halfmove_clock: game_state.halfmove_clock
     )
   end
 

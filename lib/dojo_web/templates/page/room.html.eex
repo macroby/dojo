@@ -35,6 +35,8 @@
   const game_status = '<%= @game_status %>';
   const user_token = '<%= @user_token %>';
   const time_control = '<%= @time_control %>';
+  const halfmove_clock = '<%= @halfmove_clock %>';
+
   let clientStateObject = null;
   let clientStateJson = localStorage.getItem(window.location.pathname);
   if (clientStateJson == null) {

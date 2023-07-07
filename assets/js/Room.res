@@ -30,6 +30,7 @@ let color_res: string = %raw(`color`)
 let white_clock_res: int = %raw(`white_clock`)
 let black_clock_res: int = %raw(`black_clock`)
 let timeControl: string = %raw(`time_control`)
+let halfmove_clock_res: int = %raw(`halfmove_clock`)
 
 let fen_array: array<string> = %raw(`fen.split(' ')`)
 let fen_side_to_play: string = fen_array[1]
@@ -70,19 +71,6 @@ if (game_status !== 'continue') {
 `)
 
 let gameStatus: string = %raw(`game_status`)
-let first_move = switch gameStatus {
-| "continue" =>
-  switch fen_turn {
-  | 1 => false
-  | _ => {
-      %raw(`startClock()`)->ignore
-      true
-    }
-  }
-| _ => {
-    false
-  }
-}
 
 let promotion_dests = %raw(`get_promotions_from_dests(dests)`)
 
@@ -114,22 +102,24 @@ Phoenix.joinChannel(channel)
 
 let roomTea = RoomTea.main(getElementById("room-tea"))()
 
-roomTea["pushMsg"](Initialize(
-  %raw("fen"),
-  %raw("dests"),
-  %raw("color"),
-  %raw("game_type"),
-  %raw("invite_accepted"),
-  %raw("increment"),
-  %raw("white_clock"),
-  %raw("black_clock"),
-  %raw("game_status"),
-  %raw("user_token"),
-  %raw("time_control"),
-  side_to_play,
-  %raw("ground"),
-  %raw("channel"),
-))
+roomTea["pushMsg"](
+  Initialize(
+    %raw("fen"),
+    %raw("dests"),
+    %raw("color"),
+    %raw("game_type"),
+    %raw("invite_accepted"),
+    %raw("increment"),
+    %raw("white_clock"),
+    %raw("black_clock"),
+    %raw("game_status"),
+    %raw("user_token"),
+    %raw("time_control"),
+    side_to_play,
+    %raw("ground"),
+    %raw("channel"),
+  ),
+)
 
 // Phoenix.on(channel, "start_ping", payload => {
 //   Phoenix.push(channel, "ping")
@@ -153,6 +143,7 @@ Phoenix.on(channel, "endData", payload => {
 })
 
 Phoenix.on(channel, "move", payload => {
+  let halfmove_clock = payload["halfmove_clock"]
   %raw(`clientStateJson = localStorage.getItem(window.location.pathname)`)
   %raw(`clientStateObject = JSON.parse(clientStateJson)`)
   %raw(`clientStateObject.fen = payload.fen`)
@@ -167,12 +158,10 @@ Phoenix.on(channel, "move", payload => {
 
   %raw(`side_to_play = payload.side_to_move`)
   switch %raw(`color`) {
-  | "white" => {
-      roomTea["pushMsg"](UpdateClocksWithServerTime(payload["white_clock"], payload["black_clock"]))
-    }
-  | "black" => {
-      roomTea["pushMsg"](UpdateClocksWithServerTime(payload["black_clock"], payload["white_clock"]))
-    }
+  | "white" =>
+    roomTea["pushMsg"](UpdateClocksWithServerTime(payload["white_clock"], payload["black_clock"]))
+  | "black" =>
+    roomTea["pushMsg"](UpdateClocksWithServerTime(payload["black_clock"], payload["white_clock"]))
   | _ => failwith("Invalid side to play")
   }
   switch %raw(`payload.side_to_move`) === %raw(`color`) {
@@ -183,14 +172,11 @@ Phoenix.on(channel, "move", payload => {
       Js.log(promotion_dests)
 
       %raw(`ground.set({turnColor: payload.side_to_move, movable: {color: payload.side_to_move, dests: new_dests}})`)
-      switch %raw(`first_move`) {
-      | false => {
-          %raw(`first_move = true`)
-          %raw(`startClock()`)
-        }
-      | true => ()
-      }
     }
+  | false => ()
+  }
+  switch halfmove_clock == 2 {
+  | true => %raw(`startClock()`)
   | false => ()
   }
   %raw(`ground.playPremove()`)
@@ -247,6 +233,11 @@ let startClock = () => {
   interval->ignore
   expected->ignore
   %raw(`setTimeout(updateClock, 50, Date.now() + 50)`)
+}
+
+switch halfmove_clock_res > 1 {
+| true => %raw(`startClock()`)
+| false => ()
 }
 
 %%raw(`
