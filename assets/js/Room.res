@@ -27,8 +27,7 @@ import "phoenix_html"
 @scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
 
 let color_res: string = %raw(`color`)
-let white_clock_res: int = %raw(`white_clock`)
-let black_clock_res: int = %raw(`black_clock`)
+let game_status_res: string = %raw(`game_status`)
 let timeControl: string = %raw(`time_control`)
 let halfmove_clock_res: int = %raw(`halfmove_clock`)
 
@@ -192,7 +191,6 @@ Phoenix.on(channel, "move", payload => {
 // updated at the correct interval. Accounts for idle tab messing with
 // the setInterval() function.
 let rec updateClock = expected => {
-  let color_res = %raw(`color`)
   let side_to_play_res = %raw(`side_to_play`)
   let interval = 50
   let new_expected = expected + interval
@@ -235,7 +233,7 @@ let startClock = () => {
   %raw(`setTimeout(updateClock, 50, Date.now() + 50)`)
 }
 
-switch halfmove_clock_res > 1 {
+switch halfmove_clock_res > 1 && game_status_res === "continue" {
 | true => %raw(`startClock()`)
 | false => ()
 }

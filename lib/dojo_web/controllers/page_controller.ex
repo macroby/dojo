@@ -214,17 +214,7 @@ defmodule DojoWeb.PageController do
                 "no-cache, no-store, must-revalidate"
               )
 
-            game_status =
-              case game_state.status do
-                :continue ->
-                  "continue"
-
-                {_, _, _} ->
-                  Atom.to_string(elem(game_state.status, 1))
-
-                {_, _} ->
-                  Enum.map(Tuple.to_list(game_state.status), fn x -> Atom.to_string(x) end)
-              end
+            game_status = convertGameStatusToSingleString(game_state.status)
 
             {white_time_ms, black_time_ms} =
               case game_state.time_control do
@@ -282,17 +272,7 @@ defmodule DojoWeb.PageController do
                     "no-cache, no-store, must-revalidate"
                   )
 
-                game_status =
-                  case game_state.status do
-                    :continue ->
-                      "continue"
-
-                    {_, _, _} ->
-                      Atom.to_string(elem(game_state.status, 1))
-
-                    {_, _} ->
-                      Enum.map(Tuple.to_list(game_state.status), fn x -> Atom.to_string(x) end)
-                  end
+                game_status = convertGameStatusToSingleString(game_state.status)
 
                 {white_time_ms, black_time_ms} =
                   case game_state.time_control do
@@ -386,17 +366,7 @@ defmodule DojoWeb.PageController do
           {nil, nil}
       end
 
-    game_status =
-      case game_state.status do
-        :continue ->
-          "continue"
-
-        {_, _, _} ->
-          Atom.to_string(elem(game_state.status, 1))
-
-        {_, _} ->
-          Enum.map(Tuple.to_list(game_state.status), fn x -> Atom.to_string(x) end)
-      end
+    game_status = convertGameStatusToSingleString(game_state.status)
 
     render(conn, "room.html",
       layout: {DojoWeb.LayoutView, "room_layout.html"},
@@ -421,5 +391,39 @@ defmodule DojoWeb.PageController do
       layout: {DojoWeb.LayoutView, "room_layout.html"},
       info: "catastrophic disaster..."
     )
+  end
+
+  def convertGameStatusToSingleString(game_status) do
+    case game_status do
+      :continue ->
+        "continue"
+
+      {:winner, _, _} ->
+        Atom.to_string(elem(game_status, 1))
+
+      {:checkmate, :white_wins} ->
+        "white"
+
+      {:checkmate, :black_wins} ->
+        "black"
+
+      {:draw, :stalemate} ->
+        "stalemate"
+
+      {:draw, :insufficient_material} ->
+        "insufficient_material"
+
+      {:draw, :threefold_repetition} ->
+        "threefold_repetition"
+
+      {:draw, :rule50} ->
+        "rule50"
+
+      {:draw, _} ->
+        "draw"
+
+      {_, _} ->
+        Enum.map(Tuple.to_list(game_status), fn x -> Atom.to_string(x) end)
+    end
   end
 end

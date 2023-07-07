@@ -1,7 +1,6 @@
 defmodule DojoWeb.SetupController do
   require Logger
   alias Dojo.UserTracker
-  alias Dojo.GameFactory
   alias Dojo.GameState
   alias Dojo.Stockfish
   alias Phoenix.Token
