@@ -20,69 +20,66 @@ import {Socket} from "phoenix";
 import "phoenix_html"
 `)
 
-// 
+//
 // Initialize UI State
 //
 
 @scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
-
-let result = Result.main(getElementById("result"))(())
-let promotionPrompt = PromotionPrompt.main(getElementById("promotion_prompt"))(())
-let resignButton = ResignButton.main(getElementById("resign"))(())
 
 let color_res: string = %raw(`color`)
 let white_clock_res: int = %raw(`white_clock`)
 let black_clock_res: int = %raw(`black_clock`)
 let timeControl: string = %raw(`time_control`)
 
-let (clock, opponentClock) = (Clock.main(getElementById("clock"))(()), Clock.main(getElementById("opponent_clock"))(()))
-
-switch color_res {
-  | "white" => 
-    clock["pushMsg"](SetTimeAsMilli(white_clock_res))
-    clock["pushMsg"](SetTitle("Anon(w)"))
-    opponentClock["pushMsg"](SetTimeAsMilli(black_clock_res))
-    opponentClock["pushMsg"](SetTitle("Anon(b)"))
-  | "black" => 
-    clock["pushMsg"](SetTimeAsMilli(black_clock_res))
-    clock["pushMsg"](SetTitle("Anon(b)"))
-    opponentClock["pushMsg"](SetTimeAsMilli(white_clock_res))  
-    opponentClock["pushMsg"](SetTitle("Anon(w)"))
-  | _ => failwith("Invalid color")
-}
-
-switch timeControl {
-  | "real_time" => ()
-  | _ => {
-    clock["pushMsg"](Hide)
-    clock["pushMsg"](Stop)
-    opponentClock["pushMsg"](Hide)
-    opponentClock["pushMsg"](Stop)
-  }
-}
-
 let fen_array: array<string> = %raw(`fen.split(' ')`)
 let fen_side_to_play: string = fen_array[1]
 let fen_array_length = Js.Array.length(fen_array)
 let fen_turn: int = int_of_string(fen_array[fen_array_length - 1])
 let side_to_play = switch fen_side_to_play {
-  | "w" => "white"
-  | "b" => "black"
-  | _ => failwith("Invalid side to play")
+| "w" => "white"
+| "b" => "black"
+| _ => failwith("Invalid side to play")
 }
+
+%%raw(`
+//
+// Chessground config and Client-Side event handlers
+//
+
+dests_map = new Map(Object.entries(dests));
+const config = {
+  fen: fen,
+  orientation: color,
+  turnColor: side_to_play,
+  movable: {
+    color: color,
+    free: false,
+    dests: dests_map
+  }
+};
+
+var ground = Chessground(document.getElementById('chessground'), config);
+
+ground.set({
+  movable: {events: {after: playOtherSide}}
+});
+
+if (game_status !== 'continue') {
+  ground.stop();
+}
+`)
 
 let gameStatus: string = %raw(`game_status`)
 let first_move = switch gameStatus {
-  | "continue" => switch fen_turn {
-    | 1 => false
-    | _ => {
-        %raw(`startClock()`) -> ignore
-        true
-      }
-  }
+| "continue" =>
+  switch fen_turn {
+  | 1 => false
   | _ => {
-    result["pushMsg"](Result.SetResult(gameStatus))
-    result["pushMsg"](Result.ShowResult)
+      %raw(`startClock()`)->ignore
+      true
+    }
+  }
+| _ => {
     false
   }
 }
@@ -115,6 +112,25 @@ let roomID = %raw(`window.location.pathname`)
 let channel = Phoenix.newChannel(socket, "room:" ++ Js.String.replace("/", "", roomID), {})
 Phoenix.joinChannel(channel)
 
+let roomTea = RoomTea.main(getElementById("room-tea"))()
+
+roomTea["pushMsg"](Initialize(
+  %raw("fen"),
+  %raw("dests"),
+  %raw("color"),
+  %raw("game_type"),
+  %raw("invite_accepted"),
+  %raw("increment"),
+  %raw("white_clock"),
+  %raw("black_clock"),
+  %raw("game_status"),
+  %raw("user_token"),
+  %raw("time_control"),
+  side_to_play,
+  %raw("ground"),
+  %raw("channel"),
+))
+
 // Phoenix.on(channel, "start_ping", payload => {
 //   Phoenix.push(channel, "ping")
 // })
@@ -129,12 +145,11 @@ Phoenix.on(channel, "ack", payload => {
 })
 
 Phoenix.on(channel, "endData", payload => {
-  %raw(`ground.set({viewOnly: true})`) -> ignore
-  %raw(`ground.stop()`) -> ignore
-  clock["pushMsg"](Stop)
-  opponentClock["pushMsg"](Stop)
-  result["pushMsg"](Result.SetResult(payload["winner"]))
-  result["pushMsg"](Result.ShowResult)
+  %raw(`ground.set({viewOnly: true})`)->ignore
+  %raw(`ground.stop()`)->ignore
+
+  roomTea["pushMsg"](StopClock)
+  roomTea["pushMsg"](ShowResult(payload["winner"]))
 })
 
 Phoenix.on(channel, "move", payload => {
@@ -147,24 +162,21 @@ Phoenix.on(channel, "move", payload => {
   let dest = %raw(`payload.move.substring(2, 4)`)
   Js.log(orig) //trick the compiler
   Js.log(dest)
-  %raw(`ground.move(orig, dest)`) -> ignore
-  %raw(`ground.set({fen: payload.fen})`) -> ignore
+  %raw(`ground.move(orig, dest)`)->ignore
+  %raw(`ground.set({fen: payload.fen})`)->ignore
 
   %raw(`side_to_play = payload.side_to_move`)
   switch %raw(`color`) {
-    | "white" => {
-      clock["pushMsg"](SetTimeAsMilli(payload["white_clock"]))
-      opponentClock["pushMsg"](SetTimeAsMilli(payload["black_clock"]))
+  | "white" => {
+      roomTea["pushMsg"](UpdateClocksWithServerTime(payload["white_clock"], payload["black_clock"]))
     }
-    | "black" => {
-      clock["pushMsg"](SetTimeAsMilli(payload["black_clock"]))
-      opponentClock["pushMsg"](SetTimeAsMilli(payload["white_clock"]))
+  | "black" => {
+      roomTea["pushMsg"](UpdateClocksWithServerTime(payload["black_clock"], payload["white_clock"]))
     }
-    | _ => failwith("Invalid side to play")
+  | _ => failwith("Invalid side to play")
   }
   switch %raw(`payload.side_to_move`) === %raw(`color`) {
-    | true => {
-
+  | true => {
       let new_dests = %raw(`new Map(Object.entries(payload.dests))`)
       let promotion_dests = %raw(`get_promotions_from_dests(payload.dests)`)
       Js.log(new_dests)
@@ -172,18 +184,14 @@ Phoenix.on(channel, "move", payload => {
 
       %raw(`ground.set({turnColor: payload.side_to_move, movable: {color: payload.side_to_move, dests: new_dests}})`)
       switch %raw(`first_move`) {
-        | false => {
+      | false => {
           %raw(`first_move = true`)
           %raw(`startClock()`)
         }
-        | true => {
-          ()
-        }
+      | true => ()
       }
     }
-    | false => {
-        ()
-    }
+  | false => ()
   }
   %raw(`ground.playPremove()`)
 })
@@ -197,22 +205,21 @@ Phoenix.on(channel, "move", payload => {
 // Update clock UI. Accounts for drift and ensures that the clock is
 // updated at the correct interval. Accounts for idle tab messing with
 // the setInterval() function.
-let rec updateClock = (expected) => {
+let rec updateClock = expected => {
   let color_res = %raw(`color`)
   let side_to_play_res = %raw(`side_to_play`)
   let interval = 50
   let new_expected = expected + interval
   let dt = Belt.Float.toInt(Js.Date.now()) - expected // the drift (positive for overshooting)
 
-
   switch dt > interval {
-    | true => {
+  | true => {
       // something really bad happened. Maybe the browser (tab) was inactive?
       // possibly special handling to avoid futile "catch up" run
-      if (side_to_play === color_res) {
-        clock["pushMsg"](DecrementTimeAsMilli(dt))
+      if side_to_play === color_res {
+        roomTea["pushMsg"](DecrementUserTime(dt))
       } else {
-        opponentClock["pushMsg"](DecrementTimeAsMilli(dt))
+        roomTea["pushMsg"](DecrementOpponentTime(dt))
       }
 
       let new_expected = Belt.Float.toInt(Js.Date.now()) + interval
@@ -220,11 +227,11 @@ let rec updateClock = (expected) => {
 
       setTimeout(updateClock, Js.Math.max_int(0, interval), new_expected)
     }
-    | false => {
-      if (side_to_play_res === color_res) {
-        clock["pushMsg"](DecrementTimeAsMilli(interval))
+  | false => {
+      if side_to_play_res === color_res {
+        roomTea["pushMsg"](DecrementUserTime(interval))
       } else {
-        opponentClock["pushMsg"](DecrementTimeAsMilli(interval))
+        roomTea["pushMsg"](DecrementOpponentTime(interval))
       }
 
       setTimeout(updateClock, Js.Math.max_int(0, interval - dt), new_expected)
@@ -237,8 +244,8 @@ let startClock = () => {
   // I am keeping them here for now for reference
   let interval = 50
   let expected = %raw(`Date.now()`) + 50
-  interval -> ignore
-  expected -> ignore
+  interval->ignore
+  expected->ignore
   %raw(`setTimeout(updateClock, 50, Date.now() + 50)`)
 }
 
@@ -263,286 +270,27 @@ function sanitise(str) {
 }
 `)
 
-%%raw(`
-//
-// Chessground config and Client-Side event handlers
-//
-
-dests_map = new Map(Object.entries(dests));
-const config = {
-  fen: fen,
-  orientation: color,
-  turnColor: side_to_play,
-  movable: {
-    color: color,
-    free: false,
-    dests: dests_map
-  }
-};
-
-const ground = Chessground(document.getElementById('chessground'), config);
-
-ground.set({
-  movable: {events: {after: playOtherSide}}
-});
-
-if (game_status !== 'continue') {
-  ground.stop();
-}
-`)
-
 let playOtherSide = (orig: string, dest: string) => {
   let move: string = %raw(`sanitise(orig).concat(sanitise(dest))`)
-  Js.log(move)// hack to get the compiler to keep move in js output
-  let is_promotion_move = ref(false);
-  
+  Js.log(move) // hack to get the compiler to keep move in js output
+  let is_promotion_move = ref(false)
+
   Js.Array.forEach(promotion_dest => {
-      is_promotion_move.contents = switch (promotion_dest == (orig, dest)) {
-        | true => {
-          promotionPrompt["pushMsg"](SetOrigDest(orig, dest))
-          promotionPrompt["pushMsg"](ShowPromotionPrompt)
-          true
-        }
-        | false => is_promotion_move.contents
-      };
-    }, promotion_dests);
-  switch (is_promotion_move.contents) {
+    is_promotion_move.contents = switch promotion_dest == (orig, dest) {
     | true => {
-      ()
+        roomTea["pushMsg"](ShowPromotionPrompt(orig, dest))
+        true
+      }
+    | false => is_promotion_move.contents
     }
-    | false => {
-      %raw(`
+  }, promotion_dests)
+  switch is_promotion_move.contents {
+  | true => ()
+  | false =>
+    %raw(`
         channel.push('move', { 
           move: move,
         })
       `)
-    }
   }
 }
-
-//
-// Promotion Piece Selection UI
-//
-let onclickFunction = (orig: option<string>, dest: option<string>, promoPromptOption: PromotionPrompt.promoPromptOption) => {
-  let orig_unwrap = Belt.Option.getWithDefault(orig, "")
-  let dest_unwrap = Belt.Option.getWithDefault(dest, "")
-
-  // hack to force the compiler to keep orig_unwrap and dest_unwrap in the js output
-  Js.log(orig_unwrap)
-  Js.log(dest_unwrap)
-
-  promotionPrompt["pushMsg"](HidePromotionPrompt)
-  switch (promoPromptOption) {
-    | Cancel => {
-      %raw(`
-        ground.set({
-          fen: fen,
-          turnColor: color,
-          movable: {
-            color: color,
-            dests: dests_map
-          }
-        })
-      `) -> ignore
-      ()
-    }
-    | Queen => {
-      %raw(`
-        channel.push('move', { 
-          move: sanitise(orig_unwrap).concat(sanitise(dest_unwrap)).concat(sanitise("q")),
-        })
-      `) -> ignore
-      ()
-    }
-    | Rook => {
-      %raw(`
-        channel.push('move', { 
-          move: sanitise(orig_unwrap).concat(sanitise(dest_unwrap)).concat(sanitise("r")),
-        })
-      `) -> ignore
-      ()
-    }
-    | Bishop => {
-      %raw(`
-        channel.push('move', { 
-          move: sanitise(orig_unwrap).concat(sanitise(dest_unwrap)).concat(sanitise("b")),
-        })
-      `) -> ignore
-      ()
-    }
-    | Knight => {
-      %raw(`
-        channel.push('move', { 
-          move: sanitise(orig_unwrap).concat(sanitise(dest_unwrap)).concat(sanitise("n")),
-        })
-      `) -> ignore
-      ()
-    }
-  }
-}
-promotionPrompt["pushMsg"](SetOnClick(onclickFunction))
-
-let resignOnClick = () => {
-  %raw(`
-    channel.push('resign', {})
-  `) -> ignore
-}
-
-resignButton["pushMsg"](SetOnClick(resignOnClick))
-
-open Tea.App
-
-open Tea.Html
-
-@scope("document") external getElementById: string => Js.null_undefined<Dom.node> = "getElementById"
-
-@send external floor: float => int = "Math.floor"
-
-type milliseconds = int
-type origin = string
-type destination = string
-type promoPromptOption =
-    | Queen
-    | Rook
-    | Bishop
-    | Knight
-    | Cancel
-
-type msg = 
-    | ShowPromotionPrompt(origin, destination)
-    | HidePromotionPrompt
-    | PromotionPromptClicked(promoPromptOption)
-    | ShowResult(string)
-    | UpdateClocksWithMovePayloadTime(milliseconds)
-    | DecrementTime(milliseconds)
-    | UpdateWhiteClockTitle(string)
-    | UpdateBlackClockTitle(string)
-    | StopClock
-    | HideClock
-    | ResignButtonClicked
-
-type model = {
-    isResignButtonVisible: bool,
-    userTimeAsString: string,
-    opponentTimeAsString: string,
-    userTimeAsMilli: int,
-    opponentTimeAsMilli: int,
-    userClockTitle: string,
-    opponentClockTitle: string,
-    clockStopped: bool,
-    clockHidden: bool,
-    origSquarePromotion: option<string>,
-    destSquarePromotion: option<string>,
-    isPromotionPromptVisible: bool,
-    resultText: string,
-    isResultVisible: bool,
-}
-
-let init = () => {
-  ({ 
-    isResignButtonVisible: true,
-    userTimeAsString: "0:00",
-    opponentTimeAsString: "0:00",
-    userTimeAsMilli: 0,
-    opponentTimeAsMilli: 0,
-    userClockTitle: "You",
-    opponentClockTitle: "Anon",
-    clockStopped: false,
-    clockHidden: false,
-    origSquarePromotion: None,
-    destSquarePromotion: None,
-    isPromotionPromptVisible: false,
-    resultText: "",
-    isResultVisible: false,
-  }, 
-  Tea_cmd.NoCmd)
-}
-
-let update = (model: model, msg: msg) => {
-  switch msg {
-    | ShowPromotionPrompt(orig, dest) => {
-      ({ 
-        ...model, 
-        isPromotionPromptVisible: true,
-        origSquarePromotion: Some(orig),
-        destSquarePromotion: Some(dest),
-      }, Tea_cmd.NoCmd)
-    }
-    | HidePromotionPrompt => {
-      ({ 
-        ...model, 
-        isPromotionPromptVisible: false,
-        origSquarePromotion: None,
-        destSquarePromotion: None,
-      }, Tea_cmd.NoCmd)
-    }
-    | PromotionPromptClicked(promoPromptOption) => {
-      (model, Tea_cmd.NoCmd)
-    }
-    | ShowResult(resultText) => {
-      (model, Tea_cmd.NoCmd)
-    }
-    | UpdateClocksWithMovePayloadTime(milliseconds) => {
-      (model, Tea_cmd.NoCmd)
-    }
-    | DecrementTime(milliseconds) => {
-      (model, Tea_cmd.NoCmd)
-    }
-    | UpdateWhiteClockTitle(title) => {
-      (model, Tea_cmd.NoCmd)
-    }
-    | UpdateBlackClockTitle(title) => {
-      (model, Tea_cmd.NoCmd)
-    }
-    | StopClock => {
-      (model, Tea_cmd.NoCmd)
-    }
-    | HideClock => {
-      (model, Tea_cmd.NoCmd)
-    }
-    | ResignButtonClicked => {
-      (model, Tea_cmd.NoCmd)
-    }
-  }
-}
-
-let view = (model: model): Vdom.t<msg> =>
-    div(
-        list{},
-        list{
-            div(list{}, list{
-              model.clockHidden == false ? text(model.userClockTitle ++ ": " ++model.userTimeAsString) : noNode,
-            }),
-            div(list{}, list{
-              model.clockHidden == false ? text(model.opponentClockTitle ++ ": " ++model.opponentTimeAsString) : noNode,
-            }),
-            div(list{}, list{ 
-              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Queen))}, list{text("Queen")}) : noNode,
-              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Rook))}, list{text("Rook")}) : noNode,
-              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Bishop))}, list{text("Bishop")}) : noNode,
-              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Knight))}, list{text("Knight")}) : noNode,
-              model.isPromotionPromptVisible != false ? button(list{Events.onClick(PromotionPromptClicked(Cancel))}, list{text("X")}) : noNode
-            }),
-            div(list{}, list{ 
-              model.isResignButtonVisible != false ? button(list{Events.onClick(ResignButtonClicked)}, list{text("Resign")}) : noNode
-            }),
-            div(
-              list{},
-              list{ 
-              model.isResultVisible != false ? text(model.resultText) : noNode,
-            })  
-        }
-    )
-
-let subscriptions = (model: model) => {
-  Tea_sub.none
-}
-
-let main = standardProgram({
-    init: init,
-    update: update,
-    view: view,
-    subscriptions: subscriptions,
-  })
-
-let roomTea = main(getElementById("room-tea"))(())

@@ -128,7 +128,6 @@ defmodule Dojo.Game do
     {_, pid} = :binbo.new_server()
     :binbo.new_game(pid, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
-    # :binbo.new_game(pid)
     {_, fen} = :binbo.get_fen(pid)
 
     dests =
@@ -233,8 +232,9 @@ defmodule Dojo.Game do
           if game_status == :continue do
             state
           else
-            Dojo.Clock.stop_clock(state.clock_pid)
-            Dojo.Clock.stop_server(state.clock_pid)
+            if state.time_control == :real_time do
+              Dojo.Clock.stop_clock(state.clock_pid)
+            end
             Map.replace(state, :status, game_status)
           end
 

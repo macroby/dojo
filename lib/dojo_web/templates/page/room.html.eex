@@ -1,11 +1,5 @@
-<div id="result"></div>
-<div id="clock"></div>
-<div id="opponent_clock"></div>
-<div id="promotion_prompt"></div>
-<div id="chessground"></div>
-<div id="resign"></div>
-<br>
 <div id="room-tea"></div>
+<div id="chessground"></div>
 
 <style>
   .container{
@@ -17,17 +11,6 @@
   }
   #waiting_for_opponent {
     display: none;
-  }
-
-  #clock {
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 20px;
-  }
-
-  #opponent_clock {
-    display: inline-block;
-    vertical-align: middle;
   }
 
   #chessground {
