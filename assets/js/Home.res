@@ -134,7 +134,7 @@ let openGameButtons = (model: model) => {
   Belt.List.fromArray(openGameList)
 }
 
-let createGameModalView = (): Vdom.t<msg> => {
+let createGameModalView = (model: model): Vdom.t<msg> => {
   div(
     list{Attributes.id("createGameModal"), Attributes.class("modal")},
     list{
@@ -146,16 +146,16 @@ let createGameModalView = (): Vdom.t<msg> => {
             list{
               span(
                 list{Attributes.id("createGameClose"), Attributes.class("close")},
-                list{text("&times;")},
+                list{text("x")},
               ),
               form(
                 list{Attributes.id("create-game-form")},
                 list{
-                  label(list{Attributes.for'("variant-select")}, list{text("Variant")}),
-                  select(
-                    list{Attributes.name("variant"), Attributes.id("variant-select-create-game")},
-                    list{option(list{Attributes.value("standard")}, list{text("Standard")})},
-                  ),
+                  // label(list{Attributes.for'("variant-select")}, list{text("Variant")}),
+                  // select(
+                  //   list{Attributes.name("variant"), Attributes.id("variant-select-create-game")},
+                  //   list{option(list{Attributes.value("standard")}, list{text("Standard")})},
+                  // ),
                   label(list{Attributes.for'("time-control-select")}, list{text("Time Control")}),
                   select(
                     list{
@@ -212,7 +212,7 @@ let createGameModalView = (): Vdom.t<msg> => {
                     list{
                       Attributes.type'("hidden"),
                       Attributes.name("_csrf_token"),
-                      Attributes.value("<%= @csrf_token %>"),
+                      Attributes.value(model.csrf_token),
                     },
                     list{},
                   ),
@@ -259,7 +259,7 @@ let createGameModalView = (): Vdom.t<msg> => {
   )
 }
 
-let playWithFriendModalView = (): Vdom.t<msg> => {
+let playWithFriendModalView = (model: model): Vdom.t<msg> => {
   div(
     list{Attributes.id("playWithFriendModal"), Attributes.class("modal")},
     list{
@@ -267,8 +267,8 @@ let playWithFriendModalView = (): Vdom.t<msg> => {
         list{Attributes.class("modal-content")},
         list{
           span(
-            list{Attributes.id("playWithFriendClose"), Events.onClick(PlayWithFriend)},
-            list{text("×")},
+            list{Attributes.id("playWithFriendClose"), Attributes.class("close")},
+            list{text("x")},
           ),
           form(
             list{
@@ -277,11 +277,11 @@ let playWithFriendModalView = (): Vdom.t<msg> => {
               Attributes.method("post"),
             },
             list{
-              label(list{}, list{text("Variant")}),
-              select(
-                list{Attributes.name("variant"), Attributes.id("variant-select-with-friend")},
-                list{option(list{Attributes.value("standard")}, list{text("Standard")})},
-              ),
+              // label(list{}, list{text("Variant")}),
+              // select(
+              //   list{Attributes.name("variant"), Attributes.id("variant-select-with-friend")},
+              //   list{option(list{Attributes.value("standard")}, list{text("Standard")})},
+              // ),
               label(list{}, list{text("Time Control")}),
               select(
                 list{
@@ -331,7 +331,14 @@ let playWithFriendModalView = (): Vdom.t<msg> => {
                   ),
                 },
               ),
-              input'(list{Attributes.type'("submit"), Attributes.value("Play")}, list{}),
+              input'(
+                list{
+                  Attributes.type'("hidden"),
+                  Attributes.name("_csrf_token"),
+                  Attributes.value(model.csrf_token),
+                },
+                list{},
+              ),
               br(list{}),
               button(
                 list{
@@ -368,7 +375,7 @@ let playWithFriendModalView = (): Vdom.t<msg> => {
   )
 }
 
-let playWithComputerModalView = (): Vdom.t<msg> => {
+let playWithComputerModalView = (model: model): Vdom.t<msg> => {
   div(
     list{},
     list{
@@ -389,11 +396,11 @@ let playWithComputerModalView = (): Vdom.t<msg> => {
                   Attributes.method("post"),
                 },
                 list{
-                  label(list{}, list{text("Variant")}),
-                  select(
-                    list{Attributes.name("variant"), Attributes.id("variant-select")},
-                    list{option(list{Attributes.value("standard")}, list{text("Standard")})},
-                  ),
+                  // label(list{}, list{text("Variant")}),
+                  // select(
+                  //   list{Attributes.name("variant"), Attributes.id("variant-select")},
+                  //   list{option(list{Attributes.value("standard")}, list{text("Standard")})},
+                  // ),
                   label(list{}, list{text("Time Control")}),
                   select(
                     list{
@@ -445,6 +452,56 @@ let playWithComputerModalView = (): Vdom.t<msg> => {
                       ),
                     },
                   ),
+                  label(list{Attributes.for'("difficulty-select")}, list{text("Difficulty")}),
+                  select(
+                    list{Attributes.name("difficulty"), Attributes.id("difficulty-select-with-ai")},
+                    list{
+                      option(list{Attributes.value("1")}, list{text("1")}),
+                      option(list{Attributes.value("2")}, list{text("2")}),
+                      option(list{Attributes.value("3")}, list{text("3")}),
+                      option(list{Attributes.value("4")}, list{text("4")}),
+                      option(list{Attributes.value("5")}, list{text("5")}),
+                      option(list{Attributes.value("6")}, list{text("6")}),
+                      option(list{Attributes.value("7")}, list{text("7")}),
+                      option(list{Attributes.value("8")}, list{text("8")}),
+                    },
+                  ),
+                  input'(
+                    list{
+                      Attributes.type'("hidden"),
+                      Attributes.name("_csrf_token"),
+                      Attributes.value(model.csrf_token),
+                    },
+                    list{},
+                  ),
+                  br(list{}),
+                  button(
+                    list{
+                      Attributes.id("play-ai-as-white-submit-button"),
+                      Attributes.type'("submit"),
+                      Attributes.value("white"),
+                      Attributes.name("color"),
+                    },
+                    list{text("White")},
+                  ),
+                  button(
+                    list{
+                      Attributes.id("play-ai-as-black-submit-button"),
+                      Attributes.type'("submit"),
+                      Attributes.value("black"),
+                      Attributes.name("color"),
+                    },
+                    list{text("Black")},
+                  ),
+                  button(
+                    list{
+                      Attributes.id("play-ai-as-random-submit-button"),
+                      Attributes.type'("submit"),
+                      Attributes.value("rand"),
+                      Attributes.name("color"),
+                    },
+                    list{text("Random")},
+                  ),
                 },
               ),
             },
@@ -460,7 +517,7 @@ let view = (model: model): Vdom.t<msg> =>
     list{},
     list{
       div(
-        list{},
+        list{Attributes.class("column-sidebar")},
         list{
           button(
             list{Attributes.id("createGameBtn"), Events.onClick(CreateGame)},
@@ -476,33 +533,38 @@ let view = (model: model): Vdom.t<msg> =>
           ),
         },
       ),
-      createGameModalView(),
-      playWithFriendModalView(),
-      playWithComputerModalView(),
-      span(
-        list{Attributes.id("game_list")},
+      div(
+        list{Attributes.class("column-lobby")},
         list{
-          table(
-            list{},
+          span(
+            list{Attributes.id("game_list")},
             list{
-              thead(
+              table(
                 list{},
                 list{
-                  tr(
+                  thead(
                     list{},
                     list{
-                      th(list{}, list{text("Player")}),
-                      th(list{}, list{text("Rating")}),
-                      th(list{}, list{text("Time")}),
+                      tr(
+                        list{},
+                        list{
+                          th(list{}, list{text("Player")}),
+                          th(list{}, list{text("Rating")}),
+                          th(list{}, list{text("Time")}),
+                        },
+                      ),
                     },
                   ),
+                  tbody(list{}, openGameButtons(model)),
                 },
               ),
-              tbody(list{}, openGameButtons(model)),
             },
           ),
         },
       ),
+      createGameModalView(model),
+      playWithFriendModalView(model),
+      playWithComputerModalView(model),
     },
   )
 
