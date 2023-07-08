@@ -9,7 +9,3 @@ channel.join(); // join the channel.
 channel.on('invite_accepted', function (payload) { // listen to the 'shout' event
   location.reload(); 
 });
-
-// channel.on('cancel', function (payload) { // listen to the 'shout' event
-//   location.reload(); 
-// });

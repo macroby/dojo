@@ -7,5 +7,5 @@ let channel = socket.channel('room:' + roomID.replace('/', ''), {}); // connect 
 channel.join(); // join the channel.
 
 channel.on('cancel', function (payload) { // listen to the 'shout' event
-  location.reload(); 
+  document.location.href="/";
 });
