@@ -46,7 +46,6 @@ select {
   box-sizing: inherit;
   height: 3.8rem;
   padding: .6rem 1.0rem;
-  min-height: 6.5rem;
   width: 100%
 }
 
