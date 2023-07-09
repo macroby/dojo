@@ -21,7 +21,7 @@ let channel = Phoenix.newChannel(socket, "home:lobby", {})
 let homeTea = HomeTea.main(getElementById("home_tea"))()
 homeTea["pushMsg"](InitializeUserChannel(userChannel))
 
-Phoenix.on(userChannel, "redirect", payload => {
+Phoenix.on(userChannel, "redirect", _payload => {
   %raw(`location.href = payload.game_id`)
 })
 

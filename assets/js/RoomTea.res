@@ -565,7 +565,7 @@ let view = (model: model): Vdom.t<msg> =>
     },
   )
 
-let subscriptions = (model: model) => {
+let subscriptions = (_model: model) => {
   Tea_sub.none
 }
 
