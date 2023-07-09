@@ -1,5 +1,4 @@
 %%raw(`
-import "../css/phoenix.css"
 import "../css/app.css"
 import "phoenix_html"
 `)
