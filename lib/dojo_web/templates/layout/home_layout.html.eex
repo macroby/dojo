@@ -22,8 +22,8 @@
     <header>
       <section class="container">
         <nav role="navigation">
-          <h1 style="padding-top: 15px">
-            <a id="title_return" href='/'>shahmat.org</a>
+          <h1>
+            <a id="titleReturn" href='/'>shahmat.org</a>
           </h1>
         </nav>
       </section>

@@ -4,6 +4,11 @@ html {
   box-sizing: border-box;
 }
 
+a {
+  color: #d9d9d9;
+  text-decoration: none;
+}
+
 *,
 *:before,
 *:after {
@@ -96,7 +101,10 @@ legend {
   display: none;
 }
 
-/* home page css */
+#titleReturn {
+  font-size: 4rem;
+}
+
 #createGameBtn {
   height: 100%;
   width: 100%;
@@ -368,7 +376,8 @@ header nav a {
 /* General style */
 h1 {
   font-size: 3.6rem;
-  line-height: 1.25
+  line-height: 1.25;
+  padding-top: 15px
 }
 
 h2 {
