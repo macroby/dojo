@@ -52,10 +52,9 @@ Phoenix.on(channel, "new_game", payload => {
 Phoenix.joinChannel(userChannel)
 Phoenix.joinChannel(channel)
 
-
-// 
+//
 // Control the modals
-// 
+//
 @scope("document") external getElementById: string => 'a = "getElementById"
 @scope("document") external querySelector: string => 'a = "querySelector"
 @val external this: 'a = "this"
@@ -81,20 +80,19 @@ let timeControlSelectCreateGame = getElementById("time-control-select-create-gam
 let timeControlSelectWithFriend = getElementById("time-control-select-with-friend")
 let timeControlSelectWithAI = getElementById("time-control-select-with-ai")
 
-
 createGameSpan["onclick"] = () => createGameModal["style"]["display"] = "none"
 playWithFriendSpan["onclick"] = () => playWithFriendModal["style"]["display"] = "none"
 playWithComputerSpan["onclick"] = () => playWithComputerModal["style"]["display"] = "none"
 
 let window = %raw(`window`)
 window["onclick"] = event => {
-  if (event["target"] == createGameModal) {
+  if event["target"] == createGameModal {
     createGameModal["style"]["display"] = "none"
   }
-  if (event["target"] == playWithFriendModal) {
+  if event["target"] == playWithFriendModal {
     playWithFriendModal["style"]["display"] = "none"
   }
-  if (event["target"] == playWithComputerModal) {
+  if event["target"] == playWithComputerModal {
     playWithComputerModal["style"]["display"] = "none"
   }
 }
@@ -103,7 +101,7 @@ timeControlSelectCreateGame["onchange"] = () => {
   let timeControl = timeControlSelectCreateGame["value"]
   let timeControlRealTimeInput = getElementById("time-control-real-time-create-game")
   let timeControlCorrespondenceInput = getElementById("time-control-correspondence-create-game")
-  if (timeControl == "real time") {
+  if timeControl == "real time" {
     timeControlRealTimeInput["style"]["display"] = "block"
   } else {
     timeControlRealTimeInput["style"]["display"] = "none"
@@ -115,7 +113,7 @@ timeControlSelectWithFriend["onchange"] = () => {
   let timeControl = timeControlSelectWithFriend["value"]
   let timeControlRealTimeInput = getElementById("time-control-real-time-with-friend")
   let timeControlCorrespondenceInput = getElementById("time-control-correspondence-with-friend")
-  if (timeControl == "real time") {
+  if timeControl == "real time" {
     timeControlRealTimeInput["style"]["display"] = "block"
   } else {
     timeControlRealTimeInput["style"]["display"] = "none"
@@ -127,7 +125,7 @@ timeControlSelectWithAI["onchange"] = () => {
   let timeControl = timeControlSelectWithAI["value"]
   let timeControlRealTimeInput = getElementById("time-control-real-time-with-ai")
   let timeControlCorrespondenceInput = getElementById("time-control-correspondence-with-ai")
-  if (timeControl == "real time") {
+  if timeControl == "real time" {
     timeControlRealTimeInput["style"]["display"] = "block"
   } else {
     timeControlRealTimeInput["style"]["display"] = "none"

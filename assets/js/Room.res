@@ -143,11 +143,11 @@ Phoenix.on(channel, "endData", payload => {
 
 Phoenix.on(channel, "move", payload => {
   let halfmove_clock = payload["halfmove_clock"]
-  %raw(`clientStateJson = localStorage.getItem(window.location.pathname)`) -> ignore
-  %raw(`clientStateObject = JSON.parse(clientStateJson)`) -> ignore
-  %raw(`clientStateObject.fen = payload.fen`) -> ignore
-  %raw(`localStorage.setItem(window.location.pathname, JSON.stringify(clientStateObject))`) -> ignore
-  %raw(`fen = payload.fen`) -> ignore
+  %raw(`clientStateJson = localStorage.getItem(window.location.pathname)`)->ignore
+  %raw(`clientStateObject = JSON.parse(clientStateJson)`)->ignore
+  %raw(`clientStateObject.fen = payload.fen`)->ignore
+  %raw(`localStorage.setItem(window.location.pathname, JSON.stringify(clientStateObject))`)->ignore
+  %raw(`fen = payload.fen`)->ignore
   let orig = %raw(`payload.move.substring(0, 2)`)
   let dest = %raw(`payload.move.substring(2, 4)`)
   Js.log(orig) //trick the compiler
@@ -155,7 +155,7 @@ Phoenix.on(channel, "move", payload => {
   %raw(`ground.move(orig, dest)`)->ignore
   %raw(`ground.set({fen: payload.fen})`)->ignore
 
-  %raw(`side_to_play = payload.side_to_move`) -> ignore
+  %raw(`side_to_play = payload.side_to_move`)->ignore
   switch %raw(`color`) {
   | "white" =>
     roomTea["pushMsg"](UpdateClocksWithServerTime(payload["white_clock"], payload["black_clock"]))
