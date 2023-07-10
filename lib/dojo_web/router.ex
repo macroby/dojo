@@ -22,6 +22,8 @@ defmodule DojoWeb.Router do
     get("/", PageController, :index)
     get("/:gameid", PageController, :room)
     get("/ping", PageController, :ping)
+
+    resources("/users", UserController, only: [:new, :create])
   end
 
   scope "/", DojoWeb do
