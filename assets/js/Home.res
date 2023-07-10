@@ -84,6 +84,8 @@ createGameSpan["onclick"] = () => createGameModal["style"]["display"] = "none"
 playWithFriendSpan["onclick"] = () => playWithFriendModal["style"]["display"] = "none"
 playWithComputerSpan["onclick"] = () => playWithComputerModal["style"]["display"] = "none"
 
+
+// close the modal if the user clicks outside of it
 let window = %raw(`window`)
 window["onclick"] = event => {
   if event["target"] == createGameModal {

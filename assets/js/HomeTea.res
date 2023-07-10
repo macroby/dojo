@@ -44,6 +44,7 @@ let init = () => (
 
 let update = (model: model, msg: msg) =>
   switch msg {
+  // TODO: move modal opening to view
   | CreateGame => {
       let createGameModal = %raw(`document.getElementById("createGameModal")`)
       void(createGameModal)
