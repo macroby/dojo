@@ -1,25 +1,39 @@
 <div id="room-tea"></div>
-<div id="chessground"></div>
+<div id="chessgroud-container">
+  <div id="chessground"></div>
+</div>
 
 <style>
-  .container{
-    margin: 0 auto;
-    max-width: 80rem;
-    padding: 0 2.0rem;
-    position: relative;
-    width: 100%
+  #side-bar {
+    padding-right: 20%;
+    float: right;
   }
+
   #waiting_for_opponent {
     display: none;
   }
 
+  #chessgroud-container {
+    width: 70rem;
+    height: 70rem;
+    margin: 0 auto;
+  }
+
   #chessground {
-    width: 500px;
-    height: 500px;
+    width: 100%;
+    height: 100%;
   }
 
   cg-board {
     background-color: #bfcfdd;
+  }
+
+  @media (max-width: 1000px) {
+    #side-bar {
+      float: unset;
+      width: 70rem;
+      margin: 0 auto;
+    }
   }
 </style>
 

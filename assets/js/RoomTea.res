@@ -230,7 +230,21 @@ let update = (model: model, msg: msg) => {
       }
       (model, Tea_cmd.msg(HidePromotionPrompt))
     }
-  | ShowResult(resultText) => ({...model, resultText, isResultVisible: true}, Tea_cmd.NoCmd)
+  | ShowResult(result) => switch result {
+    | "black" => {
+        let resultText = "Black wins"
+        ({...model, resultText, isResultVisible: true}, Tea_cmd.NoCmd)
+      }
+    | "white" => {
+        let resultText = "White wins"
+        ({...model, resultText, isResultVisible: true}, Tea_cmd.NoCmd)
+      }
+    | "draw" => {
+        let resultText = "Draw"
+        ({...model, resultText, isResultVisible: true}, Tea_cmd.NoCmd)
+      }
+    | other => ({...model, resultText: other, isResultVisible: true}, Tea_cmd.NoCmd)
+    }
   | UpdateClocksWithServerTime(userMilliseconds, opponentMilliseconds) =>
     switch model.clockStopped {
     | true => (model, Tea_cmd.none)
@@ -515,7 +529,7 @@ let update = (model: model, msg: msg) => {
 
 let view = (model: model): Vdom.t<msg> =>
   div(
-    list{},
+    list{Attributes.id("side-bar")},
     list{
       div(
         list{},
