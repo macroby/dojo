@@ -21,7 +21,7 @@ let homeTea = HomeTea.main(getElementById("home_tea"))()
 homeTea["pushMsg"](InitializeUserChannel(userChannel))
 
 Phoenix.on(userChannel, "redirect", payload => {
-  ignore(payload)
+  void(payload) // keep the compiler happy
   %raw(`location.href = payload.game_id`)
 })
 

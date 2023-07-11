@@ -86,7 +86,9 @@ defmodule DojoWeb.PageController do
       |> Jason.encode!()
 
     render(conn, "home.html",
-      layout: {DojoWeb.LayoutView, "home_layout.html"},
+      layout: {DojoWeb.LayoutView, "base_layout.html"},
+      css_path: Routes.static_path(conn, "/assets/Home.bs.css"),
+      js_path: Routes.static_path(conn, "/assets/Home.bs.js"),
       csrf_token: csrf_token,
       user_token: user_token,
       user_id: user_id,
@@ -108,8 +110,7 @@ defmodule DojoWeb.PageController do
   def accept(conn, %{"gameid" => game_id}) do
     case Registry.lookup(GameRegistry, game_id) do
       [] ->
-        info = game_id
-        render(conn, "room_error.html", info: info)
+        render_room_error(conn)
 
       [{pid, _}] ->
         game_state = Dojo.Game.get_state(pid)
@@ -164,7 +165,9 @@ defmodule DojoWeb.PageController do
   def login(conn, _payload) do
     conn
     |> render("login.html",
-    layout: {DojoWeb.LayoutView, "login_layout.html"}
+    layout: {DojoWeb.LayoutView, "base_layout.html",
+    css_path: Routes.static_path(conn, "/assets/login.css"),
+    js_path: Routes.static_path(conn, "/assets/login.js")}
   )
   end
 
@@ -243,7 +246,9 @@ defmodule DojoWeb.PageController do
               end
 
             render(conn, "room.html",
-              layout: {DojoWeb.LayoutView, "room_layout.html"},
+              layout: {DojoWeb.LayoutView, "base_layout.html"},
+              css_path: Routes.static_path(conn, "/assets/Room.bs.css"),
+              js_path: Routes.static_path(conn, "/assets/Room.bs.js"),
               fen: game_state.fen,
               color: color,
               game_type: game_state.game_type,
@@ -301,7 +306,9 @@ defmodule DojoWeb.PageController do
                   end
 
                 render(conn, "room.html",
-                  layout: {DojoWeb.LayoutView, "room_layout.html"},
+                  layout: {DojoWeb.LayoutView, "base_layout.html"},
+                  css_path: Routes.static_path(conn, "/assets/Room.bs.css"),
+                  js_path: Routes.static_path(conn, "/assets/Room.bs.js"),
                   fen: game_state.fen,
                   color: color,
                   game_type: game_state.game_type,
@@ -331,14 +338,18 @@ defmodule DojoWeb.PageController do
             case game_state.white_user_id == user_id or game_state.black_user_id == user_id do
               true ->
                 render(conn, "friend_pending.html",
-                  layout: {DojoWeb.LayoutView, "friend_pending_layout.html"},
+                  layout: {DojoWeb.LayoutView, "base_layout.html"},
+                  css_path: Routes.static_path(conn, "/assets/friend_pending.css"),
+                  js_path: Routes.static_path(conn, "/assets/friend_pending.js"),
                   user_token: user_token,
                   game_id: game_state.game_id
                 )
 
               false ->
                 render(conn, "friend_invite.html",
-                  layout: {DojoWeb.LayoutView, "friend_invite_layout.html"},
+                  layout: {DojoWeb.LayoutView, "base_layout.html"},
+                  css_path: Routes.static_path(conn, "/assets/friend_invite.css"),
+                  js_path: Routes.static_path(conn, "/assets/friend_invite.js"),
                   user_token: user_token,
                   game_id: game_state.game_id
                 )
@@ -376,7 +387,9 @@ defmodule DojoWeb.PageController do
     game_status = convertGameStatusToSingleString(game_state.status)
 
     render(conn, "room.html",
-      layout: {DojoWeb.LayoutView, "room_layout.html"},
+      layout: {DojoWeb.LayoutView, "base_layout.html"},
+      css_path: Routes.static_path(conn, "/assets/Room.bs.css"),
+      js_path: Routes.static_path(conn, "/assets/Room.bs.js"),
       fen: game_state.fen,
       color: game_state.color,
       game_type: game_state.game_type,
@@ -395,7 +408,9 @@ defmodule DojoWeb.PageController do
 
   def render_room_error(conn) do
     render(conn, "room_error.html",
-      layout: {DojoWeb.LayoutView, "room_layout.html"},
+      layout: {DojoWeb.LayoutView, "base_layout.html"},
+      css_path: Routes.static_path(conn, "/assets/Room.bs.css"),
+      js_path: Routes.static_path(conn, "/assets/Room.bs.js"),
       info: "catastrophic disaster..."
     )
   end
