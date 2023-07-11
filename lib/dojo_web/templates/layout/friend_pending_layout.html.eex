@@ -17,16 +17,16 @@
     <title>shahmat.org</title>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/assets/friend_pending.css") %>"/>
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/assets/friend_pending.js") %>"></script>
-
   </head>
   <body>
     <header>
       <section class="container">
         <nav role="navigation">
-          <h1 style="padding-top: 15px">
+          <h1>
             <a id="title_return" href='/'>shahmat.org</a>
           </h1>
         </nav>
+        <a href='/login' class="sign-in">Sign In</a>
       </section>
     </header>
     <main role="main" class="container">
@@ -34,11 +34,5 @@
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
       <%= @inner_content %>
     </main>
-    <style>
-      a {
-        color: #d9d9d9;
-        text-decoration: none;
-      }
-    </style>
   </body>
 </html>

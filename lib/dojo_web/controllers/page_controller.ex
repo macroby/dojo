@@ -161,6 +161,13 @@ defmodule DojoWeb.PageController do
     end
   end
 
+  def login(conn, _payload) do
+    conn
+    |> render("login.html",
+    layout: {DojoWeb.LayoutView, "login_layout.html"}
+  )
+  end
+
   def room(conn, %{"gameid" => url_game_id}) do
     pid =
       case Registry.lookup(GameRegistry, url_game_id) do

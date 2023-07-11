@@ -148,11 +148,6 @@ let createGameModalView = (model: model): Vdom.t<msg> => {
               form(
                 list{Attributes.id("create-game-form")},
                 list{
-                  // label(list{Attributes.for'("variant-select")}, list{text("Variant")}),
-                  // select(
-                  //   list{Attributes.name("variant"), Attributes.id("variant-select-create-game")},
-                  //   list{option(list{Attributes.value("standard")}, list{text("Standard")})},
-                  // ),
                   label(list{Attributes.for'("time-control-select")}, list{text("Time Control")}),
                   select(
                     list{
@@ -274,11 +269,6 @@ let playWithFriendModalView = (model: model): Vdom.t<msg> => {
               Attributes.method("post"),
             },
             list{
-              // label(list{}, list{text("Variant")}),
-              // select(
-              //   list{Attributes.name("variant"), Attributes.id("variant-select-with-friend")},
-              //   list{option(list{Attributes.value("standard")}, list{text("Standard")})},
-              // ),
               label(list{}, list{text("Time Control")}),
               select(
                 list{
@@ -393,11 +383,6 @@ let playWithComputerModalView = (model: model): Vdom.t<msg> => {
                   Attributes.method("post"),
                 },
                 list{
-                  // label(list{}, list{text("Variant")}),
-                  // select(
-                  //   list{Attributes.name("variant"), Attributes.id("variant-select")},
-                  //   list{option(list{Attributes.value("standard")}, list{text("Standard")})},
-                  // ),
                   label(list{}, list{text("Time Control")}),
                   select(
                     list{
