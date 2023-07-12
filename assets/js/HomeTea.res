@@ -513,6 +513,15 @@ let view = (model: model): Vdom.t<msg> =>
             list{Attributes.id("playWithComputerBtn"), Events.onClick(PlayWithComputer)},
             list{text("Play With Computer")},
           ),
+          div(
+            list{Attributes.class("column-sidebar-bottom")},
+            list{
+              a(
+                list{Attributes.href("https://github.com/macroby/dojo")},
+                list{
+                  text("Source Code"),
+                })},
+          ),
         },
       ),
       div(
