@@ -104,25 +104,6 @@ defmodule Dojo.Game do
   # Server Implemention #
   #######################
 
-  # remove this struct since game state is now modeled in GameState module
-  defstruct [
-    :game_id,
-    :board_pid,
-    :color,
-    :fen,
-    :dests,
-    :halfmove_clock,
-    :status,
-    :time_control,
-    :minutes,
-    :increment,
-    :clock_pid,
-    :white_time_ms,
-    :black_time_ms,
-    :difficulty,
-    :status
-  ]
-
   @impl true
   def init(config = %GameState{}) do
     {_, pid} = :binbo.new_server()
@@ -189,6 +170,7 @@ defmodule Dojo.Game do
             :real_time ->
               cond do
                 game_status != :continue ->
+                  _ = :timer.send_interval(60000, self(), :shutdown)
                   Dojo.Clock.stop_clock(state.clock_pid)
                   clock_state = Dojo.Clock.get_clock_state(state.clock_pid)
                   state = Map.replace(state, :white_time_ms, clock_state.white_time_milli)
@@ -235,6 +217,7 @@ defmodule Dojo.Game do
             if state.time_control == :real_time do
               Dojo.Clock.stop_clock(state.clock_pid)
             end
+
             Map.replace(state, :status, game_status)
           end
 
@@ -322,8 +305,7 @@ defmodule Dojo.Game do
 
   @impl true
   def handle_call(:cancel, _from, state) do
-    Registry.unregister(GameRegistry, state.game_id)
-    {:reply, :ok, state}
+    {:stop, :normal, state}
   end
 
   @impl true
@@ -354,6 +336,8 @@ defmodule Dojo.Game do
       end
 
     state = Map.replace(state, :status, status)
+
+    _ = :timer.send_interval(60000, self(), :shutdown)
     {:reply, :ok, state}
   end
 
@@ -385,7 +369,6 @@ defmodule Dojo.Game do
       winner: elem(state.status, 1)
     }
 
-    # Dojo.UserTracker.remove_active_user(state.white_user_id)
     case state.black_user_id do
       nil -> nil
       _ -> Dojo.UserTracker.remove_active_user(state.black_user_id)
@@ -398,6 +381,13 @@ defmodule Dojo.Game do
 
     DojoWeb.Endpoint.broadcast("room:" <> state.game_id, "endData", payload)
 
+    _ = :timer.send_interval(60000, self(), :shutdown)
+
     {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_info(:shutdown, state) do
+    {:stop, :normal, state}
   end
 end

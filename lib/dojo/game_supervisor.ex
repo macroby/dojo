@@ -15,7 +15,11 @@ defmodule Dojo.GameSupervisor do
   def start_game(game = %GameState{}) do
     DynamicSupervisor.start_child(
       __MODULE__,
-      {Game, game}
+      %{
+        id: game.game_id,
+        start: {Game, :start_link, [game]},
+        restart: :transient
+      }
     )
     |> case do
       {:error, {:already_started, pid}} -> pid

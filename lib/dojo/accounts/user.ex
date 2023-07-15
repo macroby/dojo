@@ -3,9 +3,9 @@ defmodule Dojo.Accounts.User do
   import Ecto.Changeset
 
   schema "users" do
-    field :email, :string
-    field :encrypted_password, :string
-    field :username, :string
+    field(:email, :string)
+    field(:encrypted_password, :string)
+    field(:username, :string)
 
     timestamps()
   end

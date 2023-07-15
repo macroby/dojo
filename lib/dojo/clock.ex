@@ -34,7 +34,6 @@ defmodule Dojo.Clock do
     GenServer.stop(p_name)
   end
 
-
   #######################
   # Server Implemention #
   #######################

@@ -518,9 +518,9 @@ let view = (model: model): Vdom.t<msg> =>
             list{
               a(
                 list{Attributes.href("https://github.com/macroby/dojo")},
-                list{
-                  text("Source Code"),
-                })},
+                list{text("Source Code")},
+              ),
+            },
           ),
         },
       ),

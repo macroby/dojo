@@ -110,14 +110,14 @@ defmodule DojoWeb.PageController do
   def accept(conn, %{"gameid" => game_id}) do
     case Registry.lookup(GameRegistry, game_id) do
       [] ->
-        render_room_error(conn)
+        render_room_not_found(conn)
 
       [{pid, _}] ->
         game_state = Dojo.Game.get_state(pid)
 
         case game_state.invite_accepted do
           true ->
-            render_room_error(conn)
+            render_room_not_found(conn)
 
           false ->
             user_token = get_session(conn, :user_token)
@@ -130,7 +130,7 @@ defmodule DojoWeb.PageController do
 
             case game_state.white_user_id == user_id or game_state.black_user_id == user_id do
               true ->
-                render_room_error(conn)
+                render_room_not_found(conn)
 
               false ->
                 case {game_state.white_user_id, game_state.black_user_id} do
@@ -165,50 +165,46 @@ defmodule DojoWeb.PageController do
   def login(conn, _payload) do
     conn
     |> render("login.html",
-    layout: {DojoWeb.LayoutView, "base_layout.html",
-    css_path: Routes.static_path(conn, "/assets/login.css"),
-    js_path: Routes.static_path(conn, "/assets/login.js")}
-  )
+      layout: {DojoWeb.LayoutView, "base_layout.html"},
+      css_path: Routes.static_path(conn, "/assets/login.css"),
+      js_path: Routes.static_path(conn, "/assets/login.js")
+    )
   end
 
   def room(conn, %{"gameid" => url_game_id}) do
-    pid =
-      case Registry.lookup(GameRegistry, url_game_id) do
-        [] ->
-          render_room_error(conn)
-          raise "Game not found"
+    case Registry.lookup(GameRegistry, url_game_id) do
+      [] ->
+        render_room_not_found(conn)
 
-        [{pid, _}] ->
-          pid
-      end
+      [{pid, _}] ->
+        game_state = Dojo.Game.get_state(pid)
 
-    game_state = Dojo.Game.get_state(pid)
+        {conn, user_token} =
+          case get_session(conn, :user_token) do
+            nil ->
+              user_id = UUID.string_to_binary!(UUID.uuid1())
+              user_id = Base.url_encode64(user_id, padding: false)
 
-    {conn, user_token} =
-      case get_session(conn, :user_token) do
-        nil ->
-          user_id = UUID.string_to_binary!(UUID.uuid1())
-          user_id = Base.url_encode64(user_id, padding: false)
+              token = Token.sign(conn, "user auth", user_id)
+              conn = put_session(conn, :user_token, token)
+              {conn, token}
 
-          token = Token.sign(conn, "user auth", user_id)
-          conn = put_session(conn, :user_token, token)
-          {conn, token}
+            user_token ->
+              {conn, user_token}
+          end
 
-        user_token ->
-          {conn, user_token}
-      end
+        conn = fetch_cookies(conn)
 
-    conn = fetch_cookies(conn)
+        case game_state.game_type do
+          :friend ->
+            handle_friend_room(conn, game_state, user_token)
 
-    case game_state.game_type do
-      :friend ->
-        handle_friend_room(conn, game_state, user_token)
+          :ai ->
+            handle_ai_room(conn, game_state, user_token)
 
-      :ai ->
-        handle_ai_room(conn, game_state, user_token)
-
-      :open ->
-        handle_open_room(conn, game_state, user_token)
+          :open ->
+            handle_open_room(conn, game_state, user_token)
+        end
     end
   end
 
@@ -406,12 +402,12 @@ defmodule DojoWeb.PageController do
     )
   end
 
-  def render_room_error(conn) do
+  def render_room_not_found(conn) do
     render(conn, "room_error.html",
       layout: {DojoWeb.LayoutView, "base_layout.html"},
       css_path: Routes.static_path(conn, "/assets/Room.bs.css"),
       js_path: Routes.static_path(conn, "/assets/Room.bs.js"),
-      info: "catastrophic disaster..."
+      info: "There seems to be nothing here..."
     )
   end
 

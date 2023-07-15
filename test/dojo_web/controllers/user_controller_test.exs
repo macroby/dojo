@@ -3,8 +3,16 @@ defmodule DojoWeb.UserControllerTest do
 
   import Dojo.AccountsFixtures
 
-  @create_attrs %{email: "some email", encrypted_password: "some encrypted_password", username: "some username"}
-  @update_attrs %{email: "some updated email", encrypted_password: "some updated encrypted_password", username: "some updated username"}
+  @create_attrs %{
+    email: "some email",
+    encrypted_password: "some encrypted_password",
+    username: "some username"
+  }
+  @update_attrs %{
+    email: "some updated email",
+    encrypted_password: "some updated encrypted_password",
+    username: "some updated username"
+  }
   @invalid_attrs %{email: nil, encrypted_password: nil, username: nil}
 
   describe "index" do
@@ -71,9 +79,9 @@ defmodule DojoWeb.UserControllerTest do
       conn = delete(conn, Routes.user_path(conn, :delete, user))
       assert redirected_to(conn) == Routes.user_path(conn, :index)
 
-      assert_error_sent 404, fn ->
+      assert_error_sent(404, fn ->
         get(conn, Routes.user_path(conn, :show, user))
-      end
+      end)
     end
   end
 
