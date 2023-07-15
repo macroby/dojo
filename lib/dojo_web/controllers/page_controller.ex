@@ -101,7 +101,7 @@ defmodule DojoWeb.PageController do
          true <- Game.get_halfmove_clock(pid) < 2 do
       {_, user_id} = Token.verify(conn, "user auth", get_session(conn, :user_token))
       Dojo.UserTracker.remove_active_user(user_id)
-      Game.cancel(pid, game_id)
+      Game.stop(pid)
       DojoWeb.Endpoint.broadcast!("room:" <> game_id, "cancel", %{})
       redirect(conn, to: Routes.page_path(conn, :index))
     end
