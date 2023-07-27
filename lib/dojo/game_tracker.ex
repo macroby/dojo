@@ -21,6 +21,14 @@ defmodule Dojo.GameTracker do
     GenServer.call(__MODULE__, {:remove_open_game, game_id})
   end
 
+  def get_open_game(game_id) do
+    GenServer.call(__MODULE__, {:get_open_game, game_id})
+  end
+
+  def has_open_game(game_id) do
+    GenServer.call(__MODULE__, {:has_open_game, game_id})
+  end
+
   def get_open_games do
     GenServer.call(__MODULE__, :get_open_games)
   end
@@ -50,6 +58,14 @@ defmodule Dojo.GameTracker do
     state = %{state | open_games: open_games}
 
     {:reply, :ok, state}
+  end
+
+  def handle_call({:get_open_game, game_id}, _from, state) do
+    {:reply, Map.get(state.open_games, game_id), state}
+  end
+
+  def handle_call({:has_open_game, game_id}, _from, state) do
+    {:reply, Map.has_key?(state.open_games, game_id), state}
   end
 
   def handle_call(:get_open_games, _from, state) do
