@@ -34,6 +34,10 @@ defmodule Dojo.Game do
     GenServer.call(p_name, :get_state)
   end
 
+  def get_game_id(p_name) do
+    GenServer.call(p_name, :get_game_id)
+  end
+
   def get_fen(p_name) do
     GenServer.call(p_name, :get_fen)
   end
@@ -231,6 +235,11 @@ defmodule Dojo.Game do
   def handle_call(:get_fen, _from, state) do
     {_, fen} = :binbo.get_fen(state.board_pid)
     {:reply, fen, state}
+  end
+
+  @impl true
+  def handle_call(:get_game_id, _from, state) do
+    {:reply, state.game_id, state}
   end
 
   @impl true

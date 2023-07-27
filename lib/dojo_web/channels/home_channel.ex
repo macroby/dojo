@@ -101,8 +101,27 @@ defmodule DojoWeb.HomeChannel do
     {:noreply, socket}
   end
 
-  # Add authorization logic here as required.
-  # defp authorized?(_payload) do
-  #   true
-  # end
+  @impl true
+  def terminate(_reason, socket) do
+    case Dojo.UserTracker.get_active_user(socket.assigns.user_id) do
+      nil ->
+        nil
+
+      active_user ->
+        case socket.topic == "home:lobby" do
+          false ->
+            nil
+
+          true ->
+            game_id = Dojo.Game.get_game_id(active_user.game_pid)
+            Dojo.Game.stop(active_user.game_pid)
+            Dojo.GameTracker.remove_open_game(game_id)
+            Dojo.UserTracker.remove_active_user(socket.assigns.user_id)
+
+            DojoWeb.Endpoint.broadcast("home:lobby", "closed_game", %{
+              "game_id" => game_id
+            })
+        end
+    end
+  end
 end
