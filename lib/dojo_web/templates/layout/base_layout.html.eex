@@ -26,7 +26,6 @@
             <a id="titleReturn" href='/'>shahmat.org</a>
           </h1>
         </nav>
-        <a href='/login' class="sign-in">Sign In</a>
       </section>
     </header>
     <main role="main" class="container">
