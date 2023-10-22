@@ -8,7 +8,7 @@ defmodule Dojo.GameState do
     :white_user_id,
     :black_user_id,
     :fen,
-    :dests,
+    :moves,
     :halfmove_clock,
     :status,
     :time_control,
@@ -17,7 +17,6 @@ defmodule Dojo.GameState do
     :clock_pid,
     :white_time_ms,
     :black_time_ms,
-    :difficulty,
-    :status
+    :difficulty
   ]
 end

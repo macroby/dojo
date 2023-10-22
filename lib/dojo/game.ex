@@ -115,7 +115,7 @@ defmodule Dojo.Game do
 
     {_, fen} = :binbo.get_fen(pid)
 
-    dests =
+    moves =
       case :binbo.all_legal_moves(pid, :str) do
         {:error, reason} -> raise reason
         {:ok, movelist} -> movelist
@@ -145,7 +145,7 @@ defmodule Dojo.Game do
        white_user_id: config.white_user_id,
        black_user_id: config.black_user_id,
        fen: fen,
-       dests: dests,
+       moves: moves,
        halfmove_clock: 0,
        time_control: config.time_control,
        minutes: config.minutes,
@@ -203,14 +203,14 @@ defmodule Dojo.Game do
               state
           end
 
-        dests =
+        moves =
           case :binbo.all_legal_moves(state.board_pid, :str) do
             {:error, reason} -> raise reason
             {:ok, movelist} -> movelist
           end
 
         state = Map.replace(state, :fen, fen)
-        state = Map.replace(state, :dests, dests)
+        state = Map.replace(state, :moves, moves)
         state = Map.replace(state, :halfmove_clock, halfmove_clock)
 
         # set game status to :done if game is over
