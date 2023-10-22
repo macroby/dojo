@@ -11,5 +11,3 @@ Guest PvP
 Guest PvComp
 
 Guest PvP friend challenge
-
-WIP
