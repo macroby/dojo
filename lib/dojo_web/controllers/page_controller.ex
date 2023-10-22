@@ -220,7 +220,7 @@ defmodule DojoWeb.PageController do
                 "no-cache, no-store, must-revalidate"
               )
 
-            game_status = convertGameStatusToSingleString(game_state.status)
+            game_status = gameStatusToString(game_state.status)
 
             {white_time_ms, black_time_ms} =
               case game_state.time_control do
@@ -280,7 +280,7 @@ defmodule DojoWeb.PageController do
                     "no-cache, no-store, must-revalidate"
                   )
 
-                game_status = convertGameStatusToSingleString(game_state.status)
+                game_status = gameStatusToString(game_state.status)
 
                 {white_time_ms, black_time_ms} =
                   case game_state.time_control do
@@ -380,7 +380,7 @@ defmodule DojoWeb.PageController do
           {nil, nil}
       end
 
-    game_status = convertGameStatusToSingleString(game_state.status)
+    game_status = gameStatusToString(game_state.status)
 
     render(conn, "room.html",
       layout: {DojoWeb.LayoutView, "base_layout.html"},
@@ -411,7 +411,7 @@ defmodule DojoWeb.PageController do
     )
   end
 
-  def convertGameStatusToSingleString(game_status) do
+  def gameStatusToString(game_status) do
     case game_status do
       :continue ->
         "continue"
