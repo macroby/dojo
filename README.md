@@ -2,7 +2,7 @@
 
 The server is deployed at shahmat.org
 
-Phoenix app with a js/rescript-tea frontend
+Phoenix app with a js/rescript-tea client
 
 ## Features:
 
