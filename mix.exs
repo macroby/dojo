@@ -42,7 +42,7 @@ defmodule Dojo.Mixfile do
     [
       {:phoenix, "~> 1.6.4"},
       {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.9.0"},
+      {:ecto_sql, "~> 3.11.1"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
